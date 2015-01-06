@@ -2,9 +2,8 @@
 
 **WORK IN PROGRESS - NOT YET READY**
 
-Inspired by [mongorito](http://mongorito.com/), 
-**robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
-simple yet effective ODM library for MongoDB.
+**Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
+simple yet effective ODM library for MongoDB. _Inspired by [mongorito](http://mongorito.com/)_.
 
 ## Building
 

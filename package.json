@@ -4,7 +4,7 @@
   "description": "Flexible MongoDB ODM for Node.js built on Monk",
   "main": "index.js",
   "scripts": {
-    "test": "gulp"
+    "test": "node --harmony node_modules/.bin/gulp"
   },
   "repository": {
     "type": "git",
@@ -24,13 +24,15 @@
     "url": "https://github.com/hiddentao/robe/issues"
   },
   "devDependencies": {
-    "run-sequence": "~0.3.6",
-    "gulp-mocha": "~0.4.1",
-    "gulp-jshint": "~1.6.3",
+    "chai": "^1.10.0",
+    "co-mocha": "^1.1.0",
     "gulp": "~3.8.1",
-    "chai": "~1.9.1",
-    "sinon": "~1.10.2",
-    "sinon-chai": "~2.5.0"
+    "gulp-jshint": "~1.6.3",
+    "gulp-mocha": "~0.4.1",
+    "mocha": "^2.1.0",
+    "run-sequence": "~0.3.6",
+    "sinon": "^1.12.2",
+    "sinon-chai": "^2.6.0"
   },
   "homepage": "https://github.com/hiddentao/robe",
   "dependencies": {

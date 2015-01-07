@@ -28,7 +28,7 @@
 
 
     // ECMAScript
-    "esnext"        : false,   // Using ES6
+    "esnext"        : true,   // Using ES6
     "noyield"       : true,   // allow generators with no yields  
     "strict"        : true,  // Require `use strict` pragma  in every file.
     "globalstrict"  : false,  // Allow global "use strict" (also enables 'strict').

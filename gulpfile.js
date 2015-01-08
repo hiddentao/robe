@@ -6,15 +6,6 @@ var mocha = require('gulp-mocha');
 var runSequence = require('run-sequence');
 
 
-gulp.task('jshint', function() {
-  return gulp.src('./lib/*.js')
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'))
-    .pipe(jshint.reporter('fail'))
-  ;
-});
-
-
 gulp.task('test', function () {
   return gulp.src('./test/*.test.js', { read: false })
       .pipe(mocha({
@@ -26,7 +17,7 @@ gulp.task('test', function () {
 
 
 gulp.task('default', function(cb) {
-  runSequence('jshint', 'test', cb);
+  runSequence('test', cb);
 });
 
 

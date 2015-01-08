@@ -27,7 +27,6 @@
     "chai": "^1.10.0",
     "co-mocha": "^1.1.0",
     "gulp": "~3.8.1",
-    "gulp-jshint": "~1.6.3",
     "gulp-mocha": "~0.4.1",
     "mocha": "^2.1.0",
     "run-sequence": "~0.3.6",

@@ -8,4 +8,4 @@ var _ = require('lodash');
 _.mixin(require("lodash-deep"));
 
 
-module.exports = require('./lib/robe');
+module.exports = require('./lib/manager');

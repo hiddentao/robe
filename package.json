@@ -38,8 +38,11 @@
   "dependencies": {
     "6to5": "^2.6.0",
     "bluebird": "^2.6.0",
+    "class-extend": "^0.1.1",
+    "debug": "^2.1.1",
     "lodash": "^2.4.1",
     "lodash-deep": "^1.5.3",
-    "monk": "^0.9.1"
+    "monk": "^0.9.1",
+    "simple-mongo-schema": "^0.4.0"
   }
 }

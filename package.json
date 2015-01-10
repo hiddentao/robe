@@ -39,6 +39,7 @@
     "bluebird": "^2.6.0",
     "class-extend": "^0.1.1",
     "debug": "^2.1.1",
+    "generator-compose": "^0.1.0",
     "lodash": "^2.4.1",
     "lodash-deep": "^1.5.3",
     "monk": "^0.9.1",

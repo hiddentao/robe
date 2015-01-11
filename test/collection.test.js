@@ -40,9 +40,30 @@ test.afterEach = function(done) {
 
 test['constructor'] = function*() {
   _.deepGet(this.collection, 'collection.name').should.eql('test');
-  
+
   _.deepGet(this.collection, 'collection.manager.driver').should.eql(
     _.deepGet(this._db, 'driver')
   );
+};
+
+
+test['insert - no schema'] = function*() {
+  var hookSpy = this.mocker.spy(this.collection, '_runHook');
+
+  var attrs = {
+    name: 'Jimmy'
+  };
+
+  yield this.collection.insert(attrs);
+
+  hookSpy.should.have.been.calledTwice;
+
+  var args = hookSpy.getCall(0).args;
+  args.should.eql(['before', 'insert', attrs]);
+
+  args = hookSpy.getCall(1).args;
+  args.slice(0,2).should.eql(['after', 'insert']);
+  args[2].name.should.eql('Jimmy');
+  args[2]._id.should.be.defined;
 };
 

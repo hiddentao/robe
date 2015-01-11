@@ -3,30 +3,19 @@ var _ = require('lodash'),
 
 
 var utils = require('./utils'),
-  robe = utils.robe,
   assert = utils.assert,
   expect = utils.expect,
   should = utils.should,
   sinon = utils.sinon;
 
+var Robe = utils.Robe,
+  Database = Robe.Database;
 
-var mocker;
-
-
-var test = module.exports = {
-  beforeEach: function*() {
-    mocker = sinon.sandbox.create();
-  },
-  afterEach: function*() {
-    mocker.restore();
-
-    yield robe.closeAll();
-  }
-};
+var test = utils.createTest(module);
 
 
 test['default options'] = function*() {
-  robe.DEFAULT_CONNECTION_OPTIONS.should.eql({
+  Robe.DEFAULT_CONNECTION_OPTIONS.should.eql({
     timeout: 3000
   });
 };
@@ -34,14 +23,16 @@ test['default options'] = function*() {
 
 test['connect'] = {
   'valid': function*() {
-    yield robe.connect('127.0.0.1');
+    var db = yield Robe.connect('127.0.0.1');
+
+    db.should.be.instanceOf(Robe.Database);
   },
   'timeout': {
     'default': function*() {
-      this.timeout(robe.DEFAULT_CONNECTION_OPTIONS.timeout * 2);
+      this.timeout(Robe.DEFAULT_CONNECTION_OPTIONS.timeout * 2);
 
       try {
-        yield robe.connect('127.123.121.233');
+        yield Robe.connect('127.123.121.233');
 
         throw new Error('Should not be here');
       } catch (err) {
@@ -50,7 +41,7 @@ test['connect'] = {
     },
     'custom': function*() {
       try {
-        yield robe.connect('127.123.121.233', {
+        yield Robe.connect('127.123.121.233', {
           timeout: 100
         });
 
@@ -61,7 +52,9 @@ test['connect'] = {
     },
   },
   'replica set': function*() {
-    yield robe.connect(['127.0.0.1/robe-test','localhost/robe-test']);
+    var db = yield Robe.connect(['127.0.0.1/robe-test','localhost/robe-test']);
+
+    db.should.be.instanceOf(Robe.Database);    
   },
 };
 

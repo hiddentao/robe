@@ -4,6 +4,7 @@
 require('co-mocha');
 
 var chai = require('chai'),
+  path = require('path'),
   sinon = require('sinon');
 
 chai.use(require('sinon-chai'));
@@ -14,4 +15,25 @@ exports.should = chai.should();
 
 exports.sinon = sinon;
 
-exports.robe = require('../');
+exports.Robe = require('../');
+
+exports.createTest = function(mod) {
+  var name = path.basename(mod.filename, '.test.js');
+
+  var test = mod.exports = {
+    beforeEach: function*() {
+      this.mocker = sinon.sandbox.create();
+    },
+    afterEach: function*() {
+      this.mocker.restore();
+
+      yield exports.Robe.closeAll();
+    }
+  };
+
+  test[name] = {};
+
+  return test[name];
+};
+
+

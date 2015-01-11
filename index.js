@@ -8,4 +8,13 @@ var _ = require('lodash');
 _.mixin(require("lodash-deep"));
 
 
-module.exports = require('./lib/manager');
+var Robe = module.exports = require('./lib/manager');
+
+Robe.Database = require('./lib/database');
+
+Robe.Collection = require('./lib/collection');
+
+Robe.Document = require('./lib/document');
+
+
+

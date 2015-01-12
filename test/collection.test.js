@@ -26,9 +26,13 @@ test.beforeEach = function(done) {
   this._db.once('open', function(err) {
     if (err) return done(err);
 
-    self.collection = self.db.collection('test');
-
-    done();
+    // drop test data
+    Q.join(self._db.get('test').remove())
+      .then(function() {
+        // get collection
+        self.collection = self.db.collection('test');
+      })
+      .done(done);
   });
 };
 

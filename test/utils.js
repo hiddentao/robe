@@ -23,6 +23,9 @@ exports.createTest = function(mod) {
   var test = mod.exports = {
     beforeEach: function*() {
       this.mocker = sinon.sandbox.create();
+
+      // for bluebird promises to work without delay
+      this.mocker.stub(process, 'nextTick').yields();
     },
     afterEach: function*() {
       this.mocker.restore();

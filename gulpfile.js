@@ -7,7 +7,7 @@ var runSequence = require('run-sequence');
 
 
 gulp.task('test', function () {
-  return gulp.src('./test/*.test.js', { read: false })
+  return gulp.src('./test/collection.test.js', { read: false })
       .pipe(mocha({
         ui: 'exports',
         reporter: 'spec'

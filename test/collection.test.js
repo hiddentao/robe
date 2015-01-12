@@ -54,7 +54,7 @@ test['insert - no schema'] = function*() {
     name: 'Jimmy'
   };
 
-  yield this.collection.insert(attrs);
+  var res = yield this.collection.insert(attrs);
 
   hookSpy.should.have.been.calledTwice;
 
@@ -65,5 +65,49 @@ test['insert - no schema'] = function*() {
   args.slice(0,2).should.eql(['after', 'insert']);
   args[2].name.should.eql('Jimmy');
   args[2]._id.should.be.defined;
+
+  res.should.eql(args[2]);
+};
+
+
+test['find'] = {
+  beforeEach: function*() {
+    var data = [
+      {
+        name: 'Jimmy',
+        dead: true        
+      },
+      {
+        name: 'Mark',
+        dead: false        
+      },
+      {
+        name: 'Tom',
+        dead: false        
+      },
+      {
+        name: 'Doug',
+        dead: true        
+      },
+      {
+        name: 'Amanda',
+        dead: true        
+      },
+    ];
+
+    for (var i=0; i<data.length; ++i) {
+      yield this.collection.insert(data[i]);
+    }
+  },
+
+  'filter - found': function*() {
+    var res = yield this.collection.find({
+      dead: true
+    });
+
+    res.length.should.eql(3);
+    _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
+  }
+
 };
 

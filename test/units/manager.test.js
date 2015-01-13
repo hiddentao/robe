@@ -2,7 +2,7 @@ var _ = require('lodash'),
   Q = require('bluebird');
 
 
-var utils = require('./utils'),
+var utils = require('../utils'),
   assert = utils.assert,
   expect = utils.expect,
   should = utils.should,
@@ -11,7 +11,9 @@ var utils = require('./utils'),
 var Robe = utils.Robe,
   Database = Robe.Database;
 
-var test = utils.createTest(module);
+
+
+var test = module.exports = {};
 
 
 test['default options'] = function*() {

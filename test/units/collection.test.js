@@ -111,7 +111,25 @@ test['find'] = {
 
     res.length.should.eql(3);
     _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
-  }
+  },
+
+
+  'filter - not found': function*() {
+    var res = yield this.collection.find({
+      dead: 123
+    });
+
+    res.length.should.eql(0);
+  },
+
+
+  'filter - not found': function*() {
+    var res = yield this.collection.find({
+      dead: 123
+    });
+
+    res.length.should.eql(0);
+  },
 
 };
 

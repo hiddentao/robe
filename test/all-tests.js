@@ -2,6 +2,9 @@
 
 require('co-mocha');
 
+var fs = require('fs'),
+  path = require('path');
+
 var utils = require('./utils'),
   assert = utils.assert,
   expect = utils.expect,
@@ -26,7 +29,12 @@ var test = module.exports = {
 
 
 
-['manager', 'database', 'collection'].forEach(function(f) {
-  test[f] = require('./units/' + f + '.test.js');
-})
+var files = require('fs').readDirSync(path.join(__dirname, 'units'));
+console.log(files);
+
+// ['manager', 'database', 'collection'].forEach(function(f) {
+//   if ('collection' !== f) return;
+
+//   test[f] = require('./units/' + f + '.test.js');
+// })
 

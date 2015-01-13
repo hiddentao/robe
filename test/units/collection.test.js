@@ -123,12 +123,46 @@ test['find'] = {
   },
 
 
-  'filter - not found': function*() {
+  'filter - sort': function*() {
     var res = yield this.collection.find({
-      dead: 123
+      dead: true
+    }, {
+      sort: {
+        name: 1
+      }
     });
 
-    res.length.should.eql(0);
+    res.length.should.eql(3);
+    _.pluck(res, 'name').should.eql(['Amanda', 'Doug', 'Jimmy']);
+  },
+
+  'filter - limit': function*() {
+    var res = yield this.collection.find({
+      dead: true
+    }, {
+      sort: {
+        name: 1
+      },
+      limit: 1,
+    });
+
+    res.length.should.eql(1);
+    _.pluck(res, 'name').should.eql(['Amanda']);
+  },
+
+  'filter - skip': function*() {
+    var res = yield this.collection.find({
+      dead: true
+    }, {
+      sort: {
+        name: 1
+      },
+      skip: 1,
+      limit: 1,
+    });
+
+    res.length.should.eql(1);
+    _.pluck(res, 'name').should.eql(['Doug']);
   },
 
 };

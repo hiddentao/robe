@@ -29,12 +29,15 @@ var test = module.exports = {
 
 
 
-var files = require('fs').readDirSync(path.join(__dirname, 'units'));
-console.log(files);
+var units = require('fs').readdirSync(path.join(__dirname, 'units'));
 
-// ['manager', 'database', 'collection'].forEach(function(f) {
-//   if ('collection' !== f) return;
+units.forEach(function(f) {
+  if (0 > f.indexOf('.test.js')) {
+    return;
+  }
 
-//   test[f] = require('./units/' + f + '.test.js');
-// })
+  var name = path.basename(f, '.test.js');
+
+  test[name] = require('./units/' + f);
+});
 

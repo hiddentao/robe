@@ -51,77 +51,176 @@ test['constructor'] = function*() {
 };
 
 
-test['insert - no schema'] = function*() {
-  var hookSpy = this.mocker.spy(this.collection, '_runHook');
+test['insert'] = {
+  'no schema': function*() {
+    var attrs = {
+      name: 'Jimmy'
+    };
 
-  var attrs = {
-    name: 'Jimmy'
-  };
+    var res = yield this.collection.insert(attrs);
 
-  var res = yield this.collection.insert(attrs);
+    res.name.should.eql('Jimmy');
+    res._id.should.be.defined;
+  },
 
-  hookSpy.should.have.been.calledTwice;
+  'hooks': function*() {
+    var acc = [];
 
-  var args = hookSpy.getCall(0).args;
-  args.should.eql(['before', 'insert', attrs]);
+    this.collection.before('insert', function*(attrs, next) {
+      acc.push(1);
 
-  args = hookSpy.getCall(1).args;
-  args.slice(0,2).should.eql(['after', 'insert']);
-  args[2].name.should.eql('Jimmy');
-  args[2]._id.should.be.defined;
+      attrs.name += '-1';
 
-  res.should.eql(args[2]);
+      yield next;
+    });
+
+    this.collection.before('insert', function*(attrs, next) {
+      acc.push(2);
+
+      attrs.name += '-2';
+
+      yield next;
+    });
+
+    this.collection.after('insert', function*(result, next) {
+      acc.push(3);
+
+      result.one = result._id;
+
+      yield next;
+    });
+
+    this.collection.after('insert', function*(result, next) {
+      acc.push(4);
+
+      result.two = result._id;
+
+      yield next;
+    });
+
+    var attrs = {
+      name: 'Jimmy'
+    };
+
+    var res = yield this.collection.insert(attrs);
+
+    acc.should.eql([1,2,3,4]);
+
+    res.one.should.eql(res._id);
+    res.two.should.eql(res._id);
+
+    res.name.should.eql('Jimmy-1-2');
+  }
 };
 
 
-test['insert - hooks'] = function*() {
-  var acc = [];
 
-  this.collection.before('insert', function*(attrs, next) {
-    acc.push(1);
 
-    attrs.name += '-1';
 
-    yield next;
-  });
+test['update'] = {
+  beforeEach: function*() {
+    var data = [
+      {
+        name: 'Jimmy',
+        dead: true        
+      },
+      {
+        name: 'Mark',
+        dead: false        
+      },
+      {
+        name: 'Tom',
+        dead: false        
+      },
+      {
+        name: 'Doug',
+        dead: true        
+      },
+      {
+        name: 'Amanda',
+        dead: true        
+      },
+    ];
 
-  this.collection.before('insert', function*(attrs, next) {
-    acc.push(2);
+    for (var i=0; i<data.length; ++i) {
+      yield this.collection.insert(data[i]);
+    }
+  },
+  'no schema': function*() {
+    var attrs = {
+      name: 'Jimmy'
+    };
 
-    attrs.name += '-2';
+    var res = yield this.collection.update({
+      name: 'Tom'
+    }, {
+      name: 'Phil'
+    });
 
-    yield next;
-  });
+    res.should.eql(1);
 
-  this.collection.after('insert', function*(result, next) {
-    acc.push(3);
+    var doc = yield this.collection.findOne({
+      name: 'Phil'
+    });
 
-    result.one = result._id;
+    doc.should.be.defined;
+  },
+  'hooks': function*() {
+    var acc = [];
 
-    yield next;
-  });
+    this.collection.before('update', function*(search, update, next) {
+      acc.push(1);
 
-  this.collection.after('insert', function*(result, next) {
-    acc.push(4);
+      search.name = 'Amanda';
 
-    result.two = result._id;
+      yield next;
+    });
 
-    yield next;
-  });
+    this.collection.before('update', function*(search, update, next) {
+      acc.push(2);
 
-  var attrs = {
-    name: 'Jimmy'
-  };
+      update.dead = 123;
 
-  var res = yield this.collection.insert(attrs);
+      yield next;
+    });
 
-  acc.should.eql([1,2,3,4]);
+    this.collection.after('update', function*(search, update, ret, next) {
+      acc.push(3);
 
-  res.one.should.eql(res._id);
-  res.two.should.eql(res._id);
+      search.result1 = ret;
 
-  res.name.should.eql('Jimmy-1-2');
+      yield next;
+    });
+
+    this.collection.after('update', function*(search, update, ret, next) {
+      acc.push(4);
+
+      search.result2 = ret;
+
+      yield next;
+    });
+
+    var search = {
+      name: 'Tom'
+    };
+
+    var res = yield this.collection.update(search, {
+      name: 'Phil'
+    });
+
+    acc.should.eql([1,2,3,4]);
+
+    var doc = yield this.collection.findOne({
+      name: 'Phil'
+    });
+
+    doc.dead.should.eql(123);
+
+    search.result1.should.eql(res);
+    search.result2.should.eql(res);
+  }
 };
+
 
 
 
@@ -245,19 +344,6 @@ test['find'] = {
   },
 
   'findOne()': {
-    'calls find()': function*() {
-      var spy = this.mocker.spy(this.collection, 'find');
-
-      var res = yield this.collection.findOne({
-        dead: true
-      });
-
-      spy.should.have.been.calledWithExactly({
-        dead: true
-      }, {
-        limit: 1
-      });
-    },
     'found': function*() {
       var res = yield this.collection.findOne({
         dead: true

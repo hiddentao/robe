@@ -74,6 +74,58 @@ test['insert - no schema'] = function*() {
 };
 
 
+test['insert - hooks'] = function*() {
+  var acc = [];
+
+  this.collection.before('insert', function*(attrs, next) {
+    acc.push(1);
+
+    attrs.name += '-1';
+
+    yield next;
+  });
+
+  this.collection.before('insert', function*(attrs, next) {
+    acc.push(2);
+
+    attrs.name += '-2';
+
+    yield next;
+  });
+
+  this.collection.after('insert', function*(result, next) {
+    acc.push(3);
+
+    result.one = result._id;
+
+    yield next;
+  });
+
+  this.collection.after('insert', function*(result, next) {
+    acc.push(4);
+
+    result.two = result._id;
+
+    yield next;
+  });
+
+  var attrs = {
+    name: 'Jimmy'
+  };
+
+  var res = yield this.collection.insert(attrs);
+
+  acc.should.eql([1,2,3,4]);
+
+  res.one.should.eql(res._id);
+  res.two.should.eql(res._id);
+
+  res.name.should.eql('Jimmy-1-2');
+};
+
+
+
+
 test['find'] = {
   beforeEach: function*() {
     var data = [

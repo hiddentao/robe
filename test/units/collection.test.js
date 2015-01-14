@@ -184,5 +184,28 @@ test['find'] = {
     _.pluck(res, 'dead').should.eql([undefined]);
   },
 
+  'findOne()': {
+    'found': function*() {
+      var res = yield this.collection.findOne({
+        dead: true
+      }, {
+        sort: {
+          name: 1
+        }
+      });
+
+      res.name.should.eql('Amanda');
+    },
+    'not found - null': function*() {
+      var res = yield this.collection.findOne({
+        name: 'abc'
+      });
+
+      expect(res).to.be.null;
+    }
+  }
 };
+
+
+
 

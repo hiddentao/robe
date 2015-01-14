@@ -111,6 +111,7 @@ test['find'] = {
 
     res.length.should.eql(3);
     _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
+    (3 === _.pluck(res, 'id').length).should.be.true;
   },
 
 
@@ -125,15 +126,16 @@ test['find'] = {
 
   'filter - sort': function*() {
     var res = yield this.collection.find({
-      dead: true
     }, {
       sort: {
-        name: 1
+        dead: 1,
+        name: 1,
       }
     });
 
-    res.length.should.eql(3);
-    _.pluck(res, 'name').should.eql(['Amanda', 'Doug', 'Jimmy']);
+    res.length.should.eql(5);
+    _.pluck(res, 'name').should.eql(['Mark', 'Tom', 'Amanda', 'Doug', 'Jimmy']);
+    _.pluck(res, 'dead').should.eql([false, false, true, true, true]);
   },
 
   'filter - limit': function*() {
@@ -148,6 +150,7 @@ test['find'] = {
 
     res.length.should.eql(1);
     _.pluck(res, 'name').should.eql(['Amanda']);
+    _.pluck(res, 'dead').should.eql([true]);
   },
 
   'filter - skip': function*() {
@@ -163,6 +166,22 @@ test['find'] = {
 
     res.length.should.eql(1);
     _.pluck(res, 'name').should.eql(['Doug']);
+    _.pluck(res, 'dead').should.eql([true]);
+  },
+
+  'filter - fields': function*() {
+    var res = yield this.collection.find({
+      dead: true
+    }, {
+      fields: {
+        name: 1,
+      },
+      limit: 1,
+    });
+
+    res.length.should.eql(1);
+    _.pluck(res, 'name').should.eql(['Jimmy']);
+    _.pluck(res, 'dead').should.eql([undefined]);
   },
 
 };

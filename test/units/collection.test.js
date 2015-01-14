@@ -245,6 +245,19 @@ test['find'] = {
   },
 
   'findOne()': {
+    'calls find()': function*() {
+      var spy = this.mocker.spy(this.collection, 'find');
+
+      var res = yield this.collection.findOne({
+        dead: true
+      });
+
+      spy.should.have.been.calledWithExactly({
+        dead: true
+      }, {
+        limit: 1
+      });
+    },
     'found': function*() {
       var res = yield this.collection.findOne({
         dead: true

@@ -4,9 +4,7 @@
 
 ```
 Todo:
-* raw query output mode
 * cursor streaming mode
-* wrap results in Document() and add tests
 * tests for Document.save(), Document.remove()
 * Documentation site
 ```

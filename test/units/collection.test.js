@@ -11,7 +11,8 @@ var utils = require('../utils'),
 
 var Robe = utils.Robe,
   Database = Robe.Database,
-  Collection = Robe.Collection;
+  Collection = Robe.Collection,
+  Document = Robe.Document;
 
 
 var test = module.exports = {};
@@ -42,12 +43,24 @@ test.afterEach = function(done) {
 
 
 
-test['constructor'] = function*() {
-  _.deepGet(this.collection, 'collection.name').should.eql('test');
+test['constructor'] = {
+  'default': function*()  {
+    this.collection.options.raw.should.be.false;
 
-  _.deepGet(this.collection, 'collection.manager.driver').should.eql(
-    _.deepGet(this._db, 'driver')
-  );
+    _.deepGet(this.collection, 'collection.name').should.eql('test');
+
+    _.deepGet(this.collection, 'collection.manager.driver').should.eql(
+      _.deepGet(this._db, 'driver')
+    );
+  },
+
+  'turn on RAW mode': function*() {
+    this.collection = this.db.collection('test', {
+      raw: true
+    });
+
+    this.collection.options.raw.should.be.true;
+  }
 };
 
 
@@ -59,8 +72,32 @@ test['insert'] = {
 
     var res = yield this.collection.insert(attrs);
 
+    res.should.be.instanceOf(Document);
+
     res.name.should.eql('Jimmy');
     res._id.should.be.defined;
+  },
+
+  'calls _formatResult()': function*() {
+    var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+      return 123;
+    });
+
+    var attrs = {
+      name: 'Jimmy'
+    };
+
+    var res = yield this.collection.insert(attrs, {
+      raw: true
+    });
+
+    res.should.eql(123);
+
+    var theCall = stub.getCall(0);
+    _.deepGet(theCall, 'args.0.name').should.eql('Jimmy');
+    _.deepGet(theCall, 'args.1').should.eql({
+      raw: true
+    });
   },
 
   'hooks': function*() {
@@ -315,6 +352,42 @@ test['remove'] = {
 
 
 
+test['_formatResult()'] = {
+  'default': function*() {
+    var ret = this.collection._formatResult({
+      name: 'Tim'
+    });
+
+    ret.should.be.instanceOf(Document);
+  },
+
+  'raw - local option': function*() {
+    var ret = this.collection._formatResult({
+      name: 'Tim'
+    }, {
+      raw: true
+    });
+
+    ret.should.not.be.instanceOf(Document);
+
+    ret.name.should.eql('Tim');
+  },
+
+  'raw - global option': function*() {
+    this.collection.options.raw = true;
+
+    var ret = this.collection._formatResult({
+      name: 'Tim'
+    }, {
+      raw: false
+    });
+
+    ret.should.not.be.instanceOf(Document);
+
+    ret.name.should.eql('Tim');
+  },
+}
+
 
 
 test['find'] = {
@@ -353,6 +426,28 @@ test['find'] = {
     res.length.should.eql(5);
     _.pluck(res, 'name').should.eql(['Jimmy', 'Mark', 'Tom', 'Doug', 'Amanda']);
     (5 === _.pluck(res, 'id').length).should.be.true;
+  },
+
+  'calls _formatResult()': function*() {
+    var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+      return 123;
+    });
+
+    var attrs = {
+      name: 'Jimmy'
+    };
+
+    var res = yield this.collection.find({}, {
+      raw: true
+    });
+
+    res.should.eql([123, 123, 123, 123, 123]);
+
+    stub.callCount.should.eql(5);
+    var theCall = stub.getCall(0);
+    _.deepGet(theCall, 'args.1').should.eql({
+      raw: true
+    });
   },
 
   'filter - found': function*() {

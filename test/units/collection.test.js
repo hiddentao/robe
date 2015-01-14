@@ -531,6 +531,32 @@ test['find'] = {
   },
 
   'findOne()': {
+    'calls _formatResult()': function*() {
+      var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+        return 123;
+      });
+
+      var attrs = {
+        name: 'Jimmy'
+      };
+
+      var res = yield this.collection.findOne({
+        dead: true
+      }, {
+        sort: {
+          name: 1
+        },
+        raw: true
+      });
+
+      res.should.eql(123);
+
+      stub.callCount.should.eql(1);
+      
+      var theCall = stub.getCall(0);
+
+      _.deepGet(theCall, 'args.1.raw').should.be.true;
+    },
     'found': function*() {
       var res = yield this.collection.findOne({
         dead: true

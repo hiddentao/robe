@@ -225,6 +225,98 @@ test['update'] = {
 
 
 
+test['remove'] = {
+  beforeEach: function*() {
+    var data = [
+      {
+        name: 'Jimmy',
+        dead: true        
+      },
+      {
+        name: 'Mark',
+        dead: false        
+      },
+      {
+        name: 'Tom',
+        dead: false        
+      },
+      {
+        name: 'Doug',
+        dead: true        
+      },
+      {
+        name: 'Amanda',
+        dead: true        
+      },
+    ];
+
+    for (var i=0; i<data.length; ++i) {
+      yield this.collection.insert(data[i]);
+    }
+  },
+  'removes': function*() {
+    var res = yield this.collection.remove({
+      dead: true
+    });
+
+    var results = yield this.collection.find();
+
+    results.length.should.eql(2);
+    _.pluck(results, 'name').should.eql(['Mark', 'Tom']);
+  },
+  'hooks': function*() {
+    var acc = [];
+
+    this.collection.before('remove', function*(search, next) {
+      acc.push(1);
+
+      search.name = 'Mark';
+
+      yield next;
+    });
+
+    this.collection.before('remove', function*(search, next) {
+      acc.push(2);
+
+      search.dead = false;
+
+      yield next;
+    });
+
+    this.collection.after('remove', function*(search, ret, next) {
+      acc.push(3);
+
+      yield next;
+    });
+
+    this.collection.after('remove', function*(search, ret, next) {
+      acc.push(4);
+
+      yield next;
+    });
+
+    var search = {
+      name: 'Tom'
+    };
+
+    var res = yield this.collection.remove({
+      dead: true
+    });
+
+    acc.should.eql([1,2,3,4]);
+
+    var results = yield this.collection.find();
+
+    results.length.should.eql(4);
+    _.pluck(results, 'name').should.eql(['Jimmy', 'Tom', 'Doug', 'Amanda']);
+  }
+};
+
+
+
+
+
+
 test['find'] = {
   beforeEach: function*() {
     var data = [

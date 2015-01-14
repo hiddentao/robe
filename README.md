@@ -6,6 +6,7 @@
 Todo:
 * cursor streaming mode
 * tests for Document.save(), Document.remove()
+* schema validation
 * Documentation site
 ```
 

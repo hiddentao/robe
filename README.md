@@ -2,6 +2,15 @@
 
 **WORK IN PROGRESS - NOT YET READY**
 
+```
+Todo:
+* raw query output mode
+* cursor streaming mode
+* wrap results in Document() and add tests
+* tests for Document.save(), Document.remove()
+* Documentation site
+```
+
 **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
 simple yet effective ODM library for MongoDB. _Inspired by [mongorito](http://mongorito.com/)_.
 

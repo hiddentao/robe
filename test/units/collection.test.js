@@ -104,6 +104,14 @@ test['find'] = {
     }
   },
 
+  'no params': function*() {
+    var res = yield this.collection.find();
+
+    res.length.should.eql(5);
+    _.pluck(res, 'name').should.eql(['Jimmy', 'Mark', 'Tom', 'Doug', 'Amanda']);
+    (5 === _.pluck(res, 'id').length).should.be.true;
+  },
+
   'filter - found': function*() {
     var res = yield this.collection.find({
       dead: true

@@ -32,7 +32,7 @@ var test = module.exports = {
 var units = require('fs').readdirSync(path.join(__dirname, 'units'));
 
 units.forEach(function(f) {
-  if (0 > f.indexOf('collection.test.js')) {
+  if (0 > f.indexOf('.test.js')) {
     return;
   }
 

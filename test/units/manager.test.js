@@ -25,7 +25,7 @@ test['default options'] = function*() {
 
 test['connect'] = {
   'valid': function*() {
-    var db = yield Robe.connect('127.0.0.1');
+    var db = yield Robe.connect('127.0.0.1/robe-test');
 
     db.should.be.instanceOf(Robe.Database);
   },
@@ -54,7 +54,7 @@ test['connect'] = {
     },
   },
   'replica set': function*() {
-    var db = yield Robe.connect(['127.0.0.1/robe-test','localhost/robe-test']);
+    var db = yield Robe.connect(['127.0.0.1/robe-test/robe-test','localhost/robe-test']);
 
     db.should.be.instanceOf(Robe.Database);    
   },

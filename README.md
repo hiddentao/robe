@@ -4,7 +4,6 @@
 
 ```
 Todo:
-* cursor streaming mode
 * schema validation
 * Documentation site
 ```

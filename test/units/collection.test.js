@@ -12,6 +12,7 @@ var utils = require('../testutils'),
 var Robe = utils.Robe,
   Database = Robe.Database,
   Collection = Robe.Collection,
+  Cursor = Robe.Cursor,
   Document = Robe.Document,
   RobeUtils = Robe.Utils;
 
@@ -22,7 +23,7 @@ var test = module.exports = {};
 test.beforeEach = function(done) {
   var self = this;
 
-  this._db = monk('127.0.0.1');
+  this._db = monk('127.0.0.1/robe-test');
   this.db = new Database(this._db);
 
   this._db.once('open', function(err) {
@@ -77,6 +78,26 @@ test['insert'] = {
 
     res.name.should.eql('Jimmy');
     res._id.should.be.defined;
+  },
+
+  'schema - fail': function*() {
+    var collection = this.db.collection('test', {
+      schema: {
+        name: {
+          type: Number
+        }
+      }
+    });
+
+    try {
+      yield collection.insert({
+        name: 'Jimmy'
+      });
+  
+      throw new Error('Unexpected');
+    } catch (err) {
+      err.toString().should.eql('Error: Validation failed');
+    }
   },
 
   'calls formatMongoDoc()': function*() {
@@ -204,6 +225,29 @@ test['update'] = {
 
     doc.should.be.defined;
   },
+  'schema - fail': function*() {
+    var collection = this.db.collection('test', {
+      schema: {
+        name: {
+          type: Number
+        }
+      }
+    });
+
+    try {
+      yield collection.update({
+        name: 'Tom'
+      }, {
+        $set: {
+          name: 'Phil'
+        }
+      });
+  
+      throw new Error('Unexpected');
+    } catch (err) {
+      err.toString().should.eql('Error: Validation failed');
+    }
+  },
   'hooks': function*() {
     var acc = [];
 
@@ -218,7 +262,7 @@ test['update'] = {
     this.collection.before('update', function*(search, update, next) {
       acc.push(2);
 
-      update.dead = 123;
+      update.$set.dead = 123;
 
       yield next;
     });
@@ -244,7 +288,9 @@ test['update'] = {
     };
 
     var res = yield this.collection.update(search, {
-      name: 'Phil'
+      $set: {
+        name: 'Phil'
+      }
     });
 
     acc.should.eql([1,2,3,4]);
@@ -542,6 +588,15 @@ test['find'] = {
 
       expect(res).to.be.null;
     }
+  },
+  'findStream': function*() {
+    var cursor = yield this.collection.findStream({
+      name: 'John'
+    }, {
+      raw: true,
+    });
+
+    cursor.should.be.instanceOf(Cursor);
   }
 };
 

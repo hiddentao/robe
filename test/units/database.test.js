@@ -17,7 +17,7 @@ var test = module.exports = {};
 
 
 test.beforeEach = function(done) {
-  this._db = monk('127.0.0.1');
+  this._db = monk('127.0.0.1/robe-test');
   this.db = new Database(this._db);
 
   this._db.once('open', done);

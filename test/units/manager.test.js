@@ -36,8 +36,9 @@ test['connect'] = {
    * cleaned up...why not!? Initial investigation points to something in either 
    * Monk or mongodb node.js package - needs looking into
    */
-  // 'timeout': {
-  //   'default': function*() {
+  'timeout': {
+    'default': function*() {
+      console.log('TODO');
   //     this.timeout(Robe.DEFAULT_CONNECTION_OPTIONS.timeout * 2);
 
   //     try {
@@ -47,8 +48,9 @@ test['connect'] = {
   //     } catch (err) {
   //       err.message.should.eql('Timed out connecting to db');
   //     }
-  //   },
-  //   'custom': function*() {
+    },
+    'custom': function*() {
+      console.log('TODO');
   //     try {
   //       yield Robe.connect('127.123.121.233', {
   //         timeout: 100
@@ -58,8 +60,8 @@ test['connect'] = {
   //     } catch (err) {
   //       err.message.should.eql('Timed out connecting to db');
   //     }
-  //   },
-  // },
+    },
+  },
   'replica set': function*() {
     var db = yield Robe.connect(['127.0.0.1/robe-test/robe-test','localhost/robe-test']);
 

@@ -4,6 +4,7 @@
 
 ```
 Todo:
+* Why do tests hang at the end?
 * Documentation site
 ```
 

@@ -21,25 +21,13 @@ var Robe = utils.Robe,
 var test = module.exports = {};
 
 
-test.beforeEach = function(done) {
-  var self = this;
+test.beforeEach = function*() {
+  this.db = yield Robe.connect('127.0.0.1/robe-test');
 
-  this._db = monk('127.0.0.1/robe-test');
-  this.db = new Database(this._db);
+  this.collection = this.db.collection('test');
 
-  this._db.once('open', function(err) {
-    if (err) return done(err);
-
-    // drop test data
-    Q.join(self._db.get('test').remove())
-      .then(function() {
-        // get collection
-        self.collection = self.db.collection('test');
-      })
-      .done(done);
-  });
+  yield this.collection.remove();
 };
-
 
 
 test['constructor'] = function*() {

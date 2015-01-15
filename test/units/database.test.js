@@ -16,30 +16,23 @@ var Robe = utils.Robe,
 var test = module.exports = {};
 
 
-test.beforeEach = function(done) {
-  this._db = monk('127.0.0.1/robe-test');
-  this.db = new Database(this._db);
-
-  this._db.once('open', done);
-};
-
-test.afterEach = function(done) {
-  this._db.close(done);
+test.beforeEach = function*() {
+  this.db = yield Robe.connect('127.0.0.1/robe-test');
 };
 
 
 
 test['constructor'] = function*() {
-  this.db.db.should.eql(this._db);
+  this.db.db.should.be.defined;
 };
 
 
 test['close'] = function*() {
-  expect( _.deepGet(this._db, 'driver._state') ).to.eql(2);
+  expect( _.deepGet(this.db.db, 'driver._state') ).to.eql(2);
 
   yield this.db.close();
 
-  expect( _.deepGet(this._db, 'driver._state') ).to.not.eql(2);
+  expect( _.deepGet(this.db.db, 'driver._state') ).to.not.eql(2);
 };
 
 

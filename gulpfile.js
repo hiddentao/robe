@@ -1,7 +1,6 @@
 var gulp = require('gulp'),
   path = require('path');
 
-var jshint = require('gulp-jshint');
 var mocha = require('gulp-mocha');
 var runSequence = require('run-sequence');
 

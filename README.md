@@ -4,7 +4,6 @@
 
 ```
 Todo:
-* schema validation
 * Documentation site
 ```
 

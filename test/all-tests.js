@@ -5,7 +5,7 @@ require('co-mocha');
 var fs = require('fs'),
   path = require('path');
 
-var utils = require('./utils'),
+var utils = require('./testutils'),
   assert = utils.assert,
   expect = utils.expect,
   should = utils.should,
@@ -32,7 +32,7 @@ var test = module.exports = {
 var units = require('fs').readdirSync(path.join(__dirname, 'units'));
 
 units.forEach(function(f) {
-  if (0 > f.indexOf('.test.js')) {
+  if (0 > f.indexOf('collection.test.js')) {
     return;
   }
 

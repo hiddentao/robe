@@ -3,7 +3,7 @@ var _ = require('lodash'),
   Q = require('bluebird');
 
 
-var utils = require('../utils'),
+var utils = require('../testutils'),
   assert = utils.assert,
   expect = utils.expect,
   should = utils.should,
@@ -12,7 +12,8 @@ var utils = require('../utils'),
 var Robe = utils.Robe,
   Database = Robe.Database,
   Collection = Robe.Collection,
-  Document = Robe.Document;
+  Document = Robe.Document,
+  RobeUtils = Robe.Utils;
 
 
 var test = module.exports = {};
@@ -78,8 +79,8 @@ test['insert'] = {
     res._id.should.be.defined;
   },
 
-  'calls _formatResult()': function*() {
-    var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+  'calls formatMongoDoc()': function*() {
+    var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
       return 123;
     });
 
@@ -94,8 +95,9 @@ test['insert'] = {
     res.should.eql(123);
 
     var theCall = stub.getCall(0);
-    _.deepGet(theCall, 'args.0.name').should.eql('Jimmy');
-    _.deepGet(theCall, 'args.1').should.eql({
+    _.deepGet(theCall, 'args.0').should.eql(this.collection);
+    _.deepGet(theCall, 'args.1.name').should.eql('Jimmy');
+    _.deepGet(theCall, 'args.2').should.eql({
       raw: true
     });
   },
@@ -352,43 +354,6 @@ test['remove'] = {
 
 
 
-test['_formatResult()'] = {
-  'default': function*() {
-    var ret = this.collection._formatResult({
-      name: 'Tim'
-    });
-
-    ret.should.be.instanceOf(Document);
-  },
-
-  'raw - local option': function*() {
-    var ret = this.collection._formatResult({
-      name: 'Tim'
-    }, {
-      raw: true
-    });
-
-    ret.should.not.be.instanceOf(Document);
-
-    ret.name.should.eql('Tim');
-  },
-
-  'raw - global option': function*() {
-    this.collection.options.raw = true;
-
-    var ret = this.collection._formatResult({
-      name: 'Tim'
-    }, {
-      raw: false
-    });
-
-    ret.should.not.be.instanceOf(Document);
-
-    ret.name.should.eql('Tim');
-  },
-}
-
-
 
 test['find'] = {
   beforeEach: function*() {
@@ -428,8 +393,8 @@ test['find'] = {
     (5 === _.pluck(res, 'id').length).should.be.true;
   },
 
-  'calls _formatResult()': function*() {
-    var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+  'calls formatMongoDoc()': function*() {
+    var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
       return 123;
     });
 
@@ -445,7 +410,8 @@ test['find'] = {
 
     stub.callCount.should.eql(5);
     var theCall = stub.getCall(0);
-    _.deepGet(theCall, 'args.1').should.eql({
+    _.deepGet(theCall, 'args.0').should.eql(this.collection);
+    _.deepGet(theCall, 'args.2').should.eql({
       raw: true
     });
   },
@@ -531,8 +497,8 @@ test['find'] = {
   },
 
   'findOne()': {
-    'calls _formatResult()': function*() {
-      var stub = this.mocker.stub(this.collection, '_formatResult', function() {
+    'calls formatMongoDoc()': function*() {
+      var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
         return 123;
       });
 
@@ -555,7 +521,8 @@ test['find'] = {
       
       var theCall = stub.getCall(0);
 
-      _.deepGet(theCall, 'args.1.raw').should.be.true;
+      _.deepGet(theCall, 'args.0').should.eql(this.collection);
+      _.deepGet(theCall, 'args.2.raw').should.be.true;
     },
     'found': function*() {
       var res = yield this.collection.findOne({

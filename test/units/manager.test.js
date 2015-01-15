@@ -2,7 +2,7 @@ var _ = require('lodash'),
   Q = require('bluebird');
 
 
-var utils = require('../utils'),
+var utils = require('../testutils'),
   assert = utils.assert,
   expect = utils.expect,
   should = utils.should,

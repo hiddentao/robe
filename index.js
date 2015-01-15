@@ -16,5 +16,6 @@ Robe.Collection = require('./lib/collection');
 
 Robe.Document = require('./lib/document');
 
+Robe.Cursor = require('./lib/cursor');
 
-
+Robe.Utils = require('./lib/utils');

@@ -30,8 +30,11 @@ test['connect'] = {
     db.should.be.instanceOf(Robe.Database);
   },
   /**
+   * TODO: Fix
+   * 
    * Test completes successfully but process hangs because handles not yet 
-   * cleaned up...why not!?
+   * cleaned up...why not!? Initial investigation points to something in either 
+   * Monk or mongodb node.js package - needs looking into
    */
   // 'timeout': {
   //   'default': function*() {

@@ -26,31 +26,28 @@ More fully-fledges and beautiful documentation is available at [https://hiddenta
 ```js
 "use strict";
 
-var co = require('co'),
-  robe = require('robe');
+var robe = require('robe');
 
-co(function*() {
-  // connect to db
-  var db = yield robe.connect('127.0.0.1');
+// connect to db
+var db = yield robe.connect('127.0.0.1');
 
-  // get a collection
-  var collection = db.collection('test');
+// get a collection
+var collection = db.collection('test');
 
-  // insert a record
-  var item = yield collection.insert({
-    name: 'jim',
-    age: 23
-  });
+// insert a record
+var item = yield collection.insert({
+  name: 'jim',
+  age: 23
+});
 
-  console.log(Object.keys(item)); // _id, name, age
+console.log(Object.keys(item)); // _id, name, age
 
-  // update
-  item.age = 54;
-  yield item.save();
+// update
+item.age = 54;
+yield item.save();
 
-  // remove
-  yield item.remove();
-})();
+// remove
+yield item.remove();
 ```
 
 ## Building

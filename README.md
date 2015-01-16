@@ -19,6 +19,39 @@ Features:
 * Cursor mode (for streaming results)
 * Optional schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
 
+## Examples
+
+More fully-fledges and beautiful documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe).
+
+```js
+"use strict";
+
+var co = require('co'),
+  robe = require('robe');
+
+co(function*() {
+  // connect to db
+  var db = yield robe.connect('127.0.0.1');
+
+  // get a collection
+  var collection = db.collection('test');
+
+  // insert a record
+  var item = yield collection.insert({
+    name: 'jim',
+    age: 23
+  });
+
+  console.log(Object.keys(item)); // _id, name, age
+
+  // update
+  item.age = 54;
+  yield item.save();
+
+  // remove
+  yield item.remove();
+})();
+```
 
 ## Building
 

@@ -1,7 +1,7 @@
 {
   "name": "robe",
   "version": "0.1.0",
-  "description": "Flexible MongoDB ODM for Node.js built on Monk",
+  "description": "MongoDB ODM for Node.js using ES6 generators. Supports schema validation, raw querying, cursors, etc.",
   "main": "index.js",
   "scripts": {
     "test": "node --harmony node_modules/.bin/gulp"

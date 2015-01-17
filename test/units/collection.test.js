@@ -170,7 +170,35 @@ test['insert'] = {
     res.two.should.eql(res._id);
 
     res.name.should.eql('Jimmy-1-2');
-  }
+  },
+
+  'schema validation runs after hooks': function*() {
+    var collection = this.db.collection('test', {
+      schema: {
+        name: {
+          type: String
+        }
+      }
+    });
+
+    collection.before('insert', function*(attrs, next) {
+      attrs.name = 12;
+
+      yield next;
+    });
+
+    try {
+      yield collection.insert({
+        name: 'john'
+      });
+    
+      throw new Error('Unexpected');
+    } catch (err) {
+      err.toString().should.eql('Error: Validation failed');
+      err.failures[0].should.eql('/name: must be a string');
+    }
+  },
+
 };
 
 
@@ -303,7 +331,37 @@ test['update'] = {
 
     search.result1.should.eql(res);
     search.result2.should.eql(res);
-  }
+  },
+  'schema validation runs after hooks': function*() {
+    var collection = this.db.collection('test', {
+      schema: {
+        name: {
+          type: String
+        }
+      }
+    });
+
+    collection.before('update', function*(search, update, next) {
+      update.$set.name = 12;
+
+      yield next;
+    });
+
+    try {
+      yield collection.update({
+        name: 23
+      }, {
+        $set: {
+          name: 'Phil'
+        }
+      });
+    
+      throw new Error('Unexpected');
+    } catch (err) {
+      err.toString().should.eql('Error: Validation failed');
+      err.failures[0].should.eql('/name: must be a string');
+    }
+  },
 };
 
 
@@ -394,7 +452,7 @@ test['remove'] = {
 
     results.length.should.eql(4);
     _.pluck(results, 'name').should.eql(['Jimmy', 'Tom', 'Doug', 'Amanda']);
-  }
+  },
 };
 
 

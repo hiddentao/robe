@@ -16,7 +16,7 @@ Features:
 
 ## Examples
 
-Note: detailed documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe)
+Detailed documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe).
 
 **The basics**
 

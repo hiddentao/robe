@@ -1,10 +1,3 @@
-**WORK IN PROGRESS - NOT YET READY**
-
-```
-Todo:
-* Documentation
-```
-
 # Robe
 
 [![Build Status](https://secure.travis-ci.org/hiddentao/robe.png?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/robe.png)](https://badge.fury.io/js/robe)
@@ -15,13 +8,17 @@ simple yet effective ODM library for MongoDB.
 Features:
 
 * Work with ODM-style documents or raw Mongo data - the choice is yours
-* Replica sets supported
+* Add before and after hooks for inserts, updates and removals
 * Cursor mode (for streaming results)
-* Optional schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
+* Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
+* Replica sets supported
+* [more...](https://hiddentao.github.io/robe)
 
 ## Examples
 
-More fully-fledges and beautiful documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe).
+Note: detailed documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe)
+
+**The basics**
 
 ```js
 "use strict";
@@ -35,20 +32,159 @@ var db = yield robe.connect('127.0.0.1');
 var collection = db.collection('test');
 
 // insert a record
-var item = yield collection.insert({
+yield collection.insert({
   name: 'jim',
   age: 23
 });
 
+// find it
+var item = yield collection.findOne({
+  name: 'jim'
+});
+
+console.log(item instanceof robe.Document); // true
 console.log(Object.keys(item)); // _id, name, age
 
 // update
 item.age = 54;
-yield item.save();
+yield item.save();    // internally calls collection.update(...)
 
 // remove
-yield item.remove();
+yield item.remove();  // internally calls collection.remove(...)
 ```
+
+**Raw querying mode**
+
+In this mode we won't make use of `robe.Document` and will instead deal 
+directly with Mongo data objects.
+
+```js
+// insert a record
+yield collection.insert({
+  name: 'jim',
+  age: 23
+});
+
+// find it
+var item = yield collection.findOne({
+  name: 'jim'
+}, {
+  raw: true // return the raw mongo object
+});
+
+console.log(item instanceof robe.Document); // false
+console.log(Object.keys(item)); // _id, name, age
+
+// update
+yield collection.update({
+  _id: item._id
+}, {
+  $set: {
+    age: 54
+  }
+});
+
+// remove
+yield collection.remove({
+  _id: item._id
+});
+```
+
+You can also enable `raw` querying at the collection level:
+
+```js
+var collection = db.collection('test', {
+  raw: true
+});
+
+yield collection.findOne({
+  name: 'john'
+}, {
+  raw: false  // override the collection-level setting
+})
+```
+
+**Hooks**
+
+You can add multiple `before` and `after` hooks for insertions, updates and 
+removals. Hooks get triggered even when calling the `save()` and `remove()` 
+methods on a `robe.Document` instance.
+
+```js
+collection.before('remove', function*(search, next) {
+  console.log('Before hook');
+
+  search.age = 54;  
+
+  console.log(JSON.stringify(search));
+});
+
+collection.after('remove', function*(search, result, next) {
+  console.log('After hook: ' + result);
+});
+
+// remove
+yield collection.remove({
+  name: 'john'
+});
+
+/*
+Ouptut:
+ 
+ Before hook
+ { name: 'john', age: 54 }
+ After hook: 1
+*/
+```
+
+**Schema validation**
+
+Schema is as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema).
+
+```js
+// get a collection
+var collection = db.collection('test', {
+  schema: {
+    name: {
+      type: String
+    },
+    isMarried: {
+      type: Boolean
+    },
+    numCars: {
+      type: Number
+    },
+  }  
+});
+
+// insert a record
+try {
+  yield collection.insert({
+    name: 'jim',
+    hasKids: true,
+    isMarried: 'yes',
+    numCars: '20'
+  });
+} catch (err) {
+
+  console.log(err);
+
+  /*
+    Error: Validation failed
+  */
+
+
+  console.log(err.failures); 
+
+  /*
+    [
+      "/isMarried: must be true or false",
+      "/numCars: must be a number",
+    ]  
+  */
+}
+```
+
 
 ## Building
 

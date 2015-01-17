@@ -144,8 +144,8 @@ Ouptut:
 **Schema validation**
 
 Schema definitions are as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema). 
-Inserts and updates trigger schema validation checks. Any key-value pairs not specified in the schema 
-get ignored during validation - so you have flexibility.
+Inserts and updates trigger schema validation checks. Any keys not specified in the schema 
+get ignored during validation, i.e. a schema can be a partial definition of a document.
 
 ```js
 // get a collection

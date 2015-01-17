@@ -143,7 +143,9 @@ Ouptut:
 
 **Schema validation**
 
-Schema definitions are as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema).
+Schema definitions are as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema). 
+Inserts and updates trigger schema validation checks. Any key-value pairs not specified in the schema 
+get ignored during validation - so you have flexibility.
 
 ```js
 // get a collection

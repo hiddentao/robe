@@ -12,7 +12,7 @@ Features:
 * Cursor mode (for streaming results)
 * Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
 * Replica sets supported
-* [more...](https://hiddentao.github.io/robe)
+* [and more...](https://hiddentao.github.io/robe)
 
 ## Examples
 
@@ -101,7 +101,7 @@ yield collection.findOne({
   name: 'john'
 }, {
   raw: false  // override the collection-level setting
-})
+});
 ```
 
 **Hooks**
@@ -117,10 +117,14 @@ collection.before('remove', function*(search, next) {
   search.age = 54;  
 
   console.log(JSON.stringify(search));
+
+  yield next;
 });
 
 collection.after('remove', function*(search, result, next) {
   console.log('After hook: ' + result);
+
+  yield next;
 });
 
 // remove
@@ -139,7 +143,7 @@ Ouptut:
 
 **Schema validation**
 
-Schema is as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema).
+Schema definitions are as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema).
 
 ```js
 // get a collection

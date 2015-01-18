@@ -1,0 +1,33 @@
+{
+  "name": "robe-docs",
+  "version": "0.0.0",
+  "description": "Documentation site for Robe",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hiddentao/robe.git"
+  },
+  "keywords": [
+    "robe",
+    "docs"
+  ],
+  "author": "Ramesh Nair <ram@hiddentao.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hiddentao/robe/issues"
+  },
+  "homepage": "https://github.com/hiddentao/robe",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-expect-file": "0.0.7",
+    "gulp-jade": "^0.10.0",
+    "gulp-minify-css": "^0.3.13",
+    "gulp-stylus": "^2.0.0",
+    "marked": "^0.3.2",
+    "nib": "^1.0.4",
+    "run-sequence": "^1.0.2"
+  }
+}

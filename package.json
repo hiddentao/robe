@@ -28,6 +28,7 @@
     "gulp-stylus": "^2.0.0",
     "marked": "^0.3.2",
     "nib": "^1.0.4",
-    "run-sequence": "^1.0.2"
+    "run-sequence": "^1.0.2",
+    "rupture": "^0.6.1"
   }
 }

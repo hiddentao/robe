@@ -4,6 +4,7 @@ var gulp = require('gulp'),
 var jade = require('gulp-jade');
 var stylus = require('gulp-stylus');
 var nib = require('nib');
+var rupture = require('rupture');
 var minifyCSS = require('gulp-minify-css');
 var expect = require('gulp-expect-file');
 var runSequence = require('run-sequence');
@@ -13,7 +14,7 @@ var paths = {
   stylusSrcFiles: './stylus/style.styl',
   stylusSrcFilesWatch: './stylus/*.styl',
   cssBuildFolder: './css',
-  jadeSrcFiles: './jade/*.jade',
+  jadeSrcFiles: './jade/index.jade',
   jadeSrcFilesWatch: './jade/*.jade',
   jadeBuildFolder: './',
 };
@@ -22,7 +23,7 @@ var paths = {
 gulp.task('css', function () {
   return gulp.src( paths.stylusSrcFiles )
     .pipe( stylus({
-      use: [ nib() ],
+      use: [ nib(), rupture() ],
       errors: true
     }) )
     .pipe( minifyCSS({
@@ -42,7 +43,7 @@ gulp.task('jade', function () {
 });
 
 
-gulp.task('watch', ['css'], function() {
+gulp.task('watch', ['css', 'jade'], function() {
   gulp.watch(paths.stylusSrcFilesWatch, ['css']); 
   gulp.watch(paths.jadeSrcFilesWatch, ['jade']); 
 });
@@ -60,6 +61,7 @@ gulp.task('verify-build', function() {
     )
     .pipe( expect([
       'css/style.css',
+      'css/prism.css',
       'index.html'
     ]) )
   ;

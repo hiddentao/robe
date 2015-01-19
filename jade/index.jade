@@ -1,25 +1,36 @@
+include _mixins
+
 doctype html
 html
   head
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible", content="chrome=1")
     title Robe
-    link(rel="stylesheet", href="css/style.css")
+    link(href='http://fonts.googleapis.com/css?family=Bree+Serif', rel='stylesheet', type='text/css')
+    link(href="css/prism.css", rel="stylesheet", type='text/css')
+    link(href="css/style.css", rel="stylesheet", type='text/css')
     script(src="js/scale.fix.js")
   body
     nav
-    h1 Robe
-    h2 An ODM library for MongoDB using ES6 generators
-    section#intro
-      :markdown
-        **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
-        simple yet effective ODM library for MongoDB. 
+    main
+        h1 Robe
+        h2 ODM for MongoDB using ES6 generators
 
-        Overview:
+        +code('bash').
+          $ npm install --save robe
 
-        * Object-oriented extensibility.
-        * Use documents or raw data, your choice.
-        * Before and after Hooks.
-        * Stream results using cursors.
-        * Optional schema validation.
-        * Full access to Mongo filtering and updating modifiers.
+        section#intro
+          :markdown
+            **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
+            simple yet effective ODM library for MongoDB. 
+
+            Overview:
+
+            * Object-oriented extensibility.
+            * Use documents or raw data, your choice.
+            * Before and after Hooks.
+            * Stream results using cursors.
+            * Optional schema validation.
+            * Full access to Mongo filtering and updating modifiers.
+
+    script(type="text/javascript", src="js/prism.js")

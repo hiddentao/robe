@@ -1,4 +1,4 @@
-include _mixins
+include ./_mixins
 
 doctype html
 html
@@ -14,24 +14,300 @@ html
   body
     nav
     main
-        h1 Robe
-        h2 Node.js ODM for MongoDB using ES6 generators
+      h1
+        span Robe
+        small Node.js ODM for MongoDB using ES6 generators
 
-        +code('bash').
-          $ npm install --save robe
+      +code('bash').
+        $ npm install --save robe
 
-        section#intro
-          :markdown
-            **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
-            simple ODM library for MongoDB. 
+      a#github(href="https://github.com/hiddentao/robe", title="View on Github") View on github
 
-            Overview:
+      section#intro
+        :markdown
+          **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
+          simple ODM library for MongoDB. 
 
-            * Object-oriented extensibility.
-            * Use documents or raw data, your choice.
-            * Before and after Hooks.
-            * Stream results using cursors.
-            * Optional schema validation.
-            * Full access to Mongo filtering and updating modifiers.
+          Overview:
+
+          * ES6 - **no callbacks needed**.
+          * Full access to Mongo query modifiers.
+          * Use [documents](#documents) or [raw data](#raw), your choice.
+          * Add [hooks](#hooks) for further processing.
+          * Stream results using [cursors](#cursors).
+          * Optional [schema validation](#schema).
+          * Clean, object-oriented [API](#api).
+
+          To use Robe within your code:
+
+        +code('javascript').
+          "use strict";
+
+          var Robe = require('robe');
+
+      section
+        :markdown
+          ## Connecting
+
+          Robe supports multiple independent database connections:
+
+        +code('javascript').
+          var db1 = yield Robe.connect('127.0.0.1'),
+            db2 = yield Robe.connect('127.2.1.1');
+
+        :markdown
+            The returned object is an instance of `Robe.Database`.
+
+            Replica sets are also supported:
+
+        +code('javascript').
+          var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
+
+      section
+        :markdown
+          ## Querying
+
+          Imagine we have a sample collection - **students** - with the 
+          following data:
+
+        table
+          thead
+            tr
+              th _id
+              th name
+              th score
+          tr
+            td 1
+            td Tom
+            td 19            
+          tr
+            td 2
+            td Jim
+            td 22            
+          tr
+            td 3
+            td Abe
+            td 98            
+          tr
+            td 4
+            td Candy
+            td 5            
+          tr
+            td 5
+            td Ram
+            td 27            
+          tr
+            td 6
+            td Drew
+            td 41            
+          tr
+            td 7
+            td Jeff
+            td 31            
+
+        :markdown
+          To fetch results:
+
+        +code('javascript').
+          var collection = db.collection('students');
+
+          var results = yield collection.find({
+            // the filtering query (all Mongo modifiers supported)
+            score: {
+              $gt: 20
+            },
+          }, {
+            // only include certain fields in the results
+            fields: ['name'],
+            // sort results
+            sort: { name: 1 },
+            // limit no. of results to return
+            limit: 3,
+            // ignore the first N results
+            skip: 1,
+          });
+
+          console.log(
+            results.map(function(r) {
+              return r.name;
+            })
+          );
+
+          /* 'Drew', 'Jeff', 'Ram' */
+
+        :markdown
+          When you only need one result there is a shortcut method you can use:
+
+        +code('javascript').
+          var collection = db.collection('students');
+
+          var result = yield collection.findOne({
+            // the filtering query (all Mongo modifiers supported)
+            score: {
+              $gt: 20
+            },
+          }, {
+            // only include certain fields in the results
+            fields: ['name'],
+            // sort results
+            sort: { name: 1 },
+            // ignore the first N results
+            skip: 1,
+          });
+
+          console.log(result.name); 
+
+          /* 'Drew' */
+
+        :markdown
+          ### Documents 
+
+          Each returned result is an instance of `Robe.Document`. Documents 
+          encapsulate the raw data and can be enumerated just like plain 
+          objects:
+
+        +code('javascript').
+          var result = yield collection.findOne({
+            // the filtering query (all Mongo modifiers supported)
+            score: {
+              $gt: 20
+            },
+          }, {
+            // only include certain fields in the results
+            fields: ['name'],
+            // sort results
+            sort: { name: 1 },
+            // ignore the first N results
+            skip: 1,
+          });
+
+          // output the raw data
+          console.log( result.toJSON() );
+
+          /*
+            {
+              _id: 6,
+              name: 'Drew',
+              age: 41
+            }
+           */
+
+          // output document keys
+          console.log( Object.keys(result) );
+
+          /*
+            '_id', 'name', 'age'
+          */
+         
+        :markdown
+          ### Raw data
+
+          If you do wish to deal directly with Mongo data and not use 
+          `Robe.Document` instances you can specify the `raw` option:
+
+        +code('javascript').
+          var results = yield collection.findOne({
+            _id: 1
+          }, {
+            // return Mongo data objects rather than Document instances
+            raw: true 
+          });
+
+          console.log( result instancoof Robe.Document ); // false
+
+          console.log( result );
+
+          /*
+            {
+              _id: 1,
+              name: 'Tom',
+              age: 19
+            }
+          */
+
+        :markdown
+          The `raw` option can be specified at the collection level so that 
+          you don't have to keep specifying it for every query:
+
+        +code('javascript').
+          var collection = db.collection('students', {
+            raw: true
+          });
+
+          var results = yield collection.findOne({  _id: 1 });
+
+          console.log( result instancoof Robe.Document ); // false
+
+        :markdown
+          ### Cursors (streaming)
+
+          Sometimes it's useful to be able to stream data from the database 
+          one document at a time, especially if we expect the result set to 
+          be quite large and thus wish to process it bit-by-bit.
+
+          Robe can give you an event-driven cursor to facilitate this:
+
+          _Note: At the moment we use an event emitter (and thus, callbacks) when 
+          working with cursors. We hope to use generators instead in future._
+
+        +code('javascript').
+          var cursor = yield collection.findStream({  
+            score: {
+              $gt: 20
+            }
+          }, {
+            limit: 3,
+            sort: {
+              name: -1
+            },
+            fields: [ 'name' ],
+          });
+
+
+          cursor.on('result', function(doc) {
+            console.log(doc instanceof Robe.Document);  // true
+            console.log( doc.toJSON() );
+          });
+
+          cursor.on('error', function(err) {
+            console.error(err);
+          });
+
+          cursor.on('success', function() {
+            console.log('All done.');
+          });
+
+          /*
+            {
+              name: 'Tom'                
+            }
+            {
+              name: 'Ram'                
+            }
+            {
+              name: 'Jim'                
+            }
+            All done.
+          */
+
+      section
+        :markdown
+          ## Inserting
+      section
+        :markdown
+          ## Updating
+      section
+        :markdown
+          ## Removing
+      section
+        :markdown
+          ## Schema validation
+      section
+        :markdown
+          ## Hooks
+      section
+        :markdown
+          ## API
+
 
     script(type="text/javascript", src="js/prism.js")

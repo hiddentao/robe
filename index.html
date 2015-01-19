@@ -1,13 +1,190 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="chrome=1"><title>Robe</title><link href="http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic" rel="stylesheet" type="text/css"><link href="http://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet" type="text/css"><link href="css/prism.css" rel="stylesheet" type="text/css"><link href="css/style.css" rel="stylesheet" type="text/css"><script src="js/scale.fix.js"></script></head><body><nav></nav><main><h1>Robe</h1><h2>Node.js ODM for MongoDB using ES6 generators</h2><pre><code class="language-bash">$ npm install --save robe
-</code></pre><section id="intro"><p><strong>Robe</strong> wraps around <a href="https://github.com/Automattic/monk">monk</a> to provide a 
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="chrome=1"><title>Robe</title><link href="http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic" rel="stylesheet" type="text/css"><link href="http://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet" type="text/css"><link href="css/prism.css" rel="stylesheet" type="text/css"><link href="css/style.css" rel="stylesheet" type="text/css"><script src="js/scale.fix.js"></script></head><body><nav></nav><main><h1><span>Robe</span><small>Node.js ODM for MongoDB using ES6 generators</small></h1><pre><code class="language-bash">$ npm install --save robe
+</code></pre><a id="github" href="https://github.com/hiddentao/robe" title="View on Github">View on github</a><section id="intro"><p><strong>Robe</strong> wraps around <a href="https://github.com/Automattic/monk">monk</a> to provide a 
 simple ODM library for MongoDB. </p>
 <p>Overview:</p>
 <ul>
-<li>Object-oriented extensibility.</li>
-<li>Use documents or raw data, your choice.</li>
-<li>Before and after Hooks.</li>
-<li>Stream results using cursors.</li>
-<li>Optional schema validation.</li>
-<li>Full access to Mongo filtering and updating modifiers.</li>
+<li>ES6 - <strong>no callbacks needed</strong>.</li>
+<li>Full access to Mongo query modifiers.</li>
+<li>Use <a href="#documents">documents</a> or <a href="#raw">raw data</a>, your choice.</li>
+<li>Add <a href="#hooks">hooks</a> for further processing.</li>
+<li>Stream results using <a href="#cursors">cursors</a>.</li>
+<li>Optional <a href="#schema">schema validation</a>.</li>
+<li>Clean, object-oriented <a href="#api">API</a>.</li>
 </ul>
+<p>To use Robe within your code:</p>
+<pre><code class="language-javascript">"use strict";
+
+var Robe = require('robe');
+</code></pre></section><section><h2 id="connecting">Connecting</h2>
+<p>Robe supports multiple independent database connections:</p>
+<pre><code class="language-javascript">var db1 = yield Robe.connect('127.0.0.1'),
+  db2 = yield Robe.connect('127.2.1.1');
+</code></pre><p>The returned object is an instance of <code>Robe.Database</code>.</p>
+<p>Replica sets are also supported:</p>
+<pre><code class="language-javascript">var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
+</code></pre></section><section><h2 id="querying">Querying</h2>
+<p>Imagine we have a sample collection - <strong>students</strong> - with the 
+following data:</p>
+<table><thead><tr><th>_id</th><th>name</th><th>score</th></tr></thead><tr><td>1</td><td>Tom</td><td>19            </td></tr><tr><td>2</td><td>Jim</td><td>22            </td></tr><tr><td>3</td><td>Abe</td><td>98            </td></tr><tr><td>4</td><td>Candy</td><td>5            </td></tr><tr><td>5</td><td>Ram</td><td>27            </td></tr><tr><td>6</td><td>Drew</td><td>41            </td></tr><tr><td>7</td><td>Jeff</td><td>31            </td></tr></table><p>To fetch results:</p>
+<pre><code class="language-javascript">var collection = db.collection('students');
+
+var results = yield collection.find({
+  // the filtering query (all Mongo modifiers supported)
+  score: {
+    $gt: 20
+  },
+}, {
+  // only include certain fields in the results
+  fields: ['name'],
+  // sort results
+  sort: { name: 1 },
+  // limit no. of results to return
+  limit: 3,
+  // ignore the first N results
+  skip: 1,
+});
+
+console.log(
+  results.map(function(r) {
+    return r.name;
+  })
+);
+
+/* 'Drew', 'Jeff', 'Ram' */
+</code></pre><p>When you only need one result there is a shortcut method you can use:</p>
+<pre><code class="language-javascript">var collection = db.collection('students');
+
+var result = yield collection.findOne({
+  // the filtering query (all Mongo modifiers supported)
+  score: {
+    $gt: 20
+  },
+}, {
+  // only include certain fields in the results
+  fields: ['name'],
+  // sort results
+  sort: { name: 1 },
+  // ignore the first N results
+  skip: 1,
+});
+
+console.log(result.name); 
+
+/* 'Drew' */
+</code></pre><h3 id="documents">Documents</h3>
+<p>Each returned result is an instance of <code>Robe.Document</code>. Documents 
+encapsulate the raw data and can be enumerated just like plain 
+objects:</p>
+<pre><code class="language-javascript">var result = yield collection.findOne({
+  // the filtering query (all Mongo modifiers supported)
+  score: {
+    $gt: 20
+  },
+}, {
+  // only include certain fields in the results
+  fields: ['name'],
+  // sort results
+  sort: { name: 1 },
+  // ignore the first N results
+  skip: 1,
+});
+
+// output the raw data
+console.log( result.toJSON() );
+
+/*
+  {
+    _id: 6,
+    name: 'Drew',
+    age: 41
+  }
+ */
+
+// output document keys
+console.log( Object.keys(result) );
+
+/*
+  '_id', 'name', 'age'
+*/
+</code></pre><h3 id="raw-data">Raw data</h3>
+<p>If you do wish to deal directly with Mongo data and not use 
+<code>Robe.Document</code> instances you can specify the <code>raw</code> option:</p>
+<pre><code class="language-javascript">var results = yield collection.findOne({
+  _id: 1
+}, {
+  // return Mongo data objects rather than Document instances
+  raw: true 
+});
+
+console.log( result instancoof Robe.Document ); // false
+
+console.log( result );
+
+/*
+  {
+    _id: 1,
+    name: 'Tom',
+    age: 19
+  }
+*/
+</code></pre><p>The <code>raw</code> option can be specified at the collection level so that 
+you don&#39;t have to keep specifying it for every query:</p>
+<pre><code class="language-javascript">var collection = db.collection('students', {
+  raw: true
+});
+
+var results = yield collection.findOne({  _id: 1 });
+
+console.log( result instancoof Robe.Document ); // false
+</code></pre><h3 id="cursors-streaming-">Cursors (streaming)</h3>
+<p>Sometimes it&#39;s useful to be able to stream data from the database 
+one document at a time, especially if we expect the result set to 
+be quite large and thus wish to process it bit-by-bit.</p>
+<p>Robe can give you an event-driven cursor to facilitate this:</p>
+<p><em>Note: At the moment we use an event emitter (and thus, callbacks) when 
+working with cursors. We hope to use generators instead in future.</em></p>
+<pre><code class="language-javascript">var cursor = yield collection.findStream({  
+  score: {
+    $gt: 20
+  }
+}, {
+  limit: 3,
+  sort: {
+    name: -1
+  },
+  fields: [ 'name' ],
+});
+
+
+cursor.on('result', function(doc) {
+  console.log(doc instanceof Robe.Document);  // true
+  console.log( doc.toJSON() );
+});
+
+cursor.on('error', function(err) {
+  console.error(err);
+});
+
+cursor.on('success', function() {
+  console.log('All done.');
+});
+
+/*
+  {
+    name: 'Tom'                
+  }
+  {
+    name: 'Ram'                
+  }
+  {
+    name: 'Jim'                
+  }
+  All done.
+*/
+</code></pre></section><section><h2 id="inserting">Inserting</h2>
+</section><section><h2 id="updating">Updating</h2>
+</section><section><h2 id="removing">Removing</h2>
+</section><section><h2 id="schema-validation">Schema validation</h2>
+</section><section><h2 id="hooks">Hooks</h2>
+</section><section><h2 id="api">API</h2>
 </section></main><script type="text/javascript" src="js/prism.js"></script></body></html>

@@ -603,7 +603,7 @@ html
             yield next;
           });
 
-          collection.before('remove', function*(search, update, result, next) {
+          collection.after('update', function*(search, update, result, next) {
             console.log('after 2');
 
             yield next;

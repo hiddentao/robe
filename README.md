@@ -1,6 +1,6 @@
 # Robe
 
-[![Build Status](https://secure.travis-ci.org/hiddentao/robe.png?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/robe.png)](https://badge.fury.io/js/robe)
+[![Build Status](https://secure.travis-ci.org/hiddentao/Robe.png?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/Robe.png)](https://badge.fury.io/js/robe)
 
 **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
 simple yet effective ODM library for MongoDB. 
@@ -23,10 +23,10 @@ Detailed documentation is available at [https://hiddentao.github.io/robe](https:
 ```js
 "use strict";
 
-var robe = require('robe');
+var Robe = require('robe');
 
 // connect to db
-var db = yield robe.connect('127.0.0.1');
+var db = yield Robe.connect('127.0.0.1');
 
 // get a collection
 var collection = db.collection('test');
@@ -42,7 +42,7 @@ var item = yield collection.findOne({
   name: 'jim'
 });
 
-console.log(item instanceof robe.Document); // true
+console.log(item instanceof Robe.Document); // true
 console.log(Object.keys(item)); // _id, name, age
 
 // update
@@ -55,7 +55,7 @@ yield item.remove();  // internally calls collection.remove(...)
 
 **Raw querying mode**
 
-In this mode we won't make use of `robe.Document` and will instead deal 
+In this mode we won't make use of `Robe.Document` and will instead deal 
 directly with Mongo data objects.
 
 ```js
@@ -72,7 +72,7 @@ var item = yield collection.findOne({
   raw: true // return the raw mongo object
 });
 
-console.log(item instanceof robe.Document); // false
+console.log(item instanceof Robe.Document); // false
 console.log(Object.keys(item)); // _id, name, age
 
 // update
@@ -108,7 +108,7 @@ yield collection.findOne({
 
 You can add multiple `before` and `after` hooks for insertions, updates and 
 removals. Hooks get triggered even when calling the `save()` and `remove()` 
-methods on a `robe.Document` instance.
+methods on a `Robe.Document` instance.
 
 ```js
 collection.before('remove', function*(search, next) {

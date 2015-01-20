@@ -6,13 +6,23 @@ html
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible", content="chrome=1")
     title Robe
-    link(href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic', rel='stylesheet', type='text/css')
-    link(href='http://fonts.googleapis.com/css?family=Bree+Serif', rel='stylesheet', type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic', rel='stylesheet', type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Bree+Serif', rel='stylesheet', type='text/css')
+    link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", rel="stylesheet")
     link(href="css/prism.css", rel="stylesheet", type='text/css')
     link(href="css/style.css", rel="stylesheet", type='text/css')
     script(src="js/scale.fix.js")
   body
-    nav
+    header
+      h2 Robe
+      nav
+      .links
+        a.github(href="https://github.com/hiddentao/robe")
+          i.fa.fa-github
+          span Github
+        a.twitter(href="https://twitter.com/hiddentao")
+          i.fa.fa-twitter
+          span Twitter
     main
       h1
         span Robe
@@ -21,7 +31,9 @@ html
       +code('bash').
         $ npm install --save robe
 
-      a#github(href="https://github.com/hiddentao/robe", title="View on Github") View on github
+      a.github(href="https://github.com/hiddentao/robe", title="View on Github")
+        i.fa.fa-github
+        span View on Github
 
       section#intro
         :markdown
@@ -31,12 +43,13 @@ html
           Overview:
 
           * ES6 - **no callbacks needed**.
-          * Full access to Mongo query modifiers.
+          * Supports standard Mongo [query modifiers](#querying).
+          * Connect to [hosts and replica sets](#connecting).
           * Use [documents](#documents) or [raw data](#raw), your choice.
           * Add [hooks](#hooks) for further processing.
           * Stream results using [cursors](#cursors).
           * Optional [schema validation](#schema).
-          * Clean, object-oriented [API](#api).
+          * Clean, object-oriented API.
 
           To use Robe within your code:
 
@@ -45,7 +58,7 @@ html
 
           var Robe = require('robe');
 
-      section
+      section#connecting
         :markdown
           ## Connecting
 
@@ -63,7 +76,7 @@ html
         +code('javascript').
           var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
 
-      section
+      section#querying
         :markdown
           ## Querying
 
@@ -159,6 +172,7 @@ html
 
           /* 'Drew' */
 
+      section#documents
         :markdown
           ### Documents 
 
@@ -199,6 +213,7 @@ html
             '_id', 'name', 'age'
           */
          
+      section#raw
         :markdown
           ### Raw data
 
@@ -238,6 +253,7 @@ html
 
           console.log( result instancoof Robe.Document ); // false
 
+      section#cursors
         :markdown
           ### Cursors (streaming)
 
@@ -290,24 +306,329 @@ html
             All done.
           */
 
-      section
+      section#inserting
         :markdown
           ## Inserting
-      section
+
+          Inserting data is done via the `Robe.Collection` instance:
+
+        +code('javascript').
+          var collection = db.collection('students');
+
+          var item = yield collection.insert({
+            name: 'Amanda',
+            age: 76
+          });
+
+          console.log( item instanceof Robe.Document ); // true
+
+          console.log( item.toJSON() );
+
+          /*
+            {
+              _id: ...auto-generated mongo id...,
+              name: 'Amanda',
+              age: 76
+            }  
+          */
+         
+        :markdown
+          Raw insertion mode is also supported:
+
+        +code('javascript').
+          var collection = db.collection('students');
+
+          var item = yield collection.insert({
+            name: 'Amanda',
+            age: 76
+          }, {
+            raw: true
+          });
+
+          console.log( item instanceof Robe.Document ); // false
+
+          console.log( item );
+
+          /*
+            {
+              _id: ...auto-generated mongo id...,
+              name: 'Amanda',
+              age: 76
+            }  
+          */
+
+      section#updating
         :markdown
           ## Updating
-      section
+
+          Changes made to a `Robe.Document` can be saved:
+
+        +code('javascript').
+          var item = yield collection.findOne({
+            _id: 1
+          });
+
+          item.name = 'Martha';
+
+          yield item.save();
+
+        :markdown
+          Internally this method calls through to the collection:
+
+        +code('javascript').
+          yield collection.update({
+            _id: 1  
+          }, {
+            $set: {
+              name: 'Martha'
+            }
+          });
+
+      section#removing
         :markdown
           ## Removing
-      section
+
+          Removing a document:
+
+        +code('javascript').
+          var item = yield collection.findOne({
+            _id: 1
+          });
+
+          yield item.remove();
+
+        :markdown
+          Internally this method calls through to the collection:
+
+        +code('javascript').
+          yield collection.remove({
+            _id: 1  
+          });
+
+      section#schema
         :markdown
           ## Schema validation
-      section
+
+          Robe will validate the structure of your document against a schema you 
+          provide:
+
+        +code('javascript').
+          var collection = db.collection('students', {
+            schema: {
+              name: {
+                type: String
+              },
+              age: {
+                type: Number,
+                required: true
+              }
+            }
+          });
+  
+          yield collection.insert({
+            name: 23,
+            hasKids: true  
+          });
+
+          /*
+            Error: Validation failed
+          */
+         
+        :markdown
+          The thrown `Error` instance has a `failures` key which lists the 
+          specific validation failures. For the previous example:
+
+        +code('javascript').
+          console.log( err.failures );
+
+          /*
+            [
+              "/name: must be a string"
+              "/age: missing value"
+            ]
+          */
+         
+        :markdown
+          _Note: Although `hasKids` is present in the inserted document, since it 
+          isn't present in the schema it gets ignored._
+
+          Schema validation is done by 
+          [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema),
+          allowing for nested hierarchies:
+
+        +code('javascript').
+          var collection = db.collection('students', {
+            schema: {
+              name: {
+                type: String
+              },
+              address: {
+                type: {
+                  houseNum: {
+                    type: Number,
+                    required: true
+                  },
+                  streetName: {
+                    type: String,
+                    required: true
+                  },
+                  country: {
+                    type: String,
+                    required: true
+                  }
+                }
+              }
+            }
+          });
+  
+          try {
+            yield collection.insert({
+              name: 23,
+              address: {
+                houseNum: 'view street',
+                streetName: 23
+              }
+            });
+          } catch (err) {
+            console.log(err.failures);
+
+            /*
+              [ 
+                "/address/houseNum: must be a number",
+                "/address/streetName: must be a string",
+                "/address/country: missing value",
+              ]
+            */
+          }
+
+      section#hooks
         :markdown
           ## Hooks
-      section
-        :markdown
-          ## API
 
+          Hooks allow you to perform additional asynchronous processing upon 
+          data before and/or after all inserts, updates and removals.
+
+          You can register hooks against a `Robe.Collection` instance. 
+          Hooks get triggered regardless of whether you call methods on the 
+          collection or perform updates through a `Robe.Document` instance:
+
+        +code('javascript').
+          var collection = db.collection('students');
+
+          // run before schema validation and insertion
+          collection.before('insert', function*(attrs, next) {
+            console.log('before');
+
+            attrs.hasKids = true;
+
+            yield next;
+          });
+
+          // run after successful insertion
+          collection.after('insert', function*(result, next) {
+            console.log('after');
+
+            console.log(result);
+
+            yield next;
+          });
+
+          collection.insert({
+            name: 'Janice'
+          });
+
+          /*
+            before
+            after
+            {
+              _id: ...mongo id...,
+              name: 'Janice',
+              hasKids: true
+            }  
+          */
+
+        :markdown
+          Multiple handlers can be registerd for a given hook:
+
+        +code('javascript').
+          collection.before('remove', function*(search, next) {
+            console.log('before 1');
+
+            search._id += 5;
+
+            yield next;
+          });
+
+          collection.before('remove', function*(search, next) {
+            console.log('before 2');
+
+            search._id += 1;
+
+            yield next;
+          });
+
+          collection.before('remove', function*(search, result, next) {
+            console.log('after: ' + result);
+
+            console.log(search._id);
+
+            yield next;
+          });
+
+          collection.remove({
+            _id: 0
+          });
+
+          /*
+            before 1
+            before 2
+            after: 1
+            6
+          */
+
+        :markdown
+          For updates you get passed the search query as well as the update 
+          instructions:
+
+        +code('javascript').
+          collection.before('remove', function*(search, next) {
+            console.log('before 1');
+
+            search._id += 5;
+
+            yield next;
+          });
+
+          collection.before('remove', function*(search, next) {
+            console.log('before 2');
+
+            search._id += 1;
+
+            yield next;
+          });
+
+          collection.before('remove', function*(search, result, next) {
+            console.log('after: ' + result);
+
+            console.log(search._id);
+
+            yield next;
+          });
+
+          collection.remove({
+            _id: 0
+          });
+
+          /*
+            before 1
+            before 2
+            after: 1
+            6
+          */          
+
+      footer
+        p By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.
 
     script(type="text/javascript", src="js/prism.js")
+    script(type="text/javascript", src="js/jquery.js")
+    script(type="text/javascript", src="js/main.js")      

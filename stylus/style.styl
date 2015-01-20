@@ -1,8 +1,10 @@
 @import 'nib';
+@import 'rupture';
 @import './responsive-pixels'
 
 global-reset();
 
+scale = 0 480px 768px 900px 1050px
 
 color1 = #fcfae1
 color2 = #b9121b
@@ -29,6 +31,9 @@ a
     background-color color2
     color body-color
     
+  i
+    margin-right 6px
+    
 
 pre[class*="language-"]
   display inline-block
@@ -36,6 +41,7 @@ pre[class*="language-"]
   border-radius 10px
   padding 5px 15px
   margin 0
+  max-width 98%
 
 strong
   font-weight bold
@@ -56,13 +62,55 @@ table
   td
     border 1px solid #000
 
-main 
-  width 70%
-  padding 1em
+header 
+  width 15%
+  background #666 url("../img/asfalt.png") repeat
+  position fixed
+  top 0px
+  left 0px
+  height 100%
+  padding 16px
+  +below(768px)
+    display none
+      
+  h2
+    font-family "Bree Serif", serif
+    color #fff
+    font-size 30px
+    margin-bottom 30px
+    
+  a
+    font-family "Helvetica Neue", "Open Sans", sans-serif
+    border-bottom none
+    font-size 18px
+   
+  nav
+    padding-bottom 30px
+    margin-bottom 20px
+    border-bottom 1px solid #000
+    & > ul
+      & > li 
+        margin 15px 0
+      ul
+        margin-left 20px
+        font-size 80%
+        li
+          margin 5px 0
+          
+  .links a
+    margin-right 20px
+    font-size 12px
 
-  a#github
-    display block
-    margin 20px 0 40px
+
+
+main 
+  width 80%
+  position relative
+  left 20%
+  padding 16px
+  +below(768px)
+    left 0px
+    width 100%
 
   section
     line-height 30px
@@ -99,3 +147,14 @@ main
       font-family "Helvetica Neue", "Open Sans", sans-serif
       font-weight 100
       color #666
+      
+  a.github
+    display inline-block
+    font-size 15px
+    margin-left 10px
+    vertical-align super
+    
+  footer
+    font-size 16px
+    margin-top 30px
+    padding-top 20px

@@ -1,28 +1,29 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="chrome=1"><title>Robe</title><link href="http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic" rel="stylesheet" type="text/css"><link href="http://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet" type="text/css"><link href="css/prism.css" rel="stylesheet" type="text/css"><link href="css/style.css" rel="stylesheet" type="text/css"><script src="js/scale.fix.js"></script></head><body><nav></nav><main><h1><span>Robe</span><small>Node.js ODM for MongoDB using ES6 generators</small></h1><pre><code class="language-bash">$ npm install --save robe
-</code></pre><a id="github" href="https://github.com/hiddentao/robe" title="View on Github">View on github</a><section id="intro"><p><strong>Robe</strong> wraps around <a href="https://github.com/Automattic/monk">monk</a> to provide a 
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="chrome=1"><title>Robe</title><link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic" rel="stylesheet" type="text/css"><link href="https://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet" type="text/css"><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet" type="text/css"><link href="css/style.css" rel="stylesheet" type="text/css"><script src="js/scale.fix.js"></script></head><body><header><h2>Robe</h2><nav></nav><div class="links"><a href="https://github.com/hiddentao/robe" class="github"><i class="fa fa-github"></i><span>Github</span></a><a href="https://twitter.com/hiddentao" class="twitter"><i class="fa fa-twitter"></i><span>Twitter</span></a></div></header><main><h1><span>Robe</span><small>Node.js ODM for MongoDB using ES6 generators</small></h1><pre><code class="language-bash">$ npm install --save robe
+</code></pre><a href="https://github.com/hiddentao/robe" title="View on Github" class="github"><i class="fa fa-github"></i><span>View on Github</span></a><section id="intro"><p><strong>Robe</strong> wraps around <a href="https://github.com/Automattic/monk">monk</a> to provide a 
 simple ODM library for MongoDB. </p>
 <p>Overview:</p>
 <ul>
 <li>ES6 - <strong>no callbacks needed</strong>.</li>
-<li>Full access to Mongo query modifiers.</li>
+<li>Supports standard Mongo <a href="#querying">query modifiers</a>.</li>
+<li>Connect to <a href="#connecting">hosts and replica sets</a>.</li>
 <li>Use <a href="#documents">documents</a> or <a href="#raw">raw data</a>, your choice.</li>
 <li>Add <a href="#hooks">hooks</a> for further processing.</li>
 <li>Stream results using <a href="#cursors">cursors</a>.</li>
 <li>Optional <a href="#schema">schema validation</a>.</li>
-<li>Clean, object-oriented <a href="#api">API</a>.</li>
+<li>Clean, object-oriented API.</li>
 </ul>
 <p>To use Robe within your code:</p>
 <pre><code class="language-javascript">"use strict";
 
 var Robe = require('robe');
-</code></pre></section><section><h2 id="connecting">Connecting</h2>
+</code></pre></section><section id="connecting"><h2 id="connecting">Connecting</h2>
 <p>Robe supports multiple independent database connections:</p>
 <pre><code class="language-javascript">var db1 = yield Robe.connect('127.0.0.1'),
   db2 = yield Robe.connect('127.2.1.1');
 </code></pre><p>The returned object is an instance of <code>Robe.Database</code>.</p>
 <p>Replica sets are also supported:</p>
 <pre><code class="language-javascript">var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
-</code></pre></section><section><h2 id="querying">Querying</h2>
+</code></pre></section><section id="querying"><h2 id="querying">Querying</h2>
 <p>Imagine we have a sample collection - <strong>students</strong> - with the 
 following data:</p>
 <table><thead><tr><th>_id</th><th>name</th><th>score</th></tr></thead><tr><td>1</td><td>Tom</td><td>19            </td></tr><tr><td>2</td><td>Jim</td><td>22            </td></tr><tr><td>3</td><td>Abe</td><td>98            </td></tr><tr><td>4</td><td>Candy</td><td>5            </td></tr><tr><td>5</td><td>Ram</td><td>27            </td></tr><tr><td>6</td><td>Drew</td><td>41            </td></tr><tr><td>7</td><td>Jeff</td><td>31            </td></tr></table><p>To fetch results:</p>
@@ -71,7 +72,7 @@ var result = yield collection.findOne({
 console.log(result.name); 
 
 /* 'Drew' */
-</code></pre><h3 id="documents">Documents</h3>
+</code></pre></section><section id="documents"><h3 id="documents">Documents</h3>
 <p>Each returned result is an instance of <code>Robe.Document</code>. Documents 
 encapsulate the raw data and can be enumerated just like plain 
 objects:</p>
@@ -106,7 +107,7 @@ console.log( Object.keys(result) );
 /*
   '_id', 'name', 'age'
 */
-</code></pre><h3 id="raw-data">Raw data</h3>
+</code></pre></section><section id="raw"><h3 id="raw-data">Raw data</h3>
 <p>If you do wish to deal directly with Mongo data and not use 
 <code>Robe.Document</code> instances you can specify the <code>raw</code> option:</p>
 <pre><code class="language-javascript">var results = yield collection.findOne({
@@ -136,7 +137,7 @@ you don&#39;t have to keep specifying it for every query:</p>
 var results = yield collection.findOne({  _id: 1 });
 
 console.log( result instancoof Robe.Document ); // false
-</code></pre><h3 id="cursors-streaming-">Cursors (streaming)</h3>
+</code></pre></section><section id="cursors"><h3 id="cursors-streaming-">Cursors (streaming)</h3>
 <p>Sometimes it&#39;s useful to be able to stream data from the database 
 one document at a time, especially if we expect the result set to 
 be quite large and thus wish to process it bit-by-bit.</p>
@@ -181,10 +182,264 @@ cursor.on('success', function() {
   }
   All done.
 */
-</code></pre></section><section><h2 id="inserting">Inserting</h2>
-</section><section><h2 id="updating">Updating</h2>
-</section><section><h2 id="removing">Removing</h2>
-</section><section><h2 id="schema-validation">Schema validation</h2>
-</section><section><h2 id="hooks">Hooks</h2>
-</section><section><h2 id="api">API</h2>
-</section></main><script type="text/javascript" src="js/prism.js"></script></body></html>
+</code></pre></section><section id="inserting"><h2 id="inserting">Inserting</h2>
+<p>Inserting data is done via the <code>Robe.Collection</code> instance:</p>
+<pre><code class="language-javascript">var collection = db.collection('students');
+
+var item = yield collection.insert({
+  name: 'Amanda',
+  age: 76
+});
+
+console.log( item instanceof Robe.Document ); // true
+
+console.log( item.toJSON() );
+
+/*
+  {
+    _id: ...auto-generated mongo id...,
+    name: 'Amanda',
+    age: 76
+  }  
+*/
+</code></pre><p>Raw insertion mode is also supported:</p>
+<pre><code class="language-javascript">var collection = db.collection('students');
+
+var item = yield collection.insert({
+  name: 'Amanda',
+  age: 76
+}, {
+  raw: true
+});
+
+console.log( item instanceof Robe.Document ); // false
+
+console.log( item );
+
+/*
+  {
+    _id: ...auto-generated mongo id...,
+    name: 'Amanda',
+    age: 76
+  }  
+*/
+</code></pre></section><section id="updating"><h2 id="updating">Updating</h2>
+<p>Changes made to a <code>Robe.Document</code> can be saved:</p>
+<pre><code class="language-javascript">var item = yield collection.findOne({
+  _id: 1
+});
+
+item.name = 'Martha';
+
+yield item.save();
+</code></pre><p>Internally this method calls through to the collection:</p>
+<pre><code class="language-javascript">yield collection.update({
+  _id: 1  
+}, {
+  $set: {
+    name: 'Martha'
+  }
+});
+</code></pre></section><section id="removing"><h2 id="removing">Removing</h2>
+<p>Removing a document:</p>
+<pre><code class="language-javascript">var item = yield collection.findOne({
+  _id: 1
+});
+
+yield item.remove();
+</code></pre><p>Internally this method calls through to the collection:</p>
+<pre><code class="language-javascript">yield collection.remove({
+  _id: 1  
+});
+</code></pre></section><section id="schema"><h2 id="schema-validation">Schema validation</h2>
+<p>Robe will validate the structure of your document against a schema you 
+provide:</p>
+<pre><code class="language-javascript">var collection = db.collection('students', {
+  schema: {
+    name: {
+      type: String
+    },
+    age: {
+      type: Number,
+      required: true
+    }
+  }
+});
+
+yield collection.insert({
+  name: 23,
+  hasKids: true  
+});
+
+/*
+  Error: Validation failed
+*/
+</code></pre><p>The thrown <code>Error</code> instance has a <code>failures</code> key which lists the 
+specific validation failures. For the previous example:</p>
+<pre><code class="language-javascript">console.log( err.failures );
+
+/*
+  [
+    "/name: must be a string"
+    "/age: missing value"
+  ]
+*/
+</code></pre><p><em>Note: Although <code>hasKids</code> is present in the inserted document, since it 
+isn&#39;t present in the schema it gets ignored.</em></p>
+<p>Schema validation is done by 
+<a href="https://github.com/hiddentao/simple-mongo-schema">simple-mongo-schema</a>,
+allowing for nested hierarchies:</p>
+<pre><code class="language-javascript">var collection = db.collection('students', {
+  schema: {
+    name: {
+      type: String
+    },
+    address: {
+      type: {
+        houseNum: {
+          type: Number,
+          required: true
+        },
+        streetName: {
+          type: String,
+          required: true
+        },
+        country: {
+          type: String,
+          required: true
+        }
+      }
+    }
+  }
+});
+
+try {
+  yield collection.insert({
+    name: 23,
+    address: {
+      houseNum: 'view street',
+      streetName: 23
+    }
+  });
+} catch (err) {
+  console.log(err.failures);
+
+  /*
+    [ 
+      "/address/houseNum: must be a number",
+      "/address/streetName: must be a string",
+      "/address/country: missing value",
+    ]
+  */
+}
+</code></pre></section><section id="hooks"><h2 id="hooks">Hooks</h2>
+<p>Hooks allow you to perform additional asynchronous processing upon 
+data before and/or after all inserts, updates and removals.</p>
+<p>You can register hooks against a <code>Robe.Collection</code> instance. 
+Hooks get triggered regardless of whether you call methods on the 
+collection or perform updates through a <code>Robe.Document</code> instance:</p>
+<pre><code class="language-javascript">var collection = db.collection('students');
+
+// run before schema validation and insertion
+collection.before('insert', function*(attrs, next) {
+  console.log('before');
+
+  attrs.hasKids = true;
+
+  yield next;
+});
+
+// run after successful insertion
+collection.after('insert', function*(result, next) {
+  console.log('after');
+
+  console.log(result);
+
+  yield next;
+});
+
+collection.insert({
+  name: 'Janice'
+});
+
+/*
+  before
+  after
+  {
+    _id: ...mongo id...,
+    name: 'Janice',
+    hasKids: true
+  }  
+*/
+</code></pre><p>Multiple handlers can be registerd for a given hook:</p>
+<pre><code class="language-javascript">collection.before('remove', function*(search, next) {
+  console.log('before 1');
+
+  search._id += 5;
+
+  yield next;
+});
+
+collection.before('remove', function*(search, next) {
+  console.log('before 2');
+
+  search._id += 1;
+
+  yield next;
+});
+
+collection.before('remove', function*(search, result, next) {
+  console.log('after: ' + result);
+
+  console.log(search._id);
+
+  yield next;
+});
+
+collection.remove({
+  _id: 0
+});
+
+/*
+  before 1
+  before 2
+  after: 1
+  6
+*/
+</code></pre><p>For updates you get passed the search query as well as the update 
+instructions:</p>
+<pre><code class="language-javascript">collection.before('remove', function*(search, next) {
+  console.log('before 1');
+
+  search._id += 5;
+
+  yield next;
+});
+
+collection.before('remove', function*(search, next) {
+  console.log('before 2');
+
+  search._id += 1;
+
+  yield next;
+});
+
+collection.before('remove', function*(search, result, next) {
+  console.log('after: ' + result);
+
+  console.log(search._id);
+
+  yield next;
+});
+
+collection.remove({
+  _id: 0
+});
+
+/*
+  before 1
+  before 2
+  after: 1
+  6
+*/          
+</code></pre></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>

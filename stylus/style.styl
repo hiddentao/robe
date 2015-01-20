@@ -4,8 +4,6 @@
 
 global-reset();
 
-scale = 0 480px 768px 900px 1050px
-
 color1 = #fcfae1
 color2 = #b9121b
 color3 = #4c1b1b
@@ -104,16 +102,21 @@ header
 
 
 main 
-  width 80%
+  width 70%
   position relative
   left 20%
   padding 16px
   +below(768px)
-    left 0px
+    position static
     width 100%
 
+    
   section
     line-height 30px
+
+    pre
+      width 90%
+
     p
       margin 30px 0
       code

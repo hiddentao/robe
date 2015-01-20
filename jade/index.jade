@@ -591,39 +591,36 @@ html
           instructions:
 
         +code('javascript').
-          collection.before('remove', function*(search, next) {
+          collection.before('update', function*(search, update, next) {
             console.log('before 1');
 
-            search._id += 5;
+            yield next;
+          });
+
+          collection.after('update', function*(search, update, result, next) {
+            console.log('after 1');
 
             yield next;
           });
 
-          collection.before('remove', function*(search, next) {
-            console.log('before 2');
-
-            search._id += 1;
+          collection.before('remove', function*(search, update, result, next) {
+            console.log('after 2');
 
             yield next;
           });
 
-          collection.before('remove', function*(search, result, next) {
-            console.log('after: ' + result);
-
-            console.log(search._id);
-
-            yield next;
-          });
-
-          collection.remove({
+          collection.update({
             _id: 0
+          }, {
+            $set: {
+              name: 'Devon'
+            }
           });
 
           /*
             before 1
-            before 2
-            after: 1
-            6
+            after 1
+            after 2
           */          
 
       footer

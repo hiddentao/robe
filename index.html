@@ -408,38 +408,35 @@ collection.remove({
 */
 </code></pre><p>For updates you get passed the search query as well as the update 
 instructions:</p>
-<pre><code class="language-javascript">collection.before('remove', function*(search, next) {
+<pre><code class="language-javascript">collection.before('update', function*(search, update, next) {
   console.log('before 1');
 
-  search._id += 5;
+  yield next;
+});
+
+collection.after('update', function*(search, update, result, next) {
+  console.log('after 1');
 
   yield next;
 });
 
-collection.before('remove', function*(search, next) {
-  console.log('before 2');
-
-  search._id += 1;
+collection.before('remove', function*(search, update, result, next) {
+  console.log('after 2');
 
   yield next;
 });
 
-collection.before('remove', function*(search, result, next) {
-  console.log('after: ' + result);
-
-  console.log(search._id);
-
-  yield next;
-});
-
-collection.remove({
+collection.update({
   _id: 0
+}, {
+  $set: {
+    name: 'Devon'
+  }
 });
 
 /*
   before 1
-  before 2
-  after: 1
-  6
+  after 1
+  after 2
 */          
 </code></pre></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>

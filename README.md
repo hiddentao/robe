@@ -11,7 +11,7 @@ Features:
 * Add before and after hooks for inserts, updates and removals
 * Cursor mode (for streaming results)
 * Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
-* Replica sets supported
+* Indexes and replica sets supported
 * [and more...](https://hiddentao.github.io/robe)
 
 ## Examples
@@ -189,6 +189,41 @@ try {
     ]  
   */
 }
+```
+
+
+**Indexes**
+
+Robe supports the full [Mongo index spec](http://docs.mongodb.org/manual/reference/method/db.collection.ensureIndex/) and 
+can ensure that indexes you define are present within a collection:
+
+```js
+// get a collection
+var collection = db.collection('test', {
+  indexes: [
+    // each entry in this array represents an index in the collection
+    {
+      fields: {
+        name: -1
+      },
+      options: {
+        unique: true
+      }
+    },
+    {
+      fields: {
+        name: 1,
+        age: 1,
+      },
+      options: {
+        name: 'index2'
+      }
+    },
+  ]
+});
+
+// setup all indexes
+yield collection.ensureIndexes();
 ```
 
 

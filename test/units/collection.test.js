@@ -672,6 +672,82 @@ test['indexes'] = {
 
     collection.indexes.should.eql(123);
   },
+
+  'ensureIndexes()': {
+    'sets up indexes': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: String,
+            required: true
+          },
+          age: {
+            type: Number,
+            required: true,
+          },
+        },
+        indexes: [
+          {
+            fields: {
+              name: -1
+            },
+            options: {
+              unique: true
+            }
+          },
+          {
+            fields: {
+              name: 1,
+              age: 1,
+            },
+            options: {
+              name: 'index2'
+            }
+          },
+        ]
+      });
+
+      yield collection.ensureIndexes();
+
+      // check by calling through to lower layer
+
+      var indexes = yield collection.collection.indexes();
+
+      indexes['name_-1'].should.eql( [['name', -1]] );
+      indexes.index2.should.eql( [['name', 1], ['age', 1]] );
+    },
+
+    'set up indexes - error': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: String,
+            required: true
+          },
+          age: {
+            type: Number,
+            required: true,
+          },
+        },
+        indexes: [
+          {
+            fields: {
+              name: 'blah'
+            }          
+          }
+        ]
+      });
+
+      try {
+        yield collection.ensureIndexes();
+
+        throw new Error('should not be here');
+      }
+      catch (err) {
+        err.toString().should.contain('MongoError: bad index key pattern');
+      }
+    },
+  }
 };
 
 

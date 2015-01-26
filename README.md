@@ -226,7 +226,6 @@ var collection = db.collection('test', {
 yield collection.ensureIndexes();
 ```
 
-
 ## Building
 
 To run the tests:

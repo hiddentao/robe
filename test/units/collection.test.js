@@ -660,4 +660,20 @@ test['find'] = {
 
 
 
+test['indexes'] = {
+  'default constructor - no indexes': function*() {
+    this.collection.indexes.should.eql([]);
+  },
+
+  'constructor param': function*() {
+    var collection = this.db.collection('test', {
+      indexes: 123
+    });
+
+    collection.indexes.should.eql(123);
+  },
+};
+
+
+
 

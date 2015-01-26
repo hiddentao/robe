@@ -1,6 +1,6 @@
 # Robe
 
-[![Build Status](https://secure.travis-ci.org/hiddentao/Robe.png?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/Robe.png)](https://badge.fury.io/js/robe)
+[![Build Status](https://travis-ci.org/hiddentao/robe.svg?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/robe.png)](https://badge.fury.io/js/robe)
 
 **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 
 simple yet effective ODM library for MongoDB. 

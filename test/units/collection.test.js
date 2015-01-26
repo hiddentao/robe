@@ -744,7 +744,7 @@ test['indexes'] = {
         throw new Error('should not be here');
       }
       catch (err) {
-        err.toString().should.contain('MongoError: bad index key pattern');
+        err.toString().should.contain('MongoError');
       }
     },
   }

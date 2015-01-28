@@ -332,6 +332,45 @@ try {
     ]
   */
 }
+
+</code></pre></section><section id="indexes"><h2 id="indexes">Indexes</h2>
+<p>Robe supports the full <a href="http://docs.mongodb.org/manual/reference/method/db.collection.ensureIndex/">MongoDB index specification</a>, 
+including compound, geospatial and other index types. Specify the 
+indexes when fetching a collection:</p>
+<pre><code class="language-javascript">var collection = db.collection('students', {
+  schema: {
+    name: {
+      type: String
+    },
+    score: {
+      type: Number,
+    }
+  },
+  indexes: [
+    // single-field index, unique
+    {
+      fields: {
+        name: 1
+      },
+      options: {
+        unique: true
+      }
+    },
+    // compount-field index, custom index name
+    {
+      fields: {
+        name: 1,
+        score: 1,
+      },
+      options: {
+        name: 'index2'
+      }
+    }
+  ]
+});
+
+// Create the indexes if not already present. Throws Error if it fails.
+yield collection.ensureIndexes();
 </code></pre></section><section id="hooks"><h2 id="hooks">Hooks</h2>
 <p>Hooks allow you to perform additional asynchronous processing upon 
 data before and/or after all inserts, updates and removals.</p>
@@ -439,4 +478,4 @@ collection.update({
   after 1
   after 2
 */          
-</code></pre></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.com/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>
+</code></pre></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>

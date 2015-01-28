@@ -501,6 +501,51 @@ html
             */
           }
 
+
+      section#indexes
+        :markdown
+          ## Indexes
+
+          Robe supports the full [MongoDB index specification](http://docs.mongodb.org/manual/reference/method/db.collection.ensureIndex/), 
+          including compound, geospatial and other index types. Specify the 
+          indexes when fetching a collection:
+
+        +code('javascript').
+          var collection = db.collection('students', {
+            schema: {
+              name: {
+                type: String
+              },
+              score: {
+                type: Number,
+              }
+            },
+            indexes: [
+              // single-field index, unique
+              {
+                fields: {
+                  name: 1
+                },
+                options: {
+                  unique: true
+                }
+              },
+              // compount-field index, custom index name
+              {
+                fields: {
+                  name: 1,
+                  score: 1,
+                },
+                options: {
+                  name: 'index2'
+                }
+              }
+            ]
+          });
+  
+          // Create the indexes if not already present. Throws Error if it fails.
+          yield collection.ensureIndexes();
+         
       section#hooks
         :markdown
           ## Hooks

@@ -1,7 +1,6 @@
 "use strict";
 
 
-
 var chai = require('chai'),
   path = require('path'),
   sinon = require('sinon');

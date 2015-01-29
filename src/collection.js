@@ -122,7 +122,7 @@ class Collection {
     yield this._runHook('before', 'insert', attrs);
 
     // validate against schema
-    this.schema.validate(attrs);
+    yield this.schema.validate(attrs);
 
     var res = yield this.collection.insert(attrs);
 
@@ -143,7 +143,7 @@ class Collection {
 
     // validate against schema
     if (update.$set) {
-      this.schema.validate(update.$set);
+      yield this.schema.validate(update.$set);
     }
 
     var ret = yield this.collection.update(search, update);

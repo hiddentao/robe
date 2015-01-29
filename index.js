@@ -1,21 +1,17 @@
 "use strict";
 
-require('6to5/register')({
-  blacklist: ['generators']
-});
-
 var _ = require('lodash');
 _.mixin(require("lodash-deep"));
 
 
-var Robe = module.exports = require('./lib/manager');
+var Robe = module.exports = require('./build/manager');
 
-Robe.Database = require('./lib/database');
+Robe.Database = require('./build/database');
 
-Robe.Collection = require('./lib/collection');
+Robe.Collection = require('./build/collection');
 
-Robe.Document = require('./lib/document');
+Robe.Document = require('./build/document');
 
-Robe.Cursor = require('./lib/cursor');
+Robe.Cursor = require('./build/cursor');
 
-Robe.Utils = require('./lib/utils');
+Robe.Utils = require('./build/utils');

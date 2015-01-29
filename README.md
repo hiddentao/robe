@@ -14,6 +14,15 @@ Features:
 * Indexes and replica sets supported
 * [and more...](https://hiddentao.github.io/robe)
 
+
+## Installation
+
+**This package requires ES6 support, i.e. Node 0.11.2+**
+
+```bash
+$ npm install robe
+```
+
 ## Examples
 
 Detailed documentation is available at [https://hiddentao.github.io/robe](https://hiddentao.github.io/robe).

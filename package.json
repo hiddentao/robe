@@ -1,8 +1,11 @@
 {
   "name": "robe",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "MongoDB ODM for Node.js using ES6 generators. Supports schema validation, raw querying, cursors, etc.",
   "main": "index.js",
+  "engines": {
+    "node": ">=0.11.2"
+  },
   "scripts": {
     "test": "node --harmony node_modules/.bin/gulp"
   },
@@ -27,6 +30,7 @@
     "chai": "^1.10.0",
     "co-mocha": "^1.1.0",
     "gulp": "~3.8.1",
+    "gulp-6to5": "^3.0.0",
     "gulp-mocha": "~0.4.1",
     "mocha": "^2.1.0",
     "run-sequence": "~0.3.6",
@@ -35,7 +39,6 @@
   },
   "homepage": "https://github.com/hiddentao/robe",
   "dependencies": {
-    "6to5": "^2.6.0",
     "bluebird": "^2.6.0",
     "class-extend": "^0.1.1",
     "debug": "^2.1.1",
@@ -43,6 +46,6 @@
     "lodash": "^2.4.1",
     "lodash-deep": "^1.5.3",
     "monk": "^0.9.1",
-    "simple-mongo-schema": "^0.5.0"
+    "simple-mongo-schema": "^0.6.0"
   }
 }

@@ -61,3 +61,26 @@ test['formatMongoDoc()'] = {
   },
 }
 
+
+
+test['bindGen'] = {
+  'no args': function*() {
+    var fn = RobeUtils.bindGen(function*() {
+      return yield Q.resolve(this.a + 12);
+    }, {
+      a: 5
+    });
+
+    (yield fn()).should.eql(17);
+  },
+  'no args': function*() {
+    var fn = RobeUtils.bindGen(function*(b, c) {
+      return yield Q.resolve(this.a + b * c + 12);
+    }, {
+      a: 5
+    });
+
+    (yield fn(9, 3)).should.eql(44);
+  }
+};
+

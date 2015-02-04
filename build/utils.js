@@ -26,3 +26,22 @@ exports.formatMongoDoc = function (collection, mongoDoc) {
     return new Document(collection, mongoDoc);
   }
 };
+
+
+
+
+/**
+ * Bind generation function to given context.
+ * @param  {GeneratorFunction} genFn Generator function.
+ * @param  {Object} ctx   Desired `this` context.
+ * @return {GeneratorFunction}
+ */
+exports.bindGen = function (genFn, ctx) {
+  return function* () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return yield genFn.apply(ctx, args);
+  };
+};

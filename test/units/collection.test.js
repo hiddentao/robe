@@ -751,5 +751,63 @@ test['indexes'] = {
 };
 
 
+test['custom instance methods'] = {
+  beforeEach: function*() {
+    var data = [
+      {
+        name: 'Jimmy',
+        dead: true        
+      },
+      {
+        name: 'Mark',
+        dead: false        
+      },
+      {
+        name: 'Tom',
+        dead: false        
+      },
+      {
+        name: 'Doug',
+        dead: true        
+      },
+      {
+        name: 'Amanda',
+        dead: true        
+      },
+    ];
+
+    for (var i=0; i<data.length; ++i) {
+      yield this.collection.insert(data[i]);
+    }
+  },
+
+  'default': function*() {
+    var collection = this.db.collection('test', {
+      methods: {
+        findSpecial: function*(val) {
+          return yield this.find({
+            dead: val
+          }, {
+            sort: {
+              name: -1
+            },
+            fields: {
+              name: 1
+            }
+          });
+        }
+      }
+    });
+    
+    var res = yield collection.findSpecial(true);
+
+    res.length.should.eql(3);
+    _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
+  }  
+};
+
+
+
+
 
 

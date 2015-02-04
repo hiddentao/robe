@@ -28,6 +28,7 @@ class Collection {
    * @param  {Object} [options.schema] Database schema.
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
+   * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
    */
   constructor (collection, options = {}) {
     this.options = _.defaults(options, {
@@ -55,6 +56,11 @@ class Collection {
       },
       enumerable: false
     });
+
+    // methods
+    for (let name in options.methods || {}) {
+      this[name] = RobeUtils.bindGen(options.methods[name], this);
+    }
   }
 
 
@@ -99,14 +105,14 @@ class Collection {
    * Execute given hook
    * @param  {String} when Hook type.
    * @param  {String} eventName Hook event.
-   * @param  {Array} [...] Parameters to pass to hook.
+   * @param  {Array} [args] Parameters to pass to hook.
    *
    * @private
    */
-  * _runHook (when, eventName) {
+  * _runHook (when, eventName, ...args) {
     var fn = compose(this._hooks[when][eventName]);
 
-    yield fn.apply(this, Array.prototype.slice.call(arguments, 2));
+    yield fn.apply(this, args);
   }
 
 

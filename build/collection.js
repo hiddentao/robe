@@ -30,6 +30,7 @@ var Collection = (function () {
    * @param  {Object} [options.schema] Database schema.
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
+   * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
    */
   function Collection(collection) {
     var options = arguments[1] === undefined ? {} : arguments[1];
@@ -55,6 +56,11 @@ var Collection = (function () {
       },
       enumerable: false
     });
+
+    // methods
+    for (var name in options.methods || {}) {
+      this[name] = RobeUtils.bindGen(options.methods[name], this);
+    }
   }
 
   _prototypeProperties(Collection, null, {
@@ -117,14 +123,18 @@ var Collection = (function () {
        * Execute given hook
        * @param  {String} when Hook type.
        * @param  {String} eventName Hook event.
-       * @param  {Array} [...] Parameters to pass to hook.
+       * @param  {Array} [args] Parameters to pass to hook.
        *
        * @private
        */
       value: function* _runHook(when, eventName) {
+        for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+          args[_key - 2] = arguments[_key];
+        }
+
         var fn = compose(this._hooks[when][eventName]);
 
-        yield fn.apply(this, Array.prototype.slice.call(arguments, 2));
+        yield fn.apply(this, args);
       },
       writable: true,
       enumerable: true,

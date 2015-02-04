@@ -9,7 +9,7 @@ simple ODM library for MongoDB. </p>
 <li>Use <a href="#documents">documents</a> or <a href="#raw">raw data</a>, your choice.</li>
 <li>Add <a href="#hooks">hooks</a> for further processing.</li>
 <li>Stream results using <a href="#cursors">cursors</a>.</li>
-<li>Optional <a href="#schema">schema validation</a>.</li>
+<li>Add <a href="#schema">schema validation</a> and <a href="#custom_methods">custom methods</a>.</li>
 <li>Clean, object-oriented API.</li>
 </ul>
 <p>To use Robe within your code:</p>
@@ -97,7 +97,7 @@ console.log( result.toJSON() );
   {
     _id: 6,
     name: 'Drew',
-    age: 41
+    score: 41
   }
  */
 
@@ -105,7 +105,7 @@ console.log( result.toJSON() );
 console.log( Object.keys(result) );
 
 /*
-  '_id', 'name', 'age'
+  '_id', 'name', 'score'
 */
 </code></pre></section><section id="raw"><h3 id="raw-data">Raw data</h3>
 <p>If you do wish to deal directly with Mongo data and not use 
@@ -125,7 +125,7 @@ console.log( result );
   {
     _id: 1,
     name: 'Tom',
-    age: 19
+    score: 19
   }
 */
 </code></pre><p>The <code>raw</code> option can be specified at the collection level so that 
@@ -188,7 +188,7 @@ cursor.on('success', function() {
 
 var item = yield collection.insert({
   name: 'Amanda',
-  age: 76
+  score: 76
 });
 
 console.log( item instanceof Robe.Document ); // true
@@ -199,7 +199,7 @@ console.log( item.toJSON() );
   {
     _id: ...auto-generated mongo id...,
     name: 'Amanda',
-    age: 76
+    score: 76
   }  
 */
 </code></pre><p>Raw insertion mode is also supported:</p>
@@ -207,7 +207,7 @@ console.log( item.toJSON() );
 
 var item = yield collection.insert({
   name: 'Amanda',
-  age: 76
+  score: 76
 }, {
   raw: true
 });
@@ -220,7 +220,7 @@ console.log( item );
   {
     _id: ...auto-generated mongo id...,
     name: 'Amanda',
-    age: 76
+    score: 76
   }  
 */
 </code></pre></section><section id="updating"><h2 id="updating">Updating</h2>
@@ -251,6 +251,43 @@ yield item.remove();
 <pre><code class="language-javascript">yield collection.remove({
   _id: 1  
 });
+</code></pre></section><section id="custom_methods"><h2 id="custom-methods">Custom methods</h2>
+<p>You can extend <code>Robe.Collection</code> instances with custom querying methods:</p>
+<pre><code class="language-javascript">var collection = db.collection('students', {
+  methods: {
+    // Custom methods must be generator methods.
+    findStudentsWithScoreAbove: function*(threshold) {
+      // The 'this' context is automatically set to be the Collection instance
+      return yield this.find({
+        score: {
+          $gt: threshold
+        }
+      }, {
+        sort: {
+          score: 1
+        },
+        raw: true
+      });
+    }
+  }
+});
+
+yield collection.findStudentsWithScoreAbove(40);
+
+/*
+  [
+    {
+      _id: 3,
+      name: 'Abe',
+      score: 98
+    },
+    {
+      _id: 6,
+      name: 'Drew',
+      score: 41
+    }
+  ]          
+*/
 </code></pre></section><section id="schema"><h2 id="schema-validation">Schema validation</h2>
 <p>Robe will validate the structure of your document against a schema you 
 provide:</p>
@@ -259,7 +296,7 @@ provide:</p>
     name: {
       type: String
     },
-    age: {
+    score: {
       type: Number,
       required: true
     }
@@ -281,7 +318,7 @@ specific validation failures. For the previous example:</p>
 /*
   [
     "/name: must be a string"
-    "/age: missing value"
+    "/score: missing value"
   ]
 */
 </code></pre><p><em>Note: Although <code>hasKids</code> is present in the inserted document, since it 

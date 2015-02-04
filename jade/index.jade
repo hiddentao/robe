@@ -53,7 +53,7 @@ html
           * Use [documents](#documents) or [raw data](#raw), your choice.
           * Add [hooks](#hooks) for further processing.
           * Stream results using [cursors](#cursors).
-          * Optional [schema validation](#schema).
+          * Add [schema validation](#schema) and [custom methods](#custom_methods).
           * Clean, object-oriented API.
 
           To use Robe within your code:
@@ -207,7 +207,7 @@ html
             {
               _id: 6,
               name: 'Drew',
-              age: 41
+              score: 41
             }
            */
 
@@ -215,7 +215,7 @@ html
           console.log( Object.keys(result) );
 
           /*
-            '_id', 'name', 'age'
+            '_id', 'name', 'score'
           */
          
       section#raw
@@ -241,7 +241,7 @@ html
             {
               _id: 1,
               name: 'Tom',
-              age: 19
+              score: 19
             }
           */
 
@@ -322,7 +322,7 @@ html
 
           var item = yield collection.insert({
             name: 'Amanda',
-            age: 76
+            score: 76
           });
 
           console.log( item instanceof Robe.Document ); // true
@@ -333,7 +333,7 @@ html
             {
               _id: ...auto-generated mongo id...,
               name: 'Amanda',
-              age: 76
+              score: 76
             }  
           */
          
@@ -345,7 +345,7 @@ html
 
           var item = yield collection.insert({
             name: 'Amanda',
-            age: 76
+            score: 76
           }, {
             raw: true
           });
@@ -358,7 +358,7 @@ html
             {
               _id: ...auto-generated mongo id...,
               name: 'Amanda',
-              age: 76
+              score: 76
             }  
           */
 
@@ -410,6 +410,49 @@ html
             _id: 1  
           });
 
+      section#custom_methods
+        :markdown
+          ## Custom methods
+
+          You can extend `Robe.Collection` instances with custom querying methods:
+
+        +code('javascript').
+          var collection = db.collection('students', {
+            methods: {
+              // Custom methods must be generator methods.
+              findStudentsWithScoreAbove: function*(threshold) {
+                // The 'this' context is automatically set to be the Collection instance
+                return yield this.find({
+                  score: {
+                    $gt: threshold
+                  }
+                }, {
+                  sort: {
+                    score: 1
+                  },
+                  raw: true
+                });
+              }
+            }
+          });
+  
+          yield collection.findStudentsWithScoreAbove(40);
+
+          /*
+            [
+              {
+                _id: 3,
+                name: 'Abe',
+                score: 98
+              },
+              {
+                _id: 6,
+                name: 'Drew',
+                score: 41
+              }
+            ]          
+          */
+
       section#schema
         :markdown
           ## Schema validation
@@ -423,7 +466,7 @@ html
               name: {
                 type: String
               },
-              age: {
+              score: {
                 type: Number,
                 required: true
               }
@@ -449,7 +492,7 @@ html
           /*
             [
               "/name: must be a string"
-              "/age: missing value"
+              "/score: missing value"
             ]
           */
          

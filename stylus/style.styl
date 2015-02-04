@@ -13,13 +13,14 @@ color5 = #bd8d46
 body-color = color1
 
 html
-  font-size 16px
+  font-size 14px
 
 body
   background-color body-color
   color #000
   font-family 'Noto Sans', Arial, Verdana, sans-serif
   font-size 24px
+  
   
 a
   color color2
@@ -40,6 +41,7 @@ pre[class*="language-"]
   padding 5px 15px
   margin 0
   max-width 98%
+  overflow-x scroll
 
 strong
   font-weight bold
@@ -108,8 +110,7 @@ main
   padding 16px
   +below(768px)
     position static
-    width 100%
-
+    width 90%
     
   section
     line-height 30px
@@ -119,6 +120,7 @@ main
 
     p
       margin 30px 0
+      
       code
         font-family monospace
         font-size 30px
@@ -156,6 +158,10 @@ main
     font-size 15px
     margin-left 10px
     vertical-align super
+    +below(768px)
+      display block
+      margin 15px 0 0 0
+
     
   footer
     font-size 16px

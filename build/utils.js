@@ -26,7 +26,7 @@ exports.formatMongoDoc = function (collection, mongoDoc) {
     var d = new Document(collection, mongoDoc);
 
     for (var key in collection.options.docMethods) {
-      d[key] = collection.options.docMethods[key];
+      d[key] = exports.bindGen(collection.options.docMethods[key], d);
     }
 
     return d;

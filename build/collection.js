@@ -183,7 +183,9 @@ var Collection = (function () {
 
         // validate against schema
         if (update.$set) {
-          yield this.schema.validate(update.$set);
+          yield this.schema.validate(update.$set, {
+            ignoreMissing: true
+          });
         }
 
         var ret = yield this.collection.update(search, update);

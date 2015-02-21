@@ -276,6 +276,28 @@ test['update'] = {
       err.toString().should.eql('Error: Validation failed');
     }
   },
+  'schema - will not fail for missing keys': function*() {
+    var collection = this.db.collection('test', {
+      schema: {
+        name: {
+          type: String,
+          required: true,
+        },
+        age: {
+          type: Number,
+          required: true
+        }
+      }
+    });
+
+    yield collection.update({
+      name: 'Tom'
+    }, {
+      $set: {
+        name: 'Phil'
+      }
+    });
+  },
   'hooks': function*() {
     var acc = [];
 

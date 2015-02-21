@@ -29,11 +29,13 @@ class Collection {
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
    * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
+   * @param  {Object} [options.docMethods] Convenience methods to make available on this collection's `Document` instances. Each method is specified as a `name`:`function *` pair.
    */
   constructor (collection, options = {}) {
     this.options = _.defaults(options, {
       schema: {},
       raw: false,
+      docMethods: {},
     });
 
     this.schema = schemaBuilder(options.schema);

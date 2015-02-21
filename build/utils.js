@@ -23,7 +23,13 @@ exports.formatMongoDoc = function (collection, mongoDoc) {
   if (options.raw || collection.options.raw) {
     return mongoDoc;
   } else {
-    return new Document(collection, mongoDoc);
+    var d = new Document(collection, mongoDoc);
+
+    for (var key in collection.options.docMethods) {
+      d[key] = collection.options.docMethods[key];
+    }
+
+    return d;
   }
 };
 

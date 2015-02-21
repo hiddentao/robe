@@ -751,7 +751,7 @@ test['indexes'] = {
 };
 
 
-test['custom instance methods'] = {
+test['custom methods'] = {
   beforeEach: function*() {
     var data = [
       {
@@ -781,7 +781,7 @@ test['custom instance methods'] = {
     }
   },
 
-  'default': function*() {
+  'collection instance': function*() {
     var collection = this.db.collection('test', {
       methods: {
         findSpecial: function*(val) {
@@ -803,7 +803,28 @@ test['custom instance methods'] = {
 
     res.length.should.eql(3);
     _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
-  }  
+  },
+
+
+  'document instance': function*() {
+    var collection = this.db.collection('test', {
+      docMethods: {
+        concat: function*(val) {
+          this.name = this.name + this.name + val;
+          yield this.save();
+        }
+      }
+    });
+    
+    var doc = yield collection.findOne({
+      name: 'Jimmy'
+    });
+
+    yield doc.concat('Choo');
+    yield doc.concat('Chang');
+
+    expect(doc.name).to.eql('JimmyJimmyChooJimmyJimmyChooChang');
+  }
 };
 
 

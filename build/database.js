@@ -3,6 +3,8 @@
 
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var _ = require("lodash"),
     debug = require("debug")("robe-db"),
     Class = require("class-extend"),
@@ -21,6 +23,8 @@ var Database = (function () {
    * @param  {Object} db Mongoskin db connection.
    */
   function Database(db) {
+    _classCallCheck(this, Database);
+
     this.db = db;
   }
 
@@ -42,7 +46,6 @@ var Database = (function () {
         }
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     collection: {
@@ -60,7 +63,6 @@ var Database = (function () {
         return new Collection(this.db.get(name), options);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });

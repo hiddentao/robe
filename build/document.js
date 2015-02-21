@@ -3,6 +3,8 @@
 
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var _ = require("lodash"),
     Class = require("class-extend"),
     Q = require("bluebird");
@@ -21,6 +23,8 @@ var Document = (function () {
    */
   function Document(collection) {
     var doc = arguments[1] === undefined ? {} : arguments[1];
+    _classCallCheck(this, Document);
+
     var self = this;
 
     Object.defineProperties(this, {
@@ -83,7 +87,6 @@ var Document = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     toJSON: {
@@ -99,7 +102,6 @@ var Document = (function () {
         return ret;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     changes: {
@@ -122,7 +124,6 @@ var Document = (function () {
         return ret;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     reset: {
@@ -149,7 +150,6 @@ var Document = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     save: {
@@ -170,7 +170,6 @@ var Document = (function () {
         this._resetProperties(this.toJSON());
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     remove: {
@@ -184,7 +183,6 @@ var Document = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });

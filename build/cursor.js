@@ -5,6 +5,8 @@ var _prototypeProperties = function (child, staticProps, instanceProps) { if (st
 
 var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var _ = require("lodash"),
     Class = require("class-extend"),
     EventEmitter = require("events").EventEmitter,
@@ -33,6 +35,8 @@ var Cursor = (function (EventEmitter) {
    */
   function Cursor(collection, promise) {
     var options = arguments[2] === undefined ? {} : arguments[2];
+    _classCallCheck(this, Cursor);
+
     this.collection = collection;
     this.promise = promise;
     this.options = options;
@@ -68,7 +72,6 @@ var Cursor = (function (EventEmitter) {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     close: {
@@ -87,7 +90,6 @@ var Cursor = (function (EventEmitter) {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });

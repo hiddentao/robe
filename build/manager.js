@@ -3,6 +3,8 @@
 
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var _ = require("lodash"),
     debug = require("debug")("robe"),
     Class = require("class-extend"),
@@ -23,7 +25,9 @@ var dbConnections = [];
  * Overall database manager and entry point to Robe.
  */
 var Manager = (function () {
-  function Manager() {}
+  function Manager() {
+    _classCallCheck(this, Manager);
+  }
 
   _prototypeProperties(Manager, {
     connect: {
@@ -69,7 +73,6 @@ var Manager = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     closeAll: {
@@ -89,7 +92,6 @@ var Manager = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });

@@ -3,6 +3,8 @@
 
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
 var _ = require("lodash"),
     compose = require("generator-compose"),
     Class = require("class-extend"),
@@ -31,12 +33,16 @@ var Collection = (function () {
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
    * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
+   * @param  {Object} [options.docMethods] Convenience methods to make available on this collection's `Document` instances. Each method is specified as a `name`:`function *` pair.
    */
   function Collection(collection) {
     var options = arguments[1] === undefined ? {} : arguments[1];
+    _classCallCheck(this, Collection);
+
     this.options = _.defaults(options, {
       schema: {},
-      raw: false });
+      raw: false,
+      docMethods: {} });
 
     this.schema = schemaBuilder(options.schema);
     this.indexes = options.indexes || [];
@@ -58,8 +64,8 @@ var Collection = (function () {
     });
 
     // methods
-    for (var name in options.methods || {}) {
-      this[name] = RobeUtils.bindGen(options.methods[name], this);
+    for (var _name in options.methods || {}) {
+      this[_name] = RobeUtils.bindGen(options.methods[_name], this);
     }
   }
 
@@ -81,7 +87,6 @@ var Collection = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     before: {
@@ -97,7 +102,6 @@ var Collection = (function () {
         this._hooks.before[eventName].push(genFn);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     after: {
@@ -112,7 +116,6 @@ var Collection = (function () {
         this._hooks.after[eventName].push(genFn);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     _runHook: {
@@ -137,7 +140,6 @@ var Collection = (function () {
         yield fn.apply(this, args);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     insert: {
@@ -164,7 +166,6 @@ var Collection = (function () {
         return RobeUtils.formatMongoDoc(this, res, options);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     update: {
@@ -192,7 +193,6 @@ var Collection = (function () {
         return ret;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     remove: {
@@ -213,7 +213,6 @@ var Collection = (function () {
         return ret;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     find: {
@@ -244,7 +243,6 @@ var Collection = (function () {
         });
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     findOne: {
@@ -271,7 +269,6 @@ var Collection = (function () {
         return results.length ? RobeUtils.formatMongoDoc(self, results.pop(), options) : null;
       },
       writable: true,
-      enumerable: true,
       configurable: true
     },
     findStream: {
@@ -302,7 +299,6 @@ var Collection = (function () {
         return new Cursor(this.collection, this.collection.find(selector, options), options);
       },
       writable: true,
-      enumerable: true,
       configurable: true
     }
   });

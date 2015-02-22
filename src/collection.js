@@ -204,6 +204,19 @@ class Collection {
 
 
   /**
+   * Count documents in this collection.
+   *
+   * @param {Object} [selector] Filtering query.
+   *
+   * @return {Array} Results
+   */
+  * count (selector = {}) {
+    return yield this.collection.count(selector);
+  }
+
+
+
+  /**
    * Find a single document from this collection.
    *
    * @param {String|Object} selector ObjectId or filtering query.

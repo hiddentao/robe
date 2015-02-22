@@ -247,6 +247,24 @@ var Collection = (function () {
       writable: true,
       configurable: true
     },
+    count: {
+
+
+
+      /**
+       * Count documents in this collection.
+       *
+       * @param {Object} [selector] Filtering query.
+       *
+       * @return {Array} Results
+       */
+      value: function* count() {
+        var selector = arguments[0] === undefined ? {} : arguments[0];
+        return yield this.collection.count(selector);
+      },
+      writable: true,
+      configurable: true
+    },
     findOne: {
 
 

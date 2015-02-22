@@ -677,6 +677,29 @@ test['find'] = {
     });
 
     cursor.should.be.instanceOf(Cursor);
+  },
+  'count': {
+    'no params': function*() {
+      var res = yield this.collection.count();
+
+      res.should.eql(5);
+    },
+    'filter - found': function*() {
+      var res = yield this.collection.count({
+        dead: true
+      });
+
+      res.should.eql(3);
+    },
+
+
+    'filter - not found': function*() {
+      var res = yield this.collection.count({
+        dead: 123
+      });
+
+      res.should.eql(0);
+    },
   }
 };
 

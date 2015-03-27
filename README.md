@@ -99,7 +99,7 @@ yield collection.remove({
 });
 ```
 
-You can also enable `raw` querying at the collection level:
+You can also enable `rawMode` querying at the collection level:
 
 ```js
 var collection = db.collection('test', {

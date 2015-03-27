@@ -27,14 +27,14 @@ class Collection {
    * @param  {Object} [options] Additional options.
    * @param  {Object} [options.schema] Database schema.
    * @param  {Array} [options.indexes] Database indexex to setup.
-   * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
+   * @param  {Boolean} [options.rawMode] Whether to enable raw query mode by default. Default if false.
    * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
    * @param  {Object} [options.docMethods] Convenience methods to make available on this collection's `Document` instances. Each method is specified as a `name`:`function *` pair.
    */
   constructor (collection, options = {}) {
     this.options = _.defaults(options, {
       schema: {},
-      raw: false,
+      rawMode: false,
       docMethods: {},
     });
 
@@ -123,7 +123,7 @@ class Collection {
    * 
    * @param  {Object} attrs The document attributes.
    * @param {Object} [options] Additional options.
-   * @param {Boolean} [options.raw] Whether to return the resulting raw document as-is. Overrides the default for the collection.
+   * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
    * @return {Document} the newly inserted document.
    */
   * insert (attrs, options) {
@@ -189,7 +189,7 @@ class Collection {
    * @param {Number} [options.skip] Number of records to skip at the beginning.
    * @param {Number} [options.limit] Max. no of records to return.
    * @param {Object} [options.fields] Fields to return or exclude (Mongo syntax).
-   * @param {Boolean} [options.raw] Whether to return the resulting raw document as-is. Overrides the default for the collection.
+   * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
    *
    * @return {Array} Results
    */
@@ -247,7 +247,7 @@ class Collection {
    * @param {Number} [options.skip] Number of records to skip at the beginning.
    * @param {Number} [options.limit] Max. no of records to return.
    * @param {Object} [options.fields] Fields to return or exclude (Mongo syntax).
-   * @param {Boolean} [options.raw] Whether to return the resulting raw document as-is. Overrides the default for the collection.
+   * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
    *
    * @return {Cursor} cursor object
    */

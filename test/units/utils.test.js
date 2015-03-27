@@ -36,7 +36,7 @@ test['formatMongoDoc()'] = {
     var ret = RobeUtils.formatMongoDoc(collection, {
       name: 'Tim'
     }, {
-      raw: true
+      rawMode: true
     });
 
     ret.should.not.be.instanceOf(Document);
@@ -46,13 +46,13 @@ test['formatMongoDoc()'] = {
 
   'raw - global option': function*() {
     var collection = new Collection(123, {
-      raw: true
+      rawMode: true
     });
 
     var ret = RobeUtils.formatMongoDoc(collection, {
       name: 'Tim'
     }, {
-      raw: false
+      rawMode: false
     });
 
     ret.should.not.be.instanceOf(Document);

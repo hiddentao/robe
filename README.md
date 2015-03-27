@@ -78,7 +78,7 @@ yield collection.insert({
 var item = yield collection.findOne({
   name: 'jim'
 }, {
-  raw: true // return the raw mongo object
+  rawMode: true // return the raw mongo object
 });
 
 console.log(item instanceof Robe.Document); // false
@@ -103,13 +103,13 @@ You can also enable `raw` querying at the collection level:
 
 ```js
 var collection = db.collection('test', {
-  raw: true
+  rawMode: true
 });
 
 yield collection.findOne({
   name: 'john'
 }, {
-  raw: false  // override the collection-level setting
+  rawMode: false  // override the collection-level setting
 });
 ```
 

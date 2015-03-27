@@ -47,7 +47,7 @@ test.afterEach = function(done) {
 
 test['constructor'] = {
   'default': function*()  {
-    this.collection.options.raw.should.be.false;
+    this.collection.options.rawMode.should.be.false;
 
     _.deepGet(this.collection, 'collection.name').should.eql('test');
 
@@ -58,10 +58,10 @@ test['constructor'] = {
 
   'turn on RAW mode': function*() {
     this.collection = this.db.collection('test', {
-      raw: true
+      rawMode: true
     });
 
-    this.collection.options.raw.should.be.true;
+    this.collection.options.rawMode.should.be.true;
   }
 };
 
@@ -110,7 +110,7 @@ test['insert'] = {
     };
 
     var res = yield this.collection.insert(attrs, {
-      raw: true
+      rawMode: true
     });
 
     res.should.eql(123);
@@ -119,7 +119,7 @@ test['insert'] = {
     _.deepGet(theCall, 'args.0').should.eql(this.collection);
     _.deepGet(theCall, 'args.1.name').should.eql('Jimmy');
     _.deepGet(theCall, 'args.2').should.eql({
-      raw: true
+      rawMode: true
     });
   },
 
@@ -519,6 +519,16 @@ test['find'] = {
     (5 === _.pluck(res, 'id').length).should.be.true;
   },
 
+  'raw fetch': function*() {
+    var res = yield this.collection.find({}, {
+      rawMode: true
+    });
+
+    res.length.should.eql(5);
+    _.pluck(res, 'name').should.eql(['Jimmy', 'Mark', 'Tom', 'Doug', 'Amanda']);
+    (5 === _.pluck(res, 'id').length).should.be.true;
+  },
+
   'calls formatMongoDoc()': function*() {
     var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
       return 123;
@@ -529,7 +539,7 @@ test['find'] = {
     };
 
     var res = yield this.collection.find({}, {
-      raw: true
+      rawMode: true
     });
 
     res.should.eql([123, 123, 123, 123, 123]);
@@ -538,7 +548,7 @@ test['find'] = {
     var theCall = stub.getCall(0);
     _.deepGet(theCall, 'args.0').should.eql(this.collection);
     _.deepGet(theCall, 'args.2').should.eql({
-      raw: true
+      rawMode: true
     });
   },
 
@@ -638,7 +648,7 @@ test['find'] = {
         sort: {
           name: 1
         },
-        raw: true
+        rawMode: true
       });
 
       res.should.eql(123);
@@ -648,7 +658,7 @@ test['find'] = {
       var theCall = stub.getCall(0);
 
       _.deepGet(theCall, 'args.0').should.eql(this.collection);
-      _.deepGet(theCall, 'args.2.raw').should.be.true;
+      _.deepGet(theCall, 'args.2.rawMode').should.be.true;
     },
     'found': function*() {
       var res = yield this.collection.findOne({
@@ -673,7 +683,7 @@ test['find'] = {
     var cursor = yield this.collection.findStream({
       name: 'John'
     }, {
-      raw: true,
+      rawMode: true,
     });
 
     cursor.should.be.instanceOf(Cursor);

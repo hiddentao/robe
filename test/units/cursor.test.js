@@ -66,7 +66,7 @@ test['results'] = {
     var e = this.e,
       c = this.c;
 
-    this.collection.options.raw = true;
+    this.collection.options.rawMode = true;
 
     var acc = [];
 

@@ -109,12 +109,12 @@ console.log( Object.keys(result) );
 */
 </code></pre></section><section id="raw"><h3 id="raw-data">Raw data</h3>
 <p>If you do wish to deal directly with Mongo data and not use 
-<code>Robe.Document</code> instances you can specify the <code>raw</code> option:</p>
+<code>Robe.Document</code> instances you can specify the <code>rawMode</code> option:</p>
 <pre><code class="language-javascript">var results = yield collection.findOne({
   _id: 1
 }, {
   // return Mongo data objects rather than Document instances
-  raw: true 
+  rawMode: true 
 });
 
 console.log( result instancoof Robe.Document ); // false
@@ -128,10 +128,10 @@ console.log( result );
     score: 19
   }
 */
-</code></pre><p>The <code>raw</code> option can be specified at the collection level so that 
+</code></pre><p>The <code>rawMode</code> option can be specified at the collection level so that 
 you don&#39;t have to keep specifying it for every query:</p>
 <pre><code class="language-javascript">var collection = db.collection('students', {
-  raw: true
+  rawMode: true
 });
 
 var results = yield collection.findOne({  _id: 1 });

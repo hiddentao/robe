@@ -223,14 +223,14 @@ html
           ### Raw data
 
           If you do wish to deal directly with Mongo data and not use 
-          `Robe.Document` instances you can specify the `raw` option:
+          `Robe.Document` instances you can specify the `rawMode` option:
 
         +code('javascript').
           var results = yield collection.findOne({
             _id: 1
           }, {
             // return Mongo data objects rather than Document instances
-            raw: true 
+            rawMode: true 
           });
 
           console.log( result instancoof Robe.Document ); // false
@@ -246,12 +246,12 @@ html
           */
 
         :markdown
-          The `raw` option can be specified at the collection level so that 
+          The `rawMode` option can be specified at the collection level so that 
           you don't have to keep specifying it for every query:
 
         +code('javascript').
           var collection = db.collection('students', {
-            raw: true
+            rawMode: true
           });
 
           var results = yield collection.findOne({  _id: 1 });

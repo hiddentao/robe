@@ -21,8 +21,23 @@ class Database {
    */
   constructor (db) {
     this.db = db;
-    this.oplog = new Oplog(this);
   }
+
+
+  /**
+   * Get oplog watcher.
+   *
+   * This will create and start the watcher if not already done so.
+   */
+  * oplog () {
+    if (!this._oplog) {
+      this._oplog = new Oplog(this.db);
+      yield this._oplog.start();
+    }
+
+    return this._oplog;
+  }
+
 
 
   /**
@@ -33,7 +48,7 @@ class Database {
     debug('close');
 
     if (2 === _.deepGet(this.db, 'driver._state')) {
-      return Q.promisify(self.db.close, self.db)();
+      return Q.promisify(this.db.close, this.db)();
     } else {
       return Q.resolve();
     }

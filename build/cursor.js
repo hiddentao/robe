@@ -58,6 +58,7 @@ var Cursor = (function (EventEmitter) {
         var self = this;
 
         self.promise.on("each", function (doc) {
+          console.log(doc);
           doc = RobeUtils.formatMongoDoc(self.collection, doc);
 
           self.emit("result", doc);

@@ -10,35 +10,49 @@ var utils = require('../testutils'),
   sinon = utils.sinon;
 
 var Robe = utils.Robe,
-  Database = Robe.Database;
+  Database = Robe.Database,
+  Oplog = Robe.Oplog;
 
 
 var test = module.exports = {};
 
 
 test.beforeEach = function*() {
+  this.mocker = sinon.sandbox.create();
+
   this.db = yield Robe.connect('127.0.0.1/robe-test');
   this.db2 = yield Robe.connect('127.0.0.1/robe-test');
   this.collection = this.db2.collection('oplog-test');
 };
 
+test.afterEach = function*() {
+  this.mocker.restore();
+  yield this.db.close();  
+  yield this.db2.close();  
+};
 
-test['add watcher'] = {
-  beforeEach: function() {
-    var spy = sinon.spy();
 
-    this.db.watch('robe-test', spy);    
+test['oplog'] = {
+  beforeEach: function*() {
+    this.callback = this.mocker.spy();
+    this.oplog = yield this.db.oplog();
   },
 
-  'kicks off the oplog watcher': function*() {
-    this.db.oplog.should.be.defined;
-  },
+  // 'oplog auto-starts': function(done) {
+  //   this.oplog.on('started', done);
+  // },
 
   'on insert': function*() {
     yield this.collection.insert({
       name: 'james'
     });    
-  },
 
+    this.callback.should.have.been.calledOnce;
+    this.callback.should.have.been.calledWithExactly(
+      'insert', {
+        name: 'james'
+      }
+    );
+  },
 };
 

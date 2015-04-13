@@ -2,8 +2,9 @@
 
 
 var _ = require('lodash'),
-  BSON = require('bson').BSONPure
+  BSON = require('bson').BSONPure,
   debug = require('debug')('robe-oplog'),
+  EventEmitter2 = require('eventemitter2').EventEmitter2,
   Class = require('class-extend'),
   Q = require('bluebird');
 
@@ -14,13 +15,18 @@ var Cursor = require('./cursor');
 /**
  * Represents the oplog.
  */
-class Oplog {
+class Oplog extends EventEmitter2 {
   /**
    * Constructor.
    *
    * @param  {Database} db The underlying db.
    */
   constructor (db) {
+    super({
+      wildcard: true,
+      delimiter: ':'
+    });
+
     this.db = db;
     this.watchers = [];
   }
@@ -28,50 +34,14 @@ class Oplog {
 
 
   /**
-   * Register given callback as an oplog watcher.
-   *
-   * This will notify the given callback when data gets 
-   * changed, either through this or other MongoDB connections.
-   *
-   * @param {String} collectionName Name of collection to watch.
-   * @param {Function} callback Callback to notify when a change occurs.
-   */
-  watch (collectionName, callback) {
-    this._setupOplog();
-
-    if (!this.watchers[collectionName]) {
-      this.watchers[collectionName] = [];
-    }
-
-    this.watchers[collectionName].push(callback);
-
-    this._start();
-  }
-
-
-  /**
-   * De-register given callback as an oplog watcher.
-   * 
-   * @param {String} collectionName Name of collection to watch.
-   * @param {Function} callback Callback to notify when a change occurs.
-   */
-  unwatch (collectionName, callback) {
-    if (this.watchers[collectionName]) {
-      this.watchers[collectionName] = 
-        _.remove(this.watchers[collectionName], (v) => (v === callback) );
-    }
-  }
-
-
-
-  /**
-   * Stop all oplog watchers.
+   * Stop watching oplog.
    */
   * stop () {
-    if (this.cursor) {
-      yield this.cursor.close();
-      this._cleanup();
-    }
+    debug('Stop oplog');
+
+    yield this.cursor.close();
+
+    this.emit('stopped');
   }
 
 
@@ -81,7 +51,7 @@ class Oplog {
    *
    * @see  https://blog.compose.io/the-mongodb-oplog-and-node-js/
    */
-  _start () {
+  * start () {
     // already started?
     if (this.cursor) {
       return;
@@ -92,7 +62,7 @@ class Oplog {
     var oplog = this.db.get('oplog.rs');
 
     // get highest current timestamp
-    results = yield oplog.find({}, {
+    var results = yield oplog.find({}, {
       fields: { 
         ts: 1
       },
@@ -121,41 +91,71 @@ class Oplog {
         awaitdata: true,
         oplogReplay: true,
         timeout: false,
-        numberOfRetries: -1
+        numberOfRetries: -1,
+        stream: true,
       }),
       {
-        raw: true
+        rawMode: true,
       }
     );
 
     cursor.on('error', _.bind(this.onError, this));
     cursor.on('success', _.bind(this.onFinished, this));
     cursor.on('result', _.bind(this.onData, this));
+
+    this.emit('started');
   }  
 
 
   /**
-   * Reset internal variables.
+   * Handle error
    */
-  _cleanup () {
-    this.cursor = null;
-    this.watchers = [];
-  }
-
-
   onError (err) {
-    console.error('Oplog error');
-    console.error(err.stack);
+    debug('Oplog error: ' + err.message);
+
+    this.emit('error', err);
   }
 
 
+  /** 
+   * Handle oplog stream finished.
+   *
+   * (We don't expect this to be called).
+   */
   onFinished () {
-    this._cleanup();
+    debug('Oplog finished');
+
+    this.emit('finished');
   }
 
 
+  /**
+   * Handle new oplog data.
+   */
   onData (data) {
-    console.dir(data);
+    console.log(data);
+    
+    if (data) {
+      var opType = null;
+      switch (data.op) {
+        case 'i':
+          opType = 'insert';
+          break;
+        case 'd':
+          opType = 'delete';
+          break;
+        case 'u':
+          opType = 'update';
+          break;
+        default:
+          debug('Ignoring op: ' + data.op);
+          return;
+      }
+
+      var collectionName = data.ns.split('.').pop();
+
+      this.emit([collectionName, opType], data.o);
+    }
   }
 }
 

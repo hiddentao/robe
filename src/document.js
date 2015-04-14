@@ -58,7 +58,7 @@ class Document {
         Object.defineProperty(self, key, {
           enumerable: true,
           get: function() {
-            return self.__newDoc[key] || self.__doc[key];
+            return _.has(self.__newDoc, key) ? self.__newDoc[key] : self.__doc[key];
           },
           set: function(val) {
             self.__newDoc[key] = val;

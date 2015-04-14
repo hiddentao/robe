@@ -72,26 +72,31 @@ test['change props'] = {
     var d = this.d = new Document(123, {
       name: 'john',
       age: 23,
+      father: 'eric',
       hasKids: true
     });
 
     d.name.should.eql('john');
     d.age.should.eql(23);
+    d.father.should.eql('eric');
     d.hasKids.should.be.true;
 
     d.name = 'tim';
     d.mother = 'mary';
+    d.father = null;
   },
 
   'updated getters': function*() {
     this.d.name.should.eql('tim');
     this.d.mother.should.eql('mary');
+    should.equal(this.d.father, null);
   },
 
   'toJSON()': function*() {
     this.d.toJSON().should.eql({
       name: 'tim',
       mother: 'mary',
+      father: null,
       age: 23,
       hasKids: true
     });
@@ -100,7 +105,8 @@ test['change props'] = {
   'changes()': function*() {
     this.d.changes().should.eql({
       name: 'tim',
-      mother: 'mary'
+      mother: 'mary',
+      father: null
     });
   },
 
@@ -114,6 +120,7 @@ test['change props'] = {
     this.d.toJSON().should.eql({
       name: 'john',
       age: 23,
+      father: 'eric',
       hasKids: true
     })
   }

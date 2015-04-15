@@ -133,10 +133,8 @@ class Oplog extends EventEmitter2 {
 
         var oplog = self.db.collection('oplog.rs');
 
-        Q.promisifyAll(oplog);
-
         // get highest current timestamp
-        return oplog.findAsync({}, {
+        return Q.promisify(oplog.find, oplog)({}, {
           fields: { 
             ts: 1
           },

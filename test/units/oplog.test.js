@@ -1,5 +1,6 @@
 var _ = require('lodash'),
   monk = require('monk'),
+  shell = require('shelljs'),
   ReplicaSet = require('mongo-replica-set').ReplicaSet,
   Q = require('bluebird');
 
@@ -36,14 +37,25 @@ test.before = function*() {
     return h + '/robe-test';
   });
 
+  this.mongoShellExec = function(query) {
+    return new Q(function(resolve, reject) {
+      shell.exec('mongo --port 37117 --eval "' + query + '" robe-test', function(code, output) {
+        if (0 !== code) {
+          reject(new Error('Exit: ' + code, output));
+        } 
+
+        resolve([code, output]);
+      });
+    });
+  };
+
   this.db = yield Robe.connect(hosts);
 };
 
 test.after = function*() {
   this.mocker.restore();
-  yield this.db.close();  
-  yield this.db2.close();  
 
+  yield this.db.close();  
   yield this.rs.stop();
 };
 
@@ -61,26 +73,20 @@ test['oplog'] = {
 
   'one collection': {
     beforeEach: function*() {
-      this.oplog.on('*', this.callback);      
+      this.oplog.on('oplogtest:*', this.callback);      
     },
 
     afterEach: function*() {
-      this.oplog.off('*', this.callback);
+      this.oplog.off('oplogtest:*', this.callback);
     },
 
     'on insert': function*() {
-      this.timeout(5000);
+      yield this.mongoShellExec('db.oplogtest.insert({a:123})');
 
-      // todo
-
-      yield Q.delay(3000);
+      yield Q.delay(100);
 
       this.callback.should.have.been.calledOnce;
-      this.callback.should.have.been.calledWithExactly(
-        'insert', {
-          name: 'james'
-        }
-      );
+      expect( _.deepGet(this.callback.getCall(0), 'args.0.a') ).to.eql(123);
     },
   }
 

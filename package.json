@@ -33,6 +33,7 @@
     "gulp-6to5": "^3.0.0",
     "gulp-mocha": "~0.4.1",
     "mocha": "^2.1.0",
+    "mongo-replica-set": "^0.2.2",
     "run-sequence": "~0.3.6",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.6.0"

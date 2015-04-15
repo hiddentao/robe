@@ -31,7 +31,7 @@ class Database {
    */
   * oplog () {
     if (!this._oplog) {
-      this._oplog = new Oplog(this.db);
+      this._oplog = new Oplog(this);
       yield this._oplog.start();
     }
 

@@ -2,14 +2,13 @@
 
 
 var _ = require('lodash'),
-  BSON = require('bson').BSONPure,
+  mongo = require('mongoskin'),
+  BSON = require('bson'),
   debug = require('debug')('robe-oplog'),
   EventEmitter2 = require('eventemitter2').EventEmitter2,
   Class = require('class-extend'),
   Q = require('bluebird');
 
-
-var Cursor = require('./cursor');
 
 
 /**
@@ -19,29 +18,96 @@ class Oplog extends EventEmitter2 {
   /**
    * Constructor.
    *
-   * @param  {Database} db The underlying db.
+   * @param  {Database} robeDb The underlying db.
    */
-  constructor (db) {
+  constructor (robeDb) {
     super({
       wildcard: true,
       delimiter: ':'
     });
 
-    this.db = db;
     this.watchers = [];
+
+    var self = this;
+    ['_onData', '_onError', '_onEnded'].forEach(function(m) {
+      self[m] = _.bind(self[m], self);
+    })
+
+    // find out master server
+    var serverConfig = robeDb.db.driver._native.serverConfig;
+
+    this.masterServer = _.find(serverConfig.servers || [], function(s) {
+      return _.deepGet(s, 'isMasterDoc.ismaster');
+    });
+
+    if (!this.masterServer) {
+      throw new Error('No MASTER server found for oplog');
+    }
+    
+    this.hostPort = this.masterServer.host + ':' + this.masterServer.port;
+    debug('db: ' + this.hostPort);
   }
 
 
 
   /**
    * Stop watching oplog.
+   *
+   * @return {Promise}
    */
-  * stop () {
+  stop () {
+    var self = this;
+
     debug('Stop oplog');
 
-    yield this.cursor.close();
+    return self.cursor.close()
+      .then(function() {
+        self.cursor = null;
 
-    this.emit('stopped');
+        if (self.db) {
+          debug('Close db connection');
+
+          return new Q(function(resolve, reject){
+            self.db.close(function(err) {
+              if (err) return reject(err);
+
+              resolve();
+            }); 
+          });
+        }
+      })
+      .then(function() {
+        self.emit('stopped');
+      });
+  }
+
+
+  /**
+   * Connect to master server.
+   * @return {Promise}
+   */
+  _connectToServer () {
+    var self = this;
+
+    return Q.try(function() {
+      if (self.db) {
+        return;
+      } else {
+        debug('Connect to db ' + self.hostPort);
+
+        self.db = mongo.db("mongodb://"  + self.hostPort + "/local", {
+          native_parser:true
+        });
+
+        return new Q(function(resolve, reject) {
+          self.db.open(function(err) {
+            if (err) return reject(err);
+
+            resolve();
+          });
+        });
+      }
+    });
   }
 
 
@@ -50,90 +116,105 @@ class Oplog extends EventEmitter2 {
    * Start watching the oplog.
    *
    * @see  https://blog.compose.io/the-mongodb-oplog-and-node-js/
+   *
+   * @return {Promise}
    */
-  * start () {
+  start () {
+    var self = this;
+
     // already started?
-    if (this.cursor) {
-      return;
+    if (self.cursor) {
+      return Q.resolve();
     }
 
-    debug('Start watching oplog');
+    return self._connectToServer()
+      .then(function() {
+        debug('Start watching oplog');
 
-    var oplog = this.db.get('oplog.rs');
+        var oplog = self.db.collection('oplog.rs');
 
-    // get highest current timestamp
-    var results = yield oplog.find({}, {
-      fields: { 
-        ts: 1
-      },
-      sort: {
-        '$natural': -1
-      },
-      limit: 1
-    });
+        Q.promisifyAll(oplog);
 
-    var lastOplogTime = _.deepGet(results, '0.ts');
+        // get highest current timestamp
+        return oplog.findAsync({}, {
+          fields: { 
+            ts: 1
+          },
+          sort: {
+            '$natural': -1
+          },
+          limit: 1
+        })
+          .then(function(results) {
+            var lastOplogTime = _.deepGet(results, '0.ts');
 
-    // if last ts not available then set to current time
-    if (!lastOplogTime) {
-      lastOplogTime = new BSON.Timestamp(0, Date.now() / 1000);
-    }
+            // if last ts not available then set to current time
+            if (!lastOplogTime) {
+              lastOplogTime = new BSON.Timestamp(0, Math.floor(Date.now() / 1000 - 1));
+            }
 
-    // Create a cursor for tailing and set it to await data
-    var cursor = this.cursor = new Cursor(
-      oplog,
-      oplog.find({
-        ts: {
-          $gte: lastOplogTime
-        }
-      }, {
-        tailable: true,
-        awaitdata: true,
-        oplogReplay: true,
-        timeout: false,
-        numberOfRetries: -1,
-        stream: true,
-      }),
-      {
-        rawMode: true,
-      }
-    );
+            debug('Watching for events newer than ' + lastOplogTime.toString());
 
-    cursor.on('error', _.bind(this.onError, this));
-    cursor.on('success', _.bind(this.onFinished, this));
-    cursor.on('result', _.bind(this.onData, this));
+            // use oplog.col._native to access lower-level native collection object
+            var cursor = self.cursor = oplog.find({
+              ts: {
+                $gte: lastOplogTime
+              }
+            }, {
+              tailable: true,
+              awaitdata: true,
+              oplogReplay: true,
+              numberOfRetries: -1,
+            });
 
-    this.emit('started');
+            var stream = self.cursor.stream();
+
+            stream.on('data', self._onData);
+            stream.on('error', self._onError);
+            stream.on('end', self._onEnded);
+
+            debug('Cursor started');
+
+            self.emit('started');
+          });
+      });
   }  
 
 
   /**
    * Handle error
    */
-  onError (err) {
-    debug('Oplog error: ' + err.message);
+  _onError (err) {
+    debug('Cursor error: ' + err.message);
 
     this.emit('error', err);
   }
 
 
   /** 
-   * Handle oplog stream finished.
+   * Handle oplog stream ended.
    *
    * (We don't expect this to be called).
    */
-  onFinished () {
-    debug('Oplog finished');
+  _onEnded () {
+    var self = this;
 
-    this.emit('finished');
+    debug('Cursor ended, restarting after 1s');
+
+    this.cursor = null;
+
+    Q.delay(1000)
+      .then(function() {
+        self.start();
+      });
   }
 
 
   /**
    * Handle new oplog data.
    */
-  onData (data) {
-    console.log(data);
+  _onData (data) {
+    debug('Cursor data: ' + JSON.stringify(data));
     
     if (data) {
       var opType = null;

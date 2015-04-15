@@ -10,14 +10,13 @@ var _inherits = function (subClass, superClass) { if (typeof superClass !== "fun
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var _ = require("lodash"),
-    BSON = require("bson").BSONPure,
+    mongo = require("mongoskin"),
+    BSON = require("bson"),
     debug = require("debug")("robe-oplog"),
     EventEmitter2 = require("eventemitter2").EventEmitter2,
     Class = require("class-extend"),
     Q = require("bluebird");
 
-
-var Cursor = require("./cursor");
 
 
 /**
@@ -27,9 +26,9 @@ var Oplog = (function (EventEmitter2) {
   /**
    * Constructor.
    *
-   * @param  {Database} db The underlying db.
+   * @param  {Database} robeDb The underlying db.
    */
-  function Oplog(db) {
+  function Oplog(robeDb) {
     _classCallCheck(this, Oplog);
 
     _get(Object.getPrototypeOf(Oplog.prototype), "constructor", this).call(this, {
@@ -37,8 +36,26 @@ var Oplog = (function (EventEmitter2) {
       delimiter: ":"
     });
 
-    this.db = db;
     this.watchers = [];
+
+    var self = this;
+    ["_onData", "_onError", "_onEnded"].forEach(function (m) {
+      self[m] = _.bind(self[m], self);
+    });
+
+    // find out master server
+    var serverConfig = robeDb.db.driver._native.serverConfig;
+
+    this.masterServer = _.find(serverConfig.servers || [], function (s) {
+      return _.deepGet(s, "isMasterDoc.ismaster");
+    });
+
+    if (!this.masterServer) {
+      throw new Error("No MASTER server found for oplog");
+    }
+
+    this.hostPort = this.masterServer.host + ":" + this.masterServer.port;
+    debug("db: " + this.hostPort);
   }
 
   _inherits(Oplog, EventEmitter2);
@@ -50,13 +67,64 @@ var Oplog = (function (EventEmitter2) {
 
       /**
        * Stop watching oplog.
+       *
+       * @return {Promise}
        */
-      value: function* stop() {
+      value: function stop() {
+        var self = this;
+
         debug("Stop oplog");
 
-        yield this.cursor.close();
+        return self.cursor.close().then(function () {
+          self.cursor = null;
 
-        this.emit("stopped");
+          if (self.db) {
+            debug("Close db connection");
+
+            return new Q(function (resolve, reject) {
+              self.db.close(function (err) {
+                if (err) return reject(err);
+
+                resolve();
+              });
+            });
+          }
+        }).then(function () {
+          self.emit("stopped");
+        });
+      },
+      writable: true,
+      configurable: true
+    },
+    _connectToServer: {
+
+
+      /**
+       * Connect to master server.
+       * @return {Promise}
+       */
+      value: function _connectToServer() {
+        var self = this;
+
+        return Q["try"](function () {
+          if (self.db) {
+            return;
+          } else {
+            debug("Connect to db " + self.hostPort);
+
+            self.db = mongo.db("mongodb://" + self.hostPort + "/local", {
+              native_parser: true
+            });
+
+            return new Q(function (resolve, reject) {
+              self.db.open(function (err) {
+                if (err) return reject(err);
+
+                resolve();
+              });
+            });
+          }
+        });
       },
       writable: true,
       configurable: true
@@ -69,96 +137,113 @@ var Oplog = (function (EventEmitter2) {
        * Start watching the oplog.
        *
        * @see  https://blog.compose.io/the-mongodb-oplog-and-node-js/
+       *
+       * @return {Promise}
        */
-      value: function* start() {
+      value: function start() {
+        var self = this;
+
         // already started?
-        if (this.cursor) {
-          return;
+        if (self.cursor) {
+          return Q.resolve();
         }
 
-        debug("Start watching oplog");
+        return self._connectToServer().then(function () {
+          debug("Start watching oplog");
 
-        var oplog = this.db.get("oplog.rs");
+          var oplog = self.db.collection("oplog.rs");
 
-        // get highest current timestamp
-        var results = yield oplog.find({}, {
-          fields: {
-            ts: 1
-          },
-          sort: {
-            $natural: -1
-          },
-          limit: 1
+          Q.promisifyAll(oplog);
+
+          // get highest current timestamp
+          return oplog.findAsync({}, {
+            fields: {
+              ts: 1
+            },
+            sort: {
+              $natural: -1
+            },
+            limit: 1
+          }).then(function (results) {
+            var lastOplogTime = _.deepGet(results, "0.ts");
+
+            // if last ts not available then set to current time
+            if (!lastOplogTime) {
+              lastOplogTime = new BSON.Timestamp(0, Math.floor(Date.now() / 1000 - 1));
+            }
+
+            debug("Watching for events newer than " + lastOplogTime.toString());
+
+            // use oplog.col._native to access lower-level native collection object
+            var cursor = self.cursor = oplog.find({
+              ts: {
+                $gte: lastOplogTime
+              }
+            }, {
+              tailable: true,
+              awaitdata: true,
+              oplogReplay: true,
+              numberOfRetries: -1 });
+
+            var stream = self.cursor.stream();
+
+            stream.on("data", self._onData);
+            stream.on("error", self._onError);
+            stream.on("end", self._onEnded);
+
+            debug("Cursor started");
+
+            self.emit("started");
+          });
         });
-
-        var lastOplogTime = _.deepGet(results, "0.ts");
-
-        // if last ts not available then set to current time
-        if (!lastOplogTime) {
-          lastOplogTime = new BSON.Timestamp(0, Date.now() / 1000);
-        }
-
-        // Create a cursor for tailing and set it to await data
-        var cursor = this.cursor = new Cursor(oplog, oplog.find({
-          ts: {
-            $gte: lastOplogTime
-          }
-        }, {
-          tailable: true,
-          awaitdata: true,
-          oplogReplay: true,
-          timeout: false,
-          numberOfRetries: -1,
-          stream: true }), {
-          rawMode: true });
-
-        cursor.on("error", _.bind(this.onError, this));
-        cursor.on("success", _.bind(this.onFinished, this));
-        cursor.on("result", _.bind(this.onData, this));
-
-        this.emit("started");
       },
       writable: true,
       configurable: true
     },
-    onError: {
+    _onError: {
 
 
       /**
        * Handle error
        */
-      value: function onError(err) {
-        debug("Oplog error: " + err.message);
+      value: function _onError(err) {
+        debug("Cursor error: " + err.message);
 
         this.emit("error", err);
       },
       writable: true,
       configurable: true
     },
-    onFinished: {
+    _onEnded: {
 
 
       /** 
-       * Handle oplog stream finished.
+       * Handle oplog stream ended.
        *
        * (We don't expect this to be called).
        */
-      value: function onFinished() {
-        debug("Oplog finished");
+      value: function _onEnded() {
+        var self = this;
 
-        this.emit("finished");
+        debug("Cursor ended, restarting after 1s");
+
+        this.cursor = null;
+
+        Q.delay(1000).then(function () {
+          self.start();
+        });
       },
       writable: true,
       configurable: true
     },
-    onData: {
+    _onData: {
 
 
       /**
        * Handle new oplog data.
        */
-      value: function onData(data) {
-        console.log(data);
+      value: function _onData(data) {
+        debug("Cursor data: " + JSON.stringify(data));
 
         if (data) {
           var opType = null;

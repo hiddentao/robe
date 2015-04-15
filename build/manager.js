@@ -35,7 +35,7 @@ var Manager = (function () {
        * Connect to given database.
        * @param {String|Array} url Either db URL or array of replica set URLs.
        * @param {Object} options Connection options.
-       * @param {Number} options.timeout Connection timeout in milliseconds. Default is 5000.
+       * @param {Number} options.timeout Connection timeout in milliseconds. Default is 3000.
        * @return {Promise} which resolves to a database connection if successful.
        */
       value: function connect(url) {

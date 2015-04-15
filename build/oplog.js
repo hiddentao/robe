@@ -46,16 +46,18 @@ var Oplog = (function (EventEmitter2) {
     // find out master server
     var serverConfig = robeDb.db.driver._native.serverConfig;
 
-    this.masterServer = _.find(serverConfig.servers || [], function (s) {
+    var masterServer = _.find(serverConfig.servers || [], function (s) {
       return _.deepGet(s, "isMasterDoc.ismaster");
     });
 
-    if (!this.masterServer) {
+    if (!masterServer) {
       throw new Error("No MASTER server found for oplog");
     }
 
-    this.hostPort = this.masterServer.host + ":" + this.masterServer.port;
-    debug("db: " + this.hostPort);
+    this.databaseName = masterServer.db.databaseName;
+    this.hostPort = masterServer.host + ":" + masterServer.port;
+
+    debug("db: " + this.hostPort + "/" + this.databaseName);
   }
 
   _inherits(Oplog, EventEmitter2);
@@ -243,27 +245,34 @@ var Oplog = (function (EventEmitter2) {
       value: function _onData(data) {
         debug("Cursor data: " + JSON.stringify(data));
 
-        if (data) {
-          var opType = null;
-          switch (data.op) {
-            case "i":
-              opType = "insert";
-              break;
-            case "d":
-              opType = "delete";
-              break;
-            case "u":
-              opType = "update";
-              break;
-            default:
-              debug("Ignoring op: " + data.op);
-              return;
-          }
+        var ns = data.ns.split("."),
+            dbName = ns[0],
+            colName = ns[1];
 
-          var collectionName = data.ns.split(".").pop();
+        // only want events for this db
+        if (this.databaseName !== dbName) {
+          debug("Ignoring data for db: " + dbName);
 
-          this.emit([collectionName, opType], data.o);
+          return;
         }
+
+        var opType = null;
+        switch (data.op) {
+          case "i":
+            opType = "insert";
+            break;
+          case "d":
+            opType = "delete";
+            break;
+          case "u":
+            opType = "update";
+            break;
+          default:
+            debug("Ignoring op: " + data.op);
+            return;
+        }
+
+        this.emit([collectionName, opType], data.o);
       },
       writable: true,
       configurable: true

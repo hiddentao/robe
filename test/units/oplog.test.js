@@ -37,9 +37,14 @@ test.before = function*() {
     return h + '/robe-test';
   });
 
-  this.mongoShellExec = function(query) {
+  this.mongoShellExec = function(dbName, query) {
+    if (1 === arguments.length) {
+      query = dbName;
+      dbName = 'robe-test';
+    }
+
     return new Q(function(resolve, reject) {
-      shell.exec('mongo --port 37117 --eval "' + query + '" robe-test', function(code, output) {
+      shell.exec('mongo --port 37117 --eval "' + query + '" ' + dbName, function(code, output) {
         if (0 !== code) {
           reject(new Error('Exit: ' + code, output));
         } 
@@ -53,11 +58,14 @@ test.before = function*() {
 };
 
 test.after = function*() {
-  this.mocker.restore();
-
   yield this.db.close();  
   yield this.rs.stop();
 };
+
+
+test.afterEach = function*() {
+  this.mocker.restore();
+}
 
 
 test['oplog'] = {
@@ -67,27 +75,38 @@ test['oplog'] = {
     this.oplog = yield this.db.oplog();
   },
 
-  beforeEach: function*() {
-    this.callback = this.mocker.spy();
+  afterEach: function*() {
+    this.oplog.removeAllListeners();
   },
 
-  'one collection': {
-    beforeEach: function*() {
-      this.oplog.on('oplogtest:*', this.callback);      
-    },
+  'ignores stuff for other databases': function*() {
+    var spy = this.mocker.spy();
 
-    afterEach: function*() {
-      this.oplog.off('oplogtest:*', this.callback);
-    },
+    this.oplog.on('oplogtest:*', spy);      
 
-    'on insert': function*() {
-      yield this.mongoShellExec('db.oplogtest.insert({a:123})');
+    yield this.mongoShellExec('otherdb', 'db.oplogtest2.insert({a:123})');
 
-      yield Q.delay(100);
+    yield Q.delay(100);
 
-      this.callback.should.have.been.calledOnce;
-      expect( _.deepGet(this.callback.getCall(0), 'args.0.a') ).to.eql(123);
-    },
+    spy.should.not.have.been.called;
+  },
+
+  'single collection': {
+    'any event': {
+      beforeEach: function*() {
+        this.callback = this.mocker.spy();
+
+        this.oplog.on('oplogtest:*', this.callback);
+      },
+      'insert': function*() {
+        yield this.mongoShellExec('db.oplogtest.insert({a:123})');
+
+        yield Q.delay(100);
+
+        this.callback.should.have.been.calledOnce;
+        expect( _.deepGet(this.callback.getCall(0), 'args.0.a') ).to.eql(123);
+      },
+    }
   }
 
 };

@@ -40,7 +40,7 @@ test.beforeEach = function(done) {
 };
 
 test.afterEach = function*() {
-  yield Robe.closeAll();
+  yield this.db.close();
 };
 
 

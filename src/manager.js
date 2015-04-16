@@ -68,7 +68,7 @@ class Manager {
    * @return {Promise}
    */
   static closeAll () {
-    debug('close all connections');
+    debug('close all connections: ' + dbConnections.length);
 
     return Q.map(dbConnections, function(db) {
       return db.close();

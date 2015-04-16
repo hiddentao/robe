@@ -45,13 +45,20 @@ class Database {
    * @return {Promise}
    */
   close () {
+    var self = this;
+    
     debug('close');
 
-    if (2 === _.deepGet(this.db, 'driver._state')) {
-      return Q.promisify(this.db.close, this.db)();
-    } else {
-      return Q.resolve();
-    }
+    return Q.try(function() {
+      if (self._oplog) {
+        return self._oplog.stop();
+      }
+    })
+      .then(function closeDb() {
+        if (2 === _.deepGet(self.db, 'driver._state')) {
+          return Q.promisify(self.db.close, self.db)();
+        }
+      });
   }
 
 

@@ -26,6 +26,8 @@ class Oplog extends EventEmitter2 {
       delimiter: ':'
     });
 
+    this.paused = false;
+    this.active = false;
     this.watchers = [];
 
     var self = this;
@@ -62,7 +64,19 @@ class Oplog extends EventEmitter2 {
 
     debug('Stop oplog');
 
-    return self.cursor.close()
+    self.active = false;
+
+    return new Q(function(resolve, reject) {
+      if (!self.cursor) {
+        return resolve();
+      }
+      
+      self.cursor.close(function(err) {
+        if (err) return reject(err);
+
+        resolve();
+      });  
+    })
       .then(function() {
         self.cursor = null;
 
@@ -73,13 +87,12 @@ class Oplog extends EventEmitter2 {
             self.db.close(function(err) {
               if (err) return reject(err);
 
+              self.db = null;
+
               resolve();
             }); 
           });
         }
-      })
-      .then(function() {
-        self.emit('stopped');
       });
   }
 
@@ -113,6 +126,27 @@ class Oplog extends EventEmitter2 {
   }
 
 
+  /**
+   * Pause the oplog.
+   */
+  pause () {
+    debug('Pause oplog');
+
+    this.paused = true;
+  }
+
+
+
+  /**
+   * Resume the oplog.
+   */
+  resume () {
+    debug('Resume oplog');
+
+    this.paused = false;
+  }
+
+
 
   /**
    * Start watching the oplog.
@@ -125,8 +159,10 @@ class Oplog extends EventEmitter2 {
     var self = this;
 
     // already started?
-    if (self.cursor) {
+    if (self.active) {
       return Q.resolve();
+    } else {
+      self.active = true;
     }
 
     return self._connectToServer()
@@ -174,8 +210,6 @@ class Oplog extends EventEmitter2 {
             stream.on('end', self._onEnded);
 
             debug('Cursor started');
-
-            self.emit('started');
           });
       });
   }  
@@ -199,14 +233,19 @@ class Oplog extends EventEmitter2 {
   _onEnded () {
     var self = this;
 
-    debug('Cursor ended, restarting after 1s');
+    debug('Cursor ended');
 
-    this.cursor = null;
+    // if cursor still active
+    if (self.active) {
+      this.cursor = null;
 
-    Q.delay(1000)
-      .then(function() {
-        self.start();
-      });
+      Q.delay(1000)
+        .then(function() {
+          debug('Restarting cursor');
+
+          self.start();
+        });
+    }
   }
 
 
@@ -215,6 +254,12 @@ class Oplog extends EventEmitter2 {
    */
   _onData (data) {
     debug('Cursor data: ' + JSON.stringify(data));
+
+    if (this.paused) {
+      debug('Ignore data because oplog is paused');
+
+      return;
+    }
 
     var ns = data.ns.split('.'),
       dbName = ns[0],
@@ -243,7 +288,7 @@ class Oplog extends EventEmitter2 {
         return;
     }
 
-    this.emit([collectionName, opType], data.o);
+    this.emit([colName, opType], colName, opType, data.o);
   }
 }
 

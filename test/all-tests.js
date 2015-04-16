@@ -22,8 +22,6 @@ var test = module.exports = {
   },
   afterEach: function*() {
     this.mocker.restore();
-
-    yield Robe.closeAll();
   }
 };
 
@@ -32,7 +30,7 @@ var test = module.exports = {
 var units = require('fs').readdirSync(path.join(__dirname, 'units'));
 
 units.forEach(function(f) {
-  if (0 > f.indexOf('oplog.test.js')) {
+  if (0 > f.indexOf('.test.js')) {
     return;
   }
 

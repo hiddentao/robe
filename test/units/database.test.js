@@ -20,6 +20,10 @@ test.beforeEach = function*() {
   this.db = yield Robe.connect('127.0.0.1/robe-test');
 };
 
+test.afterEach = function*() {
+  yield Robe.closeAll();
+}
+
 
 
 test['constructor'] = function*() {

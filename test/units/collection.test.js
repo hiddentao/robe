@@ -39,8 +39,8 @@ test.beforeEach = function(done) {
   });
 };
 
-test.afterEach = function(done) {
-  this._db.close(done);
+test.afterEach = function*() {
+  yield Robe.closeAll();
 };
 
 

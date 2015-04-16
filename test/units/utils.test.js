@@ -18,6 +18,11 @@ var Robe = utils.Robe,
 var test = module.exports = {};
 
 
+test.afterEach = function*() {
+  yield Robe.closeAll();
+}
+
+
 
 test['formatMongoDoc()'] = {
   'default': function*() {

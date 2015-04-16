@@ -4,6 +4,9 @@ branches:
   only:
     - master
 
+env:
+  NO_REPLICA_SETS=true
+
 node_js:
   - "0.12"
   - "0.11"

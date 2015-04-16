@@ -17,17 +17,8 @@ gulp.task('to5', function() {
 });
 
 
-gulp.task('ci-tests', ['to5'], function () {
-  return gulp.src('./test/ci/*.test.js', { read: false })
-      .pipe(mocha({
-        ui: 'exports',
-        reporter: 'spec'
-      }))
-    ;
-});
 
-
-gulp.task('all-tests', ['to5'], function () {
+gulp.task('tests', ['to5'], function () {
   return gulp.src('./test/**/*.test.js', { read: false })
       .pipe(mocha({
         ui: 'exports',
@@ -38,7 +29,7 @@ gulp.task('all-tests', ['to5'], function () {
 
 
 gulp.task('default', function(cb) {
-  runSequence('ci-tests', cb);
+  runSequence('tests', cb);
 });
 
 

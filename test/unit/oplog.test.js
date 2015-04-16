@@ -18,6 +18,13 @@ var Robe = utils.Robe,
 
 var test = utils.createTest(module);
 
+// if running in an environment which doesn't allow us to setup a replica set then quit
+if (process.env.NO_REPLICA_SETS) {
+  test['skip due to inability to setup replica sets'] = true;
+
+  return;
+}
+
 
 test.before = function*() {
   this.timeout(6000);

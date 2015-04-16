@@ -11,7 +11,6 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 var _ = require("lodash"),
     mongo = require("mongoskin"),
-    BSON = require("bson"),
     debug = require("debug")("robe-oplog"),
     EventEmitter2 = require("eventemitter2").EventEmitter2,
     Class = require("class-extend"),
@@ -214,7 +213,7 @@ var Oplog = (function (EventEmitter2) {
 
             // if last ts not available then set to current time
             if (!lastOplogTime) {
-              lastOplogTime = new BSON.Timestamp(0, Math.floor(Date.now() / 1000 - 1));
+              lastOplogTime = new mongo.Timestamp(0, Math.floor(Date.now() / 1000 - 1));
             }
 
             debug("Watching for events newer than " + lastOplogTime.toString());

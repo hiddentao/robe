@@ -8,6 +8,8 @@ var Robe = module.exports = require('./build/manager');
 
 Robe.Database = require('./build/database');
 
+Robe.Oplog = require('./build/oplog');
+
 Robe.Collection = require('./build/collection');
 
 Robe.Document = require('./build/document');

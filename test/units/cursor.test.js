@@ -30,6 +30,12 @@ test.beforeEach = function*() {
 };
 
 
+test.afterEach = function*() {
+  yield Robe.closeAll();
+}
+
+
+
 test['constructor'] = function*() {
   var e = new EventEmitter();
 

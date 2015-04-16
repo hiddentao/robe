@@ -16,6 +16,11 @@ var Robe = utils.Robe,
 var test = module.exports = {};
 
 
+test.afterEach = function*() {
+  yield Robe.closeAll();
+}
+
+
 test['default options'] = function*() {
   Robe.DEFAULT_CONNECTION_OPTIONS.should.eql({
     timeout: 3000

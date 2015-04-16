@@ -6,7 +6,8 @@ var _ = require('lodash'),
   Class = require('class-extend'),
   Q = require('bluebird');
 
-var Collection = require('./collection');
+var Collection = require('./collection'),
+  Oplog = require('./oplog');
 
 
 
@@ -24,17 +25,40 @@ class Database {
 
 
   /**
+   * Get oplog watcher.
+   *
+   * This will create and start the watcher if not already done so.
+   */
+  * oplog () {
+    if (!this._oplog) {
+      this._oplog = new Oplog(this);
+      yield this._oplog.start();
+    }
+
+    return this._oplog;
+  }
+
+
+
+  /**
    * Close this database connection.
    * @return {Promise}
    */
   close () {
+    var self = this;
+    
     debug('close');
 
-    if (2 === _.deepGet(this.db, 'driver._state')) {
-      return Q.promisify(this.db.close, this.db)();
-    } else {
-      return Q.resolve();
-    }
+    return Q.try(function() {
+      if (self._oplog) {
+        return self._oplog.stop();
+      }
+    })
+      .then(function closeDb() {
+        if (2 === _.deepGet(self.db, 'driver._state')) {
+          return Q.promisify(self.db.close, self.db)();
+        }
+      });
   }
 
 
@@ -49,6 +73,7 @@ class Database {
   collection (name, options) {
     return new Collection(this.db.get(name), options);
   }
+
 }
 
 Database.extend = Class.extend;

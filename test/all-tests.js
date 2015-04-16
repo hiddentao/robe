@@ -22,8 +22,6 @@ var test = module.exports = {
   },
   afterEach: function*() {
     this.mocker.restore();
-
-    yield Robe.closeAll();
   }
 };
 

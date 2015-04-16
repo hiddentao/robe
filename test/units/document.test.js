@@ -26,6 +26,9 @@ test.beforeEach = function*() {
   yield this.collection.remove();
 };
 
+test.afterEach = function*() {
+  yield Robe.closeAll();
+}
 
 
 

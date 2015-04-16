@@ -13,7 +13,7 @@ var Robe = utils.Robe,
   Database = Robe.Database;
 
 
-var test = module.exports = {};
+var test = utils.createTest(module);
 
 
 test.beforeEach = function*() {

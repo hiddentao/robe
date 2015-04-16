@@ -15,7 +15,7 @@ var Robe = utils.Robe,
   Document = Robe.Document;
 
 
-var test = module.exports = {};
+var test = utils.createTest(module);
 
 
 test.beforeEach = function*() {

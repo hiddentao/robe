@@ -15,7 +15,7 @@ var Robe = utils.Robe,
   RobeUtils = Robe.Utils;
 
 
-var test = module.exports = {};
+var test = utils.createTest(module);
 
 
 test.afterEach = function*() {

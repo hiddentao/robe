@@ -16,7 +16,7 @@ var Robe = utils.Robe,
   Oplog = Robe.Oplog;
 
 
-var test = module.exports = {};
+var test = utils.createTest(module);
 
 
 test.before = function*() {

@@ -17,8 +17,18 @@ gulp.task('to5', function() {
 });
 
 
-gulp.task('test', ['to5'], function () {
-  return gulp.src('./test/all-tests.js', { read: false })
+gulp.task('ci-tests', ['to5'], function () {
+  return gulp.src('./test/ci/*.test.js', { read: false })
+      .pipe(mocha({
+        ui: 'exports',
+        reporter: 'spec'
+      }))
+    ;
+});
+
+
+gulp.task('all-tests', ['to5'], function () {
+  return gulp.src('./test/**/*.test.js', { read: false })
       .pipe(mocha({
         ui: 'exports',
         reporter: 'spec'
@@ -28,7 +38,7 @@ gulp.task('test', ['to5'], function () {
 
 
 gulp.task('default', function(cb) {
-  runSequence('test', cb);
+  runSequence('ci-tests', cb);
 });
 
 

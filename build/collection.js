@@ -18,8 +18,6 @@ var Cursor = require("./cursor"),
 
 
 
-
-
 /**
  * Represents a collection in the database.
  */

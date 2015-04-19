@@ -12,7 +12,7 @@ Features:
 * Cursor mode (for streaming results)
 * Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
 * Indexes and replica sets supported
-* Mongo oplog tailing (like you get in Meteor)
+* Mongo oplog tailing (like in Meteor)
 * [and more...](https://hiddentao.github.io/robe)
 
 

@@ -86,8 +86,9 @@ var Database = (function () {
        * 
        * @return {Collection}
        */
-      value: function collection(name, options) {
-        return new Collection(this.db.get(name), options);
+      value: function collection(name) {
+        var options = arguments[1] === undefined ? {} : arguments[1];
+        return new Collection(this, this.db.get(name), options);
       },
       writable: true,
       configurable: true

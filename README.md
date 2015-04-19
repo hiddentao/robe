@@ -12,6 +12,7 @@ Features:
 * Cursor mode (for streaming results)
 * Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
 * Indexes and replica sets supported
+* Mongo oplog tailing (like you get in Meteor)
 * [and more...](https://hiddentao.github.io/robe)
 
 
@@ -234,6 +235,41 @@ var collection = db.collection('test', {
 // setup all indexes
 yield collection.ensureIndexes();
 ```
+
+
+**Oplog tailing**
+
+If you are connecting to a Mongo replica set, then you can _tail_ the 
+[oplog](http://docs.mongodb.org/manual/core/replica-set-oplog/) through Robe, 
+allowing you to be notified when collections within your database get updated 
+(even by other processes).
+
+```js
+var collection = db.collection('test');
+
+// watch for any changes to the collection
+yield collection.watch(function(collectionName, operationType, data) {
+  // collectionName = collection which got updated
+  // operationType = one of: insert, update, delete
+  // data = the data which got inserted or updated
+});
+
+/* you can also access the oplog directly on the `db` */
+
+// get the oplog
+var oplog = yield db.oplog();
+
+// listen for any operation on any collection
+oplog.onAny(function(collectionName, operationType, data) {
+  // ...
+});
+
+// listen for any operation on the "test" collection
+oplog.on('test:*', function(collectionName, operationType, data) {
+  // ...
+});
+```
+
 
 ## Building
 

@@ -1,7 +1,7 @@
 {
   "name": "robe",
-  "version": "0.8.0",
-  "description": "MongoDB ODM for Node.js using ES6 generators. Supports schema validation, raw querying, cursors, etc.",
+  "version": "0.9.0",
+  "description": "MongoDB ODM for Node.js using ES6 generators. Supports schema validation, cursors, oplog tailing, etc.",
   "main": "index.js",
   "engines": {
     "node": ">=0.11.2"

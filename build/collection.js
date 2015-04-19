@@ -25,17 +25,20 @@ var Collection = (function () {
   /**
    * Constructor.
    *
+   * @param  {Object} db Underlying database connection.
    * @param  {Object} collection The underlying collection.
-   * @param  {Object} [options] Additional options.
+   * @param  {Object} options Additional options.
    * @param  {Object} [options.schema] Database schema.
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.rawMode] Whether to enable raw query mode by default. Default if false.
    * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
    * @param  {Object} [options.docMethods] Convenience methods to make available on this collection's `Document` instances. Each method is specified as a `name`:`function *` pair.
    */
-  function Collection(collection) {
-    var options = arguments[1] === undefined ? {} : arguments[1];
+  function Collection(db, collection) {
+    var options = arguments[2] === undefined ? {} : arguments[2];
     _classCallCheck(this, Collection);
+
+    this.db = db;
 
     this.options = _.defaults(options, {
       schema: {},
@@ -315,6 +318,39 @@ var Collection = (function () {
         });
 
         return new Cursor(this.collection, this.collection.find(selector, options), options);
+      },
+      writable: true,
+      configurable: true
+    },
+    watch: {
+
+
+      /**
+       * Watch this collection for changes.
+       *
+       * The Mongo oplog will be observed for changes to this collection. If 
+       * something happens the callback will be invoked.
+       *
+       * @param {Function} callback Callback to add to observers list.
+       * @see Robe.Oplog
+       */
+      value: function* watch(callback) {
+        (yield this.db.oplog()).on(this.collection.name + ":*", callback);
+      },
+      writable: true,
+      configurable: true
+    },
+    unwatch: {
+
+
+
+      /**
+       * Stop watching this collection for changes.
+       *
+       * @param {Function} callback Callback to remove from the observers list.
+       */
+      value: function* unwatch(callback) {
+        (yield this.db.oplog()).off(this.collection.name + ":*", callback);
       },
       writable: true,
       configurable: true

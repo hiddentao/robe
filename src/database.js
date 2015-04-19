@@ -70,8 +70,8 @@ class Database {
    * 
    * @return {Collection}
    */
-  collection (name, options) {
-    return new Collection(this.db.get(name), options);
+  collection (name, options = {}) {
+    return new Collection(this, this.db.get(name), options);
   }
 
 }

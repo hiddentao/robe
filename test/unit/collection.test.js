@@ -47,6 +47,8 @@ test.afterEach = function*() {
 
 test['constructor'] = {
   'default': function*()  {
+    this.collection.db.should.eql(this.db);
+
     this.collection.options.rawMode.should.be.false;
 
     _.deepGet(this.collection, 'collection.name').should.eql('test');
@@ -804,6 +806,45 @@ test['indexes'] = {
     },
   }
 };
+
+
+test['watching'] = {
+  beforeEach: function*() {
+    var self = this;
+
+    this.onSpy = this.mocker.spy();
+    this.offSpy = this.mocker.spy();
+
+    this.db.oplog = function*() {
+      return {
+        on: self.onSpy,
+        off: self.offSpy,
+      }
+    };
+  },
+
+  'watch': function*() {
+    var collection = this.db.collection('test');
+
+    var callback = this.mocker.spy();
+
+    yield collection.watch(callback);
+
+    this.onSpy.should.have.been.calledOnce;
+    this.onSpy.should.have.been.calledWithExactly('test:*', callback);
+  },
+
+  'unwatch': function*() {
+    var collection = this.db.collection('test');
+
+    var callback = this.mocker.spy();
+
+    yield collection.unwatch(callback);
+
+    this.offSpy.should.have.been.calledOnce;
+    this.offSpy.should.have.been.calledWithExactly('test:*', callback);
+  },  
+}
 
 
 test['custom methods'] = {

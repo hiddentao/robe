@@ -26,7 +26,7 @@ test.afterEach = function*() {
 
 test['formatMongoDoc()'] = {
   'default': function*() {
-    var collection = new Collection(123);
+    var collection = new Collection({}, 123);
 
     var ret = RobeUtils.formatMongoDoc(collection, {
       name: 'Tim'
@@ -36,7 +36,7 @@ test['formatMongoDoc()'] = {
   },
 
   'raw - local option': function*() {
-    var collection = new Collection(123);
+    var collection = new Collection({}, 123);
 
     var ret = RobeUtils.formatMongoDoc(collection, {
       name: 'Tim'
@@ -50,7 +50,7 @@ test['formatMongoDoc()'] = {
   },
 
   'raw - global option': function*() {
-    var collection = new Collection(123, {
+    var collection = new Collection({}, 123, {
       rawMode: true
     });
 

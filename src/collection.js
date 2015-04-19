@@ -21,15 +21,18 @@ class Collection {
   /**
    * Constructor.
    *
+   * @param  {Object} db Underlying database connection.
    * @param  {Object} collection The underlying collection.
-   * @param  {Object} [options] Additional options.
+   * @param  {Object} options Additional options.
    * @param  {Object} [options.schema] Database schema.
    * @param  {Array} [options.indexes] Database indexex to setup.
    * @param  {Boolean} [options.rawMode] Whether to enable raw query mode by default. Default if false.
    * @param  {Object} [options.methods] Convenience methods to make available on this collection instance. Each method is specified as a `name`:`function *` pair.
    * @param  {Object} [options.docMethods] Convenience methods to make available on this collection's `Document` instances. Each method is specified as a `name`:`function *` pair.
    */
-  constructor (collection, options = {}) {
+  constructor (db, collection, options = {}) {
+    this.db = db;
+
     this.options = _.defaults(options, {
       schema: {},
       rawMode: false,
@@ -259,6 +262,31 @@ class Collection {
       this.collection.find(selector, options),
       options
     );
+  }
+
+
+  /**
+   * Watch this collection for changes.
+   *
+   * The Mongo oplog will be observed for changes to this collection. If 
+   * something happens the callback will be invoked.
+   *
+   * @param {Function} callback Callback to add to observers list.
+   * @see Robe.Oplog
+   */
+  * watch (callback) {
+    (yield this.db.oplog()).on(this.collection.name + ':*', callback);
+  }
+
+
+
+  /**
+   * Stop watching this collection for changes.
+   *
+   * @param {Function} callback Callback to remove from the observers list.
+   */
+  * unwatch (callback) {
+    (yield this.db.oplog()).off(this.collection.name + ':*', callback);
   }
 }
 

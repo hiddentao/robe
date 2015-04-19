@@ -268,6 +268,11 @@ oplog.onAny(function(collectionName, operationType, data) {
 oplog.on('test:*', function(collectionName, operationType, data) {
   // ...
 });
+
+// listen for delete operations on the "test" collection
+oplog.on('test:delete', function(collectionName, operationType, data) {
+  // ...
+});
 ```
 
 

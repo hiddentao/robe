@@ -266,7 +266,7 @@ class Collection {
 
 
   /**
-   * Watch this collection for changes.
+   * Add watcher to this collection's oplog tailing cursor.
    *
    * The Mongo oplog will be observed for changes to this collection. If 
    * something happens the callback will be invoked.
@@ -274,18 +274,18 @@ class Collection {
    * @param {Function} callback Callback to add to observers list.
    * @see Robe.Oplog
    */
-  * watch (callback) {
+  * addWatcher (callback) {
     (yield this.db.oplog()).on(this.collection.name + ':*', callback);
   }
 
 
 
   /**
-   * Stop watching this collection for changes.
+   * Remove watcher from this collection's oplog tailing cursor.
    *
    * @param {Function} callback Callback to remove from the observers list.
    */
-  * unwatch (callback) {
+  * removeWatcher (callback) {
     (yield this.db.oplog()).off(this.collection.name + ':*', callback);
   }
 }

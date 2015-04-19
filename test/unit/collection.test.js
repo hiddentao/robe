@@ -828,7 +828,7 @@ test['watching'] = {
 
     var callback = this.mocker.spy();
 
-    yield collection.watch(callback);
+    yield collection.addWatcher(callback);
 
     this.onSpy.should.have.been.calledOnce;
     this.onSpy.should.have.been.calledWithExactly('test:*', callback);
@@ -839,7 +839,7 @@ test['watching'] = {
 
     var callback = this.mocker.spy();
 
-    yield collection.unwatch(callback);
+    yield collection.removeWatcher(callback);
 
     this.offSpy.should.have.been.calledOnce;
     this.offSpy.should.have.been.calledWithExactly('test:*', callback);

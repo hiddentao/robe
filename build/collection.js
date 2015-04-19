@@ -322,11 +322,11 @@ var Collection = (function () {
       writable: true,
       configurable: true
     },
-    watch: {
+    addWatcher: {
 
 
       /**
-       * Watch this collection for changes.
+       * Add watcher to this collection's oplog tailing cursor.
        *
        * The Mongo oplog will be observed for changes to this collection. If 
        * something happens the callback will be invoked.
@@ -334,22 +334,22 @@ var Collection = (function () {
        * @param {Function} callback Callback to add to observers list.
        * @see Robe.Oplog
        */
-      value: function* watch(callback) {
+      value: function* addWatcher(callback) {
         (yield this.db.oplog()).on(this.collection.name + ":*", callback);
       },
       writable: true,
       configurable: true
     },
-    unwatch: {
+    removeWatcher: {
 
 
 
       /**
-       * Stop watching this collection for changes.
+       * Remove watcher from this collection's oplog tailing cursor.
        *
        * @param {Function} callback Callback to remove from the observers list.
        */
-      value: function* unwatch(callback) {
+      value: function* removeWatcher(callback) {
         (yield this.db.oplog()).off(this.collection.name + ":*", callback);
       },
       writable: true,

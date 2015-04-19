@@ -248,7 +248,7 @@ allowing you to be notified when collections within your database get updated
 var collection = db.collection('test');
 
 // watch for any changes to the collection
-yield collection.watch(function(collectionName, operationType, data) {
+yield collection.addWatcher(function(collectionName, operationType, data) {
   // collectionName = collection which got updated
   // operationType = one of: insert, update, delete
   // data = the data which got inserted or updated

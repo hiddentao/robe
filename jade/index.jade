@@ -54,6 +54,7 @@ html
           * Add [hooks](#hooks) for further processing.
           * Stream results using [cursors](#cursors).
           * Add [schema validation](#schema) and [custom methods](#custom_methods).
+          * Notifications via [mongo oplog tailing](#oplog).
           * Clean, object-oriented API.
 
           To use Robe within your code:
@@ -715,6 +716,73 @@ html
             after 1
             after 2
           */          
+
+      section#oplog
+        :markdown
+          ## Oplog tailing
+
+          If you connect to a Mongo replica set then Robe can notify you when 
+          data within your collections gets updated by your client process or any other.
+
+          This can be thought of as a pub/sub mechanism and is used to great 
+          effect in _reactive_ framworks such as [Meteor](https://github.com/meteor/meteor/wiki/Oplog-Observe-Driver).
+
+          To get started:
+
+        +code('javascript').
+          var collection = db.collection("students");
+
+          // watch for any changes to the collection
+          yield collection.addWatcher(function(collectionName, operationType, data) {
+            // collectionName = collection which got updated ("student" in this case)
+            // operationType = one of: "insert", "update", "delete"
+            // data = the data which got inserted or updated (an object)
+          });
+
+        :markdown
+          The internal oplog query cursor is not activated until you add a 
+          watcher. To stop watching for changes:
+
+        +code('javascript').
+          var collection = db.collection("students");
+
+          var callback = function() { // ... };
+
+          // watch for any changes to the collection
+          yield collection.addWatcher(callback);
+
+          // stop watching
+          yield collection.removeWatcher(callback);
+
+        :markdown
+          You can also access and use the oplog directly through the `Database` 
+          object:
+
+        +code('javascript').
+          // get the oplog
+          var oplog = yield db.oplog();
+
+          // listen for any operation on any collection
+          oplog.onAny(function(collectionName, operationType, data) {
+            // ...
+          });
+
+          // listen for any operation on the "student" collection
+          oplog.on('student:*', function(collectionName, operationType, data) {
+            // ...
+          });
+
+          // listen for "insert" operations on the "student" collection
+          oplog.on('student:insert', function(collectionName, operationType, data) {
+            // ...
+          });
+
+        :markdown
+          _Note: The current oplog tailing cursor implementation is naive and 
+          does not take into account how Mongo chooses to populate the oplog. 
+          Certain bulk operations MAY result in multiple 
+          notifications being sent to the registered watchers._
+
 
       footer
         p By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.

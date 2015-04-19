@@ -10,6 +10,7 @@ simple ODM library for MongoDB. </p>
 <li>Add <a href="#hooks">hooks</a> for further processing.</li>
 <li>Stream results using <a href="#cursors">cursors</a>.</li>
 <li>Add <a href="#schema">schema validation</a> and <a href="#custom_methods">custom methods</a>.</li>
+<li>Notifications via <a href="#oplog">mongo oplog tailing</a>.</li>
 <li>Clean, object-oriented API.</li>
 </ul>
 <p>To use Robe within your code:</p>
@@ -515,4 +516,52 @@ collection.update({
   after 1
   after 2
 */          
-</code></pre></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>
+</code></pre></section><section id="oplog"><h2 id="oplog-tailing">Oplog tailing</h2>
+<p>If you connect to a Mongo replica set then Robe can notify you when 
+data within your collections gets updated by your client process or any other.</p>
+<p>This can be thought of as a pub/sub mechanism and is used to great 
+effect in <em>reactive</em> framworks such as <a href="https://github.com/meteor/meteor/wiki/Oplog-Observe-Driver">Meteor</a>.</p>
+<p>To get started:</p>
+<pre><code class="language-javascript">var collection = db.collection("students");
+
+// watch for any changes to the collection
+yield collection.addWatcher(function(collectionName, operationType, data) {
+  // collectionName = collection which got updated ("student" in this case)
+  // operationType = one of: "insert", "update", "delete"
+  // data = the data which got inserted or updated (an object)
+});
+</code></pre><p>The internal oplog query cursor is not activated until you add a 
+watcher. To stop watching for changes:</p>
+<pre><code class="language-javascript">var collection = db.collection("students");
+
+var callback = function() { // ... };
+
+// watch for any changes to the collection
+yield collection.addWatcher(callback);
+
+// stop watching
+yield collection.removeWatcher(callback);
+</code></pre><p>You can also access and use the oplog directly through the <code>Database</code> 
+object:</p>
+<pre><code class="language-javascript">// get the oplog
+var oplog = yield db.oplog();
+
+// listen for any operation on any collection
+oplog.onAny(function(collectionName, operationType, data) {
+  // ...
+});
+
+// listen for any operation on the "student" collection
+oplog.on('student:*', function(collectionName, operationType, data) {
+  // ...
+});
+
+// listen for "insert" operations on the "student" collection
+oplog.on('student:insert', function(collectionName, operationType, data) {
+  // ...
+});
+</code></pre><p><em>Note: The current oplog tailing cursor implementation is naive and 
+does not take into account how Mongo chooses to populate the oplog. 
+Certain bulk operations MAY result in multiple 
+notifications being sent to the registered watchers.</em></p>
+</section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>

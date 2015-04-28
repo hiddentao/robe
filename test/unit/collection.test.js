@@ -255,16 +255,44 @@ test['update'] = {
 
     doc.should.be.defined;
   },
-  'schema - fail': function*() {
-    var collection = this.db.collection('test', {
-      schema: {
-        name: {
-          type: Number
+  'partial update': {
+    'schema - fail': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: Number
+          }
         }
-      }
-    });
+      });
 
-    try {
+      try {
+        yield collection.update({
+          name: 'Tom'
+        }, {
+          $set: {
+            name: 'Phil'
+          }
+        });
+    
+        throw new Error('Unexpected');
+      } catch (err) {
+        err.toString().should.eql('Error: Validation failed');
+      }
+    },
+    'schema - will not fail for missing keys': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: String,
+            required: true,
+          },
+          age: {
+            type: Number,
+            required: true
+          }
+        }
+      });
+
       yield collection.update({
         name: 'Tom'
       }, {
@@ -272,33 +300,56 @@ test['update'] = {
           name: 'Phil'
         }
       });
-  
-      throw new Error('Unexpected');
-    } catch (err) {
-      err.toString().should.eql('Error: Validation failed');
-    }
+    },
   },
-  'schema - will not fail for missing keys': function*() {
-    var collection = this.db.collection('test', {
-      schema: {
-        name: {
-          type: String,
-          required: true,
-        },
-        age: {
-          type: Number,
-          required: true
+  'full update': {
+    'schema - fail': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: Number
+          }
         }
-      }
-    });
+      });
 
-    yield collection.update({
-      name: 'Tom'
-    }, {
-      $set: {
-        name: 'Phil'
+      try {
+        yield collection.update({
+          name: 'Tom'
+        }, {
+          name: 'Phil'
+        });
+    
+        throw new Error('Unexpected');
+      } catch (err) {
+        err.toString().should.eql('Error: Validation failed');
       }
-    });
+    },
+    'schema - will fail for missing keys': function*() {
+      var collection = this.db.collection('test', {
+        schema: {
+          name: {
+            type: String,
+            required: true,
+          },
+          age: {
+            type: Number,
+            required: true
+          }
+        }
+      });
+
+      try {
+        yield collection.update({
+          name: 'Tom'
+        }, {
+          name: 'Phil'
+        });
+      
+        throw new Error('Unexpected');
+      } catch (err) {
+        err.toString().should.eql('Error: Validation failed');
+      }
+    },
   },
   'hooks': function*() {
     var acc = [];

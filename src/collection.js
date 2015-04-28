@@ -155,6 +155,10 @@ class Collection {
       yield this.schema.validate(update.$set, {
         ignoreMissing: true
       });
+    } else {
+      yield this.schema.validate(update, {
+        ignoreMissing: false
+      });      
     }
 
     var ret = yield this.collection.update(search, update);

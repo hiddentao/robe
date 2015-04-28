@@ -390,6 +390,17 @@ html
             }
           });
 
+        :markdown
+          When calling `update()` on the collection, ommitting `$set` will 
+          cause the entire document to be overriden, just as you would expect:
+
+        +code('javascript').
+          yield collection.update({
+            _id: 1  
+          }, {
+            name: 'Martha'
+          });
+
       section#removing
         :markdown
           ## Removing

@@ -241,6 +241,13 @@ yield item.save();
     name: 'Martha'
   }
 });
+</code></pre><p>When calling <code>update()</code> on the collection, ommitting <code>$set</code> will 
+cause the entire document to be overriden, just as you would expect:</p>
+<pre><code class="language-javascript">yield collection.update({
+  _id: 1  
+}, {
+  name: 'Martha'
+});
 </code></pre></section><section id="removing"><h2 id="removing">Removing</h2>
 <p>Removing a document:</p>
 <pre><code class="language-javascript">var item = yield collection.findOne({

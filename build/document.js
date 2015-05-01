@@ -37,8 +37,12 @@ var Document = (function () {
         enumerable: false,
         writable: true,
         value: {}
-      }
-    });
+      },
+      __marked: {
+        enumerable: false,
+        writable: true,
+        value: {}
+      } });
 
     this._resetProperties(doc);
   }
@@ -60,6 +64,7 @@ var Document = (function () {
         });
 
         self.__newDoc = {};
+        self.__marked = {};
 
         for (var key in self.__doc) {
           (function (key) {
@@ -89,6 +94,30 @@ var Document = (function () {
       writable: true,
       configurable: true
     },
+    markChanged: {
+
+
+      /**
+       * Mark a property as having changed.
+       *
+       * This is useful if you a change a value within a non-scalar (e.g. `object`) 
+       * property or an array.
+       * 
+       * @param  {Array} ...keys Properties to mark as having changed.
+       * @return {[type]}     [description]
+       */
+      value: function markChanged() {
+        for (var _len = arguments.length, keys = Array(_len), _key = 0; _key < _len; _key++) {
+          keys[_key] = arguments[_key];
+        }
+
+        for (var k in keys) {
+          this.__marked[keys[k]] = true;
+        }
+      },
+      writable: true,
+      configurable: true
+    },
     toJSON: {
       value: function toJSON() {
         var self = this;
@@ -106,6 +135,7 @@ var Document = (function () {
     },
     changes: {
 
+
       /**
        * Get changed properties.
        * @return {Object}
@@ -116,7 +146,7 @@ var Document = (function () {
         var ret = {};
 
         Object.keys(this).forEach(function (key) {
-          if (self.__doc[key] !== self[key]) {
+          if (self.__doc[key] !== self[key] || self.__marked[key]) {
             ret[key] = self[key];
           }
         });
@@ -148,6 +178,9 @@ var Document = (function () {
             delete self[key];
           }
         });
+
+        // reset marked properties
+        self.__marked = {};
       },
       writable: true,
       configurable: true

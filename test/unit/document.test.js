@@ -126,7 +126,29 @@ test['change props'] = {
       father: 'eric',
       hasKids: true
     })
-  }
+  },
+
+  'markChanged()': function*() {
+    var d = new Document(123, {
+      name: 'john',
+      age: 23,
+      father: 'eric',
+      hasKids: true
+    });
+
+    d.markChanged('name', 'age', 'father');
+    d.father = 'mike';
+
+    d.changes().should.eql({
+      name: 'john',
+      age: 23,
+      father: 'mike',
+    });
+
+    d.reset();
+
+    d.changes().should.eql({});
+  },
 };
 
 

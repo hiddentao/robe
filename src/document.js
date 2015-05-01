@@ -30,7 +30,12 @@ class Document {
         enumerable: false,
         writable: true,
         value: {}
-      }
+      },
+      __marked: {
+        enumerable: false,
+        writable: true,
+        value: {}
+      },
     });
 
     this._resetProperties(doc);
@@ -50,6 +55,7 @@ class Document {
     });
 
     self.__newDoc = {};
+    self.__marked = {};
 
     for (let key in self.__doc) {
       // if property not yet defined
@@ -76,6 +82,23 @@ class Document {
   }
 
 
+  /**
+   * Mark a property as having changed.
+   *
+   * This is useful if you a change a value within a non-scalar (e.g. `object`) 
+   * property or an array.
+   * 
+   * @param  {Array} ...keys Properties to mark as having changed.
+   * @return {[type]}     [description]
+   */
+  markChanged (...keys) {
+    for (let k in keys) {
+      this.__marked[keys[k]] = true;
+    }
+  }
+
+
+
   toJSON () {
     var self = this;
 
@@ -85,6 +108,7 @@ class Document {
 
     return ret;
   }
+
 
   /**
    * Get changed properties.
@@ -96,7 +120,8 @@ class Document {
     var ret = {};
 
     Object.keys(this).forEach(function(key) {
-      if (self.__doc[key] !== self[key]) {
+      if ( (self.__doc[key] !== self[key]) 
+              || self.__marked[key] ) {
         ret[key] = self[key];
       }
     });
@@ -124,6 +149,9 @@ class Document {
         delete self[key];
       }
     });
+
+    // reset marked properties
+    self.__marked = {};
   }
 
 

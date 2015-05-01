@@ -108,7 +108,55 @@ console.log( Object.keys(result) );
 /*
   '_id', 'name', 'score'
 */
-</code></pre></section><section id="raw"><h3 id="raw-data">Raw data</h3>
+
+</code></pre><p><code>Robe.Documents</code> instances automatically keep track of which 
+properties get changed and only update those properties in the 
+database when you call <code>save()</code>.</p>
+<pre><code class="language-javascript">var result = yield collection.findOne({
+  score: {
+    $gt: 20
+  },
+});
+
+result.name = 'Jimbo';
+
+yield result.save();
+
+/* 
+Same as calling:
+
+yield collection.update({_id: result._id}, {
+  $set: {
+    name: 'Jimbo'
+  }
+});
+*/
+</code></pre><p>When setting <code>Array</code> and <code>Object</code> properties of a <code>Robe.Document</code> you 
+may need to additionally call the <code>markChanged()</code> method to tell 
+Robe that that specific property got updated:</p>
+<pre><code class="language-javascript">var result = yield collection.findOne({
+  'location.city': 'NYC'
+});
+
+result.location.city = 'London';
+
+// we need to manually tell Robe that 'location' key got updated
+result.markChanged('london');
+
+yield result.save();
+
+/* 
+Same as calling:
+
+yield collection.update({_id: result._id}, {
+  $set: {
+    location: {
+      city: 'London'
+    }
+  }
+});
+*/
+ </code></pre></section><section id="raw"><h3 id="raw-data">Raw data</h3>
 <p>If you do wish to deal directly with Mongo data and not use 
 <code>Robe.Document</code> instances you can specify the <code>rawMode</code> option:</p>
 <pre><code class="language-javascript">var results = yield collection.findOne({

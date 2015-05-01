@@ -218,7 +218,63 @@ html
           /*
             '_id', 'name', 'score'
           */
+
          
+        :markdown
+          `Robe.Documents` instances automatically keep track of which 
+          properties get changed and only update those properties in the 
+          database when you call `save()`.
+
+        +code('javascript').
+          var result = yield collection.findOne({
+            score: {
+              $gt: 20
+            },
+          });
+
+          result.name = 'Jimbo';
+
+          yield result.save();
+
+          /* 
+          Same as calling:
+
+          yield collection.update({_id: result._id}, {
+            $set: {
+              name: 'Jimbo'
+            }
+          });
+          */
+         
+        :markdown
+          When setting `Array` and `Object` properties of a `Robe.Document` you 
+          may need to additionally call the `markChanged()` method to tell 
+          Robe that that specific property got updated:
+
+        +code('javascript').
+          var result = yield collection.findOne({
+            'location.city': 'NYC'
+          });
+
+          result.location.city = 'London';
+
+          // we need to tell Robe that the 'location' key got updated
+          result.markChanged('location');
+
+          yield result.save();
+
+          /* 
+          Same as calling:
+
+          yield collection.update({_id: result._id}, {
+            $set: {
+              location: {
+                city: 'London'
+              }
+            }
+          });
+          */
+           
       section#raw
         :markdown
           ### Raw data

@@ -1,3 +1,5 @@
+var mongodb = require('mongodb');
+
 var _ = require('lodash'),
   monk = require('monk'),
   Q = require('bluebird');
@@ -21,6 +23,38 @@ var test = utils.createTest(module);
 test.afterEach = function*() {
   yield Robe.closeAll();
 }
+
+
+test['ObjectID utils'] = {
+  beforeEach: function*() {
+    this.db = yield Robe.connect('127.0.0.1/robe-test');
+    this.collection = this.db.collection('test');
+    
+    this.doc = yield this.collection.insert({
+      name: 'john'
+    });
+  },
+  afterEach: function*() {
+    yield this.collection.remove();
+  },  
+  'isObjectID': function*() {    
+    RobeUtils.isObjectID( this.doc._id ).should.be.false;
+    RobeUtils.isObjectID( new mongodb.ObjectID() ).should.be.true;
+  },
+  'isObjectIDStr': function*() {    
+    RobeUtils.isObjectIDStr( 'abc' ).should.be.false;
+
+    expect(typeof this.doc._id).to.eql('object');
+    RobeUtils.isObjectIDStr( this.doc._id ).should.be.false;
+    
+    var str = this.doc._id.toString();
+    RobeUtils.isObjectIDStr( str ).should.be.true;
+  },
+  'toObjectId': function*() {
+    this.doc._id.should.not.be.instanceOf(mongodb.ObjectID);
+    RobeUtils.toObjectID( this.doc._id.toString() ).should.be.instanceOf(mongodb.ObjectID);
+  },
+};
 
 
 

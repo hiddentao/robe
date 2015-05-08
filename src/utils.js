@@ -1,8 +1,34 @@
 "use strict";
 
+var mongoskin = require('mongoskin');
 
 
 var Document = require('./document');
+
+/**
+ * Convert given string to a Mongo `ObjectID` for querying with.
+ * @see mongoskin
+ */
+exports.toObjectID = mongoskin.helper.toObjectID;
+
+
+/**
+ * Get whether given item represents a Mongo `ObjectID` object.
+ * @param {*} item 
+ * @return {Boolean} `true` if so; `false` otherwise.
+ */
+exports.isObjectID = function(item) {
+  return (item instanceof mongoskin.ObjectID);
+};
+
+
+
+/**
+ * Get whether given item represents a Mongo `ObjectID` string.
+ * @param {*} item 
+ * @return {Boolean} `true` if so; `false` otherwise.
+ */
+exports.isObjectIDStr = mongoskin.helper.isObjectID;
 
 
 
@@ -46,3 +72,7 @@ exports.bindGen = function(genFn, ctx) {
     return yield genFn.apply(ctx, args);
   };
 };
+
+
+
+

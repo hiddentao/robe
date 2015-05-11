@@ -66,7 +66,13 @@ var Collection = (function () {
 
     // methods
     for (var _name in options.methods || {}) {
-      this[_name] = RobeUtils.bindGen(options.methods[_name], this);
+      var method = options.methods[_name];
+
+      if (RobeUtils.isGen(method)) {
+        this[_name] = RobeUtils.bindGen(method, this);
+      } else {
+        this[_name] = _.bind(method, this);
+      }
     }
   }
 

@@ -62,7 +62,13 @@ class Collection {
 
     // methods
     for (let name in options.methods || {}) {
-      this[name] = RobeUtils.bindGen(options.methods[name], this);
+      let method = options.methods[name];
+
+      if (RobeUtils.isGen(method)) {
+        this[name] = RobeUtils.bindGen(method, this);
+      } else {
+        this[name] = _.bind(method, this);
+      }
     }
   }
 

@@ -931,6 +931,9 @@ test['custom methods'] = {
   'collection instance': function*() {
     var collection = this.db.collection('test', {
       methods: {
+        getName: function() {
+          return this.collection.name;
+        },
         findSpecial: function*(val) {
           return yield this.find({
             dead: val
@@ -950,12 +953,17 @@ test['custom methods'] = {
 
     res.length.should.eql(3);
     _.pluck(res, 'name').should.eql(['Jimmy', 'Doug', 'Amanda']);
+
+    collection.getName().should.eql('test');
   },
 
 
   'document instance': function*() {
     var collection = this.db.collection('test', {
       docMethods: {
+        getName: function() {
+          return this.name;
+        },
         concat: function*(val) {
           this.name = this.name + this.name + val;
           yield this.save();
@@ -971,6 +979,8 @@ test['custom methods'] = {
     yield doc.concat('Chang');
 
     expect(doc.name).to.eql('JimmyJimmyChooJimmyJimmyChooChang');
+
+    doc.getName().should.eql('JimmyJimmyChooJimmyJimmyChooChang');
   }
 };
 

@@ -123,3 +123,14 @@ test['bindGen'] = {
   }
 };
 
+
+
+
+test['isGen'] = function*(){
+  RobeUtils.isGen(function*() {}).should.be.true;
+  RobeUtils.isGen(function() {}).should.be.false;
+};
+
+
+
+

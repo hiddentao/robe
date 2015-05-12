@@ -58,50 +58,6 @@ test['ObjectID utils'] = {
 
 
 
-test['formatMongoDoc()'] = {
-  'default': function*() {
-    var collection = new Collection({}, 123);
-
-    var ret = RobeUtils.formatMongoDoc(collection, {
-      name: 'Tim'
-    });
-
-    ret.should.be.instanceOf(Document);
-  },
-
-  'raw - local option': function*() {
-    var collection = new Collection({}, 123);
-
-    var ret = RobeUtils.formatMongoDoc(collection, {
-      name: 'Tim'
-    }, {
-      rawMode: true
-    });
-
-    ret.should.not.be.instanceOf(Document);
-
-    ret.name.should.eql('Tim');
-  },
-
-  'raw - global option': function*() {
-    var collection = new Collection({}, 123, {
-      rawMode: true
-    });
-
-    var ret = RobeUtils.formatMongoDoc(collection, {
-      name: 'Tim'
-    }, {
-      rawMode: false
-    });
-
-    ret.should.not.be.instanceOf(Document);
-
-    ret.name.should.eql('Tim');
-  },
-}
-
-
-
 test['bindGen'] = {
   'no args': function*() {
     var fn = RobeUtils.bindGen(function*() {

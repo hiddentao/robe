@@ -25,12 +25,14 @@ class Cursor extends EventEmitter {
    * @param  {Collection} collection Collection being queried.
    * @param  {Promise} promise Promise returned from a monk `find()` call.
    * @param  {Object} [options] Additional options.
-   * @param  {Boolean} [options.raw] Whether to enable raw query mode by default. Default if false.
+   * @param  {Boolean} [options.rawMode] Whether to enable raw query mode by default. Default is false.
    */
   constructor (collection, promise, options = {}) {
     this.collection = collection;
     this.promise = promise;
-    this.options = options;
+    this.options = _.defaults(options, {
+      rawMode: false
+    });
 
     this._init();
   }
@@ -44,7 +46,7 @@ class Cursor extends EventEmitter {
     var self = this;
 
     self.promise.on('each', function(doc) {
-      doc = RobeUtils.formatMongoDoc(self.collection, doc);
+      doc = self.collection._createDocumentFromQueryResult(doc, self.options);
 
       self.emit('result', doc);
     });

@@ -64,8 +64,86 @@ test['constructor'] = {
     });
 
     this.collection.options.rawMode.should.be.true;
-  }
+  },
 };
+
+
+
+test['create document'] = {
+  'default': function*() {
+    var collection = new Collection({}, 123);
+
+    var ret = collection._createDocument({
+      name: 'Tim'
+    });
+
+    ret.should.be.instanceOf(Document);
+  },
+
+  'adds doc methods': function*() {
+    var collection = new Collection({}, 123, {
+      docMethods: {
+        test: function() {
+          return 'abc';
+        }
+      }
+    });
+
+    var ret = collection._createDocument({
+      name: 'Tim'
+    });
+
+    ret.test().should.eql('abc');
+  },
+};
+
+
+
+
+test['create document from query result'] = {
+  'default': function*() {
+    var collection = new Collection({}, 123);
+
+    var ret = collection._createDocumentFromQueryResult({
+      name: 'Tim'
+    });
+
+    ret.should.be.instanceOf(Document);
+  },
+
+  'raw - local option': function*() {
+    var collection = new Collection({}, 123);
+
+    var ret = collection._createDocumentFromQueryResult({
+      name: 'Tim'
+    }, {
+      rawMode: true
+    });
+
+    ret.should.not.be.instanceOf(Document);
+
+    ret.name.should.eql('Tim');
+  },
+
+  'raw - global option': function*() {
+    var collection = new Collection({}, 123, {
+      rawMode: true
+    });
+
+    var ret = collection._createDocumentFromQueryResult({
+      name: 'Tim'
+    }, {
+      rawMode: false
+    });
+
+    ret.should.not.be.instanceOf(Document);
+
+    ret.name.should.eql('Tim');
+  },
+};
+
+
+
 
 
 test['insert'] = {
@@ -102,8 +180,8 @@ test['insert'] = {
     }
   },
 
-  'calls formatMongoDoc()': function*() {
-    var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
+  'creates document': function*() {
+    var stub = this.mocker.stub(this.collection, '_createDocumentFromQueryResult', function() {
       return 123;
     });
 
@@ -118,9 +196,8 @@ test['insert'] = {
     res.should.eql(123);
 
     var theCall = stub.getCall(0);
-    _.deepGet(theCall, 'args.0').should.eql(this.collection);
-    _.deepGet(theCall, 'args.1.name').should.eql('Jimmy');
-    _.deepGet(theCall, 'args.2').should.eql({
+    _.deepGet(theCall, 'args.0.name').should.eql('Jimmy');
+    _.deepGet(theCall, 'args.1').should.eql({
       rawMode: true
     });
   },
@@ -582,8 +659,8 @@ test['find'] = {
     (5 === _.pluck(res, 'id').length).should.be.true;
   },
 
-  'calls formatMongoDoc()': function*() {
-    var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
+  'creates document': function*() {
+    var stub = this.mocker.stub(this.collection, '_createDocumentFromQueryResult', function() {
       return 123;
     });
 
@@ -599,8 +676,7 @@ test['find'] = {
 
     stub.callCount.should.eql(5);
     var theCall = stub.getCall(0);
-    _.deepGet(theCall, 'args.0').should.eql(this.collection);
-    _.deepGet(theCall, 'args.2').should.eql({
+    _.deepGet(theCall, 'args.1').should.eql({
       rawMode: true
     });
   },
@@ -686,8 +762,8 @@ test['find'] = {
   },
 
   'findOne()': {
-    'calls formatMongoDoc()': function*() {
-      var stub = this.mocker.stub(RobeUtils, 'formatMongoDoc', function() {
+    'creates document': function*() {
+      var stub = this.mocker.stub(this.collection, '_createDocumentFromQueryResult', function() {
         return 123;
       });
 
@@ -710,8 +786,7 @@ test['find'] = {
       
       var theCall = stub.getCall(0);
 
-      _.deepGet(theCall, 'args.0').should.eql(this.collection);
-      _.deepGet(theCall, 'args.2.rawMode').should.be.true;
+      _.deepGet(theCall, 'args.1.rawMode').should.be.true;
     },
     'found': function*() {
       var res = yield this.collection.findOne({

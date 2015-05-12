@@ -143,7 +143,7 @@ class Collection {
 
     yield this._runHook('after', 'insert', res);
 
-    return RobeUtils.formatMongoDoc(this, res, options);
+    return this._createDocumentFromQueryResult(res, options);
   }
 
 
@@ -209,7 +209,7 @@ class Collection {
 
     var res = yield this.collection.find(selector, _.extend({}, options));
 
-    return res.map( v => RobeUtils.formatMongoDoc(self, v, options) );
+    return res.map( v => self._createDocumentFromQueryResult(v, options) );
   }
 
 
@@ -243,7 +243,9 @@ class Collection {
 
     var results = yield this.collection.find(selector, options);
 
-    return results.length ? RobeUtils.formatMongoDoc(self, results.pop(), options) : null;
+    return results.length 
+      ? this._createDocumentFromQueryResult(results.pop(), options) 
+      : null;
   }
 
 
@@ -268,7 +270,7 @@ class Collection {
     });
 
     return new Cursor(
-      this.collection,
+      this,
       this.collection.find(selector, options),
       options
     );
@@ -298,6 +300,55 @@ class Collection {
   * removeWatcher (callback) {
     (yield this.db.oplog()).off(this.collection.name + ':*', callback);
   }
+
+
+
+  /**
+   * Create Mongo document from given raw object.
+   *
+   * @param {Object} mongoDoc Mongo document returned as a query result.
+   * 
+   * @return {Document|Object}
+   *
+   * @private
+   */
+  _createDocument (mongoDoc) {
+    var d = new Document(this, mongoDoc);
+
+    for (let key in this.options.docMethods) {
+      let method = this.options.docMethods[key];
+
+      if (RobeUtils.isGen(method)) {
+        d[key] = RobeUtils.bindGen(method, d);
+      } else {
+        d[key] = _.bind(method, d);
+      }
+    }
+
+    return d;
+  }
+
+
+
+  /**
+   * Create Mongo document from given raw object returned by query.
+   *
+   * @param {Object} mongoDoc Mongo document returned as a query result.
+   * @param {Object} [options] Additional options.
+   * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
+   * 
+   * @return {Document|Object}
+   *
+   * @private
+   */
+  _createDocumentFromQueryResult (mongoDoc, options = {}) {
+    if (options.rawMode || this.options.rawMode) {
+      return mongoDoc;
+    } else {
+      return this._createDocument(mongoDoc);
+    }
+  }
+
 }
 
 

@@ -68,7 +68,26 @@ test['results'] = {
     acc[0].name.should.eql('john');
     acc[1].name.should.eql('tim');
   },
-  'raw': function*() {
+  'raw - local': function*() {
+    var e = this.e,
+      c = this.c;
+
+    c.options.rawMode = true;
+
+    var acc = [];
+
+    c.on('result', function(r) {
+      acc.push(r);
+    });
+
+    e.emit('each', { name: 'john' });
+
+    acc.length.should.eql(1);
+
+    acc[0].should.not.be.instanceOf(Document);
+    acc[0].name.should.eql('john');
+  },
+  'raw - on collection': function*() {
     var e = this.e,
       c = this.c;
 
@@ -86,7 +105,7 @@ test['results'] = {
 
     acc[0].should.not.be.instanceOf(Document);
     acc[0].name.should.eql('john');
-  }
+  },
 };
 
 

@@ -33,39 +33,6 @@ exports.isObjectIDStr = mongoskin.helper.isObjectID;
 
 
 
-/**
- * Format Mongo document to be returned to a caller.
- *
- * @param {Collection} collection The collection to which this document belongs.
- * @param {Object} mongoDoc Mongo document returned as a query result.
- * @param {Object} [options] Additional options.
- * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
- * 
- * @return {Document|Object}
- *
- * @private
- */
-exports.formatMongoDoc = function (collection, mongoDoc) {
-  var options = arguments[2] === undefined ? {} : arguments[2];
-  if (options.rawMode || collection.options.rawMode) {
-    return mongoDoc;
-  } else {
-    var d = new Document(collection, mongoDoc);
-
-    for (var key in collection.options.docMethods) {
-      var method = collection.options.docMethods[key];
-
-      if (exports.isGen(method)) {
-        d[key] = exports.bindGen(method, d);
-      } else {
-        d[key] = _.bind(method, d);
-      }
-    }
-
-    return d;
-  }
-};
-
 
 
 

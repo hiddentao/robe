@@ -170,7 +170,7 @@ var Collection = (function () {
 
         yield this._runHook("after", "insert", res);
 
-        return RobeUtils.formatMongoDoc(this, res, options);
+        return this._createDocumentFromQueryResult(res, options);
       },
       writable: true,
       configurable: true
@@ -252,7 +252,7 @@ var Collection = (function () {
         var res = yield this.collection.find(selector, _.extend({}, options));
 
         return res.map(function (v) {
-          return RobeUtils.formatMongoDoc(self, v, options);
+          return self._createDocumentFromQueryResult(v, options);
         });
       },
       writable: true,
@@ -297,7 +297,7 @@ var Collection = (function () {
 
         var results = yield this.collection.find(selector, options);
 
-        return results.length ? RobeUtils.formatMongoDoc(self, results.pop(), options) : null;
+        return results.length ? this._createDocumentFromQueryResult(results.pop(), options) : null;
       },
       writable: true,
       configurable: true
@@ -327,7 +327,7 @@ var Collection = (function () {
           stream: true
         });
 
-        return new Cursor(this.collection, this.collection.find(selector, options), options);
+        return new Cursor(this, this.collection.find(selector, options), options);
       },
       writable: true,
       configurable: true
@@ -361,6 +361,63 @@ var Collection = (function () {
        */
       value: function* removeWatcher(callback) {
         (yield this.db.oplog()).off(this.collection.name + ":*", callback);
+      },
+      writable: true,
+      configurable: true
+    },
+    _createDocument: {
+
+
+
+      /**
+       * Create Mongo document from given raw object.
+       *
+       * @param {Object} mongoDoc Mongo document returned as a query result.
+       * 
+       * @return {Document|Object}
+       *
+       * @private
+       */
+      value: function _createDocument(mongoDoc) {
+        var d = new Document(this, mongoDoc);
+
+        for (var key in this.options.docMethods) {
+          var method = this.options.docMethods[key];
+
+          if (RobeUtils.isGen(method)) {
+            d[key] = RobeUtils.bindGen(method, d);
+          } else {
+            d[key] = _.bind(method, d);
+          }
+        }
+
+        return d;
+      },
+      writable: true,
+      configurable: true
+    },
+    _createDocumentFromQueryResult: {
+
+
+
+      /**
+       * Create Mongo document from given raw object returned by query.
+       *
+       * @param {Object} mongoDoc Mongo document returned as a query result.
+       * @param {Object} [options] Additional options.
+       * @param {Boolean} [options.rawMode] Whether to return the resulting raw document as-is. Overrides the default for the collection.
+       * 
+       * @return {Document|Object}
+       *
+       * @private
+       */
+      value: function _createDocumentFromQueryResult(mongoDoc) {
+        var options = arguments[1] === undefined ? {} : arguments[1];
+        if (options.rawMode || this.options.rawMode) {
+          return mongoDoc;
+        } else {
+          return this._createDocument(mongoDoc);
+        }
       },
       writable: true,
       configurable: true

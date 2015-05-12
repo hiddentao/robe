@@ -42,6 +42,12 @@ var Document = (function () {
         enumerable: false,
         writable: true,
         value: {}
+      },
+      // can store any extra data that's not intended for persistence in this field
+      __extra: {
+        enumerable: false,
+        writable: true,
+        value: {}
       } });
 
     this._resetProperties(doc);

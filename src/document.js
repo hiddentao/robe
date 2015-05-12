@@ -69,6 +69,7 @@ class Document {
         // ...then define it!
         Object.defineProperty(self, key, {
           enumerable: true,
+          configurable: true,
           get: function() {
             return _.has(self.__newDoc, key) ? self.__newDoc[key] : self.__doc[key];
           },
@@ -161,6 +162,7 @@ class Document {
   }
 
 
+
   /**
    * Persist changes made to this document.
    */
@@ -177,6 +179,8 @@ class Document {
     this._resetProperties(this.toJSON());
   }
 
+
+
   /**
    * Remove this document from the collection.
    */
@@ -185,7 +189,23 @@ class Document {
       _id: this._id
     });
   }
+
+
+
+  /**
+   * Reload this document from the collection.
+   */
+  * reload () {
+    var doc = yield this.__col.findOne({
+      _id: this._id
+    }, {
+      rawMode: true
+    });
+
+    this._resetProperties(doc);
+  }
 }
+
 
 Document.extend = Class.extend;
 

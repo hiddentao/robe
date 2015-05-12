@@ -327,3 +327,85 @@ test['remove'] = {
 
 
 
+test['reload'] = {
+  beforeEach: function*() {
+    var data = [
+      {
+        name: 'Jimmy',
+        dead: true        
+      },
+      {
+        name: 'Mark',
+        dead: false        
+      },
+      {
+        name: 'Tom',
+        dead: false        
+      },
+      {
+        name: 'Doug',
+        dead: true        
+      },
+      {
+        name: 'Amanda',
+        dead: true        
+      },
+    ];
+
+    for (var i=0; i<data.length; ++i) {
+      yield this.collection.insert(data[i]);
+    }    
+  },
+
+  'calls through to collection in raw mode': function*() {
+    var doc = yield this.collection.findOne({
+      name: 'Jimmy'
+    });
+
+    var id = doc._id;
+
+    var spy = this.mocker.stub(this.collection, 'findOne', function() {
+      return Q.resolve({});
+    });
+
+    yield doc.reload();
+
+    spy.should.have.been.calledOnce;
+    spy.should.have.been.calledWithExactly({
+      _id: id
+    }, {
+      rawMode: true
+    });
+  },
+
+  'reloads data': function*() {
+    var doc = yield this.collection.findOne({
+      name: 'Jimmy'
+    });
+
+    doc.name = 'Bucky';
+
+    doc.changes().should.eql({
+      name: 'Bucky'
+    });
+
+    yield this.collection.update({
+      _id: doc._id
+    }, {
+      name: 'Martha',
+      dead: false,
+    });
+
+    yield doc.reload();
+
+    doc.changes().should.eql({});
+
+    doc.name.should.eql('Martha');
+    doc.dead.should.be.false;
+  },
+};
+
+
+
+
+

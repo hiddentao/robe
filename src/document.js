@@ -82,7 +82,7 @@ class Document {
 
     // delete any extraneous properties
     Object.keys(this).forEach(function(key) {
-      if (!self.__doc.hasOwnProperty(key)) {
+      if (!_.isFunction(self[key]) && !self.__doc.hasOwnProperty(key)) {
         delete self[key];
       }
     });
@@ -111,7 +111,11 @@ class Document {
 
     var ret = {};
 
-    Object.keys(this).forEach(key => ret[key] = self[key]);
+    Object.keys(this).forEach(function(key) {
+      if (!_.isFunction(self[key])) {
+        ret[key] = self[key]
+      }
+    });
 
     return ret;
   }
@@ -127,9 +131,11 @@ class Document {
     var ret = {};
 
     Object.keys(this).forEach(function(key) {
-      if ( (self.__doc[key] !== self[key]) 
-              || self.__marked[key] ) {
-        ret[key] = self[key];
+      if (!_.isFunction(self[key])) {
+        if ( (self.__doc[key] !== self[key]) 
+                || self.__marked[key] ) {
+          ret[key] = self[key];
+        }
       }
     });
 
@@ -151,8 +157,8 @@ class Document {
       if (self.__doc.hasOwnProperty(key)) {
         delete self.__newDoc[key];
       }
-      // if it's a newly added one
-      else {
+      else if (!_.isFunction(self[key])) {
+        // if it's a newly added one
         delete self[key];
       }
     });

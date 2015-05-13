@@ -105,7 +105,29 @@ test['change props'] = {
     });
   },
 
+  'toJSON() - skips methods': function*() {
+    this.d.method1 = function() {};
+
+    this.d.toJSON().should.eql({
+      name: 'tim',
+      mother: 'mary',
+      father: null,
+      age: 23,
+      hasKids: true
+    });
+  },
+
   'changes()': function*() {
+    this.d.changes().should.eql({
+      name: 'tim',
+      mother: 'mary',
+      father: null
+    });
+  },
+
+  'changes() - skips methods': function*() {
+    this.d.method1 = function() {};
+
     this.d.changes().should.eql({
       name: 'tim',
       mother: 'mary',
@@ -126,6 +148,16 @@ test['change props'] = {
       father: 'eric',
       hasKids: true
     })
+  },
+
+  'reset() - preserves methods': function*() {
+    this.d.method1 = function() {
+      return 'test';
+    };
+
+    this.d.reset();
+
+    this.d.method1().should.eql('test');
   },
 
   'markChanged()': function*() {
@@ -402,6 +434,20 @@ test['reload'] = {
 
     doc.name.should.eql('Martha');
     doc.dead.should.be.false;
+  },
+
+  'preserves methods': function*() {
+    var doc = yield this.collection.findOne({
+      name: 'Jimmy'
+    });
+
+    doc.method1 = function() {
+      return 'test';
+    };
+
+    yield doc.reload();
+
+    doc.method1().should.eql('test');
   },
 };
 

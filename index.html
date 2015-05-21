@@ -11,7 +11,7 @@ simple ODM library for MongoDB. </p>
 <li>Stream results using <a href="#cursors">cursors</a>.</li>
 <li>Add <a href="#schema">schema validation</a> and <a href="#custom_methods">custom methods</a>.</li>
 <li>Notifications via <a href="#oplog">mongo oplog tailing</a>.</li>
-<li>Clean, object-oriented API.</li>
+<li>Clean, object-oriented <a href="#api">API</a>.</li>
 </ul>
 <p>To use Robe within your code:</p>
 <pre><code class="language-javascript">"use strict";
@@ -140,8 +140,8 @@ Robe that that specific property got updated:</p>
 
 result.location.city = 'London';
 
-// we need to manually tell Robe that 'location' key got updated
-result.markChanged('london');
+// we need to tell Robe that the 'location' key got updated
+result.markChanged('location');
 
 yield result.save();
 
@@ -619,4 +619,4 @@ oplog.on('student:insert', function(collectionName, operationType, data) {
 does not take into account how Mongo chooses to populate the oplog. 
 Certain bulk operations MAY result in multiple 
 notifications being sent to the registered watchers.</em></p>
-</section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>
+</section><section id="api"><h2>API</h2></section><footer><p>By <a href="https://twitter.com/hiddentao">@hiddentao</a>. Source on <a href="https://github.coom/hiddentao/robe">Github</a>.</p></footer></main><script type="text/javascript" src="js/prism.js"></script><script type="text/javascript" src="js/jquery.js"></script><script type="text/javascript" src="js/main.js">     </script></body></html>

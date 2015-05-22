@@ -49,7 +49,25 @@ function buildNav() {
     return html + '</ul>';
   };
 
-  $('nav').append(__buildNav(root.children));
+  var $nav = $('nav');
+  $nav.append(__buildNav(root.children));
+
+  $('main section')
+    .on('scrollSpy:enter', function() {
+      var id = this.id;
+
+      $nav.find('a').each(function() {
+        var $a = $(this),
+          aId = $a.attr('href').substr(1);
+
+        if (aId === id) {
+          $a.closest('li').addClass('active');
+        } else {
+          $a.closest('li').removeClass('active');          
+        }
+      });
+    })
+    .scrollSpy();
 };
 
 

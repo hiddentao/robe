@@ -204,6 +204,10 @@ main
           display inline-block
           font-style italic
           margin-left 0.5em
+          
+      .type
+        margin-left 1em
+        font-weight normal
 
     dd
       background-color $color4
@@ -218,7 +222,7 @@ main
       .desc + .params
         margin-top 2em
   
-      .params
+      .params, .keys
         ul
           margin 0
           padding 0 0 0 1em
@@ -229,7 +233,7 @@ main
             &:first-child
               margin-top 0.5em
             
-        .name, .type, .default
+        .name, .type, .default, .value
           display inline-block
           margin-right 2em
         .name
@@ -246,6 +250,8 @@ main
             content 'Default: '
             font-style italic
             color #999
+        .value
+          font-size 80%
         .desc
           display block
 

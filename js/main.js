@@ -178,23 +178,28 @@ function buildApi() {
 
     $dd.append('<span class="desc">' + __processTxt(node.desc) + '</span>');
 
-    $ul = $('<ul class="keys" />');
+    $keys = $('<div class="keys" />')
+    $ul = $('<ul/>');
 
     for (var childKey in node.keys) {
       var childNode = node.keys[childKey];
 
       var $li = $('<li />');
 
+      $dt.attr('id', __slugify(parentNodeName + '.' + key + '.' + childKey));
+
       $li.append('<span class="name">' + childKey + '</span>');
       $li.append(__processTypes(childNode.type));
+      $li.append('<span class="value">' + childNode.value + '</span>');
 
       var desc = __processTxt(childNode.desc);
-      desc += '<span class="default">(Default: ' + childNode.value + ')</span>';
       $li.append('<span class="desc">' + desc + '</span>');
 
       $ul.append($li);
     }
-    $dd.append($ul);
+
+    $keys.append($ul);
+    $dd.append($keys);
 
     $dl.append($dd);
   };

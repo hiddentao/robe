@@ -4,31 +4,34 @@
 
 global-reset();
 
-color1 = #fcfae1
-color2 = #b9121b
-color3 = #4c1b1b
-color4 = #f6e497
-color5 = #bd8d46
+$color1 = #fcfae1
+$color2 = #b9121b
+$color3 = #4c1b1b
+$color4 = #f6e497
+$color5 = #bd8d46
 
-body-color = color1
+$body-color = $color1
+
+$font-code = 'Courier New', monospace
+$font-body = 'Noto Sans', Arial, Verdana, sans-serif
 
 html
   font-size 14px
 
 body
-  background-color body-color
+  background-color $body-color
   color #000
-  font-family 'Noto Sans', Arial, Verdana, sans-serif
+  font-family $font-body
   font-size 24px
   
   
 a
-  color color2
+  color $color2
   text-decoration none
-  border-bottom 1px solid color2
+  border-bottom 1px solid $color2
   &:hover
-    background-color color2
-    color body-color
+    background-color $color2
+    color $body-color
     
   i
     margin-right 6px
@@ -42,6 +45,9 @@ pre[class*="language-"]
   margin 0
   max-width 98%
   overflow-x scroll
+
+code
+  font-family $font-code
 
 strong
   font-weight bold
@@ -97,9 +103,12 @@ header
         li
           margin 5px 0
           
-  .links a
-    margin-right 20px
+  .links
+    float right
     font-size 12px
+    margin-top 0.8em
+    a
+      margin-left 0.4em
 
 
 
@@ -125,7 +134,7 @@ main
         font-family monospace
         font-size 30px
         margin 0 5px
-        color color3
+        color $color3
     ul
       margin 0 0 0 50px
       list-style disc
@@ -167,3 +176,82 @@ main
     font-size 16px
     margin-top 30px
     padding-top 20px
+
+
+
+#api
+  h3
+    font-family $font-code
+    font-weight normal
+    font-size 120%
+    margin-top 2em
+    
+  section dl
+    margin 0 0 0 1em
+    font-size 80%
+    
+    dt
+      font-weight bold
+      font-size 110%
+      
+      &.constructor
+        font-style italic
+      
+      &.static
+        &:after
+          content 'Static'
+          color #999
+          display inline-block
+          font-style italic
+          margin-left 0.5em
+
+    dd
+      background-color $color4
+      margin 0.2em 0 2em
+      padding 0.5em
+            
+      label
+        font-family $font-body
+        display block
+        font-style italic
+
+      .desc + .params
+        margin-top 2em
+  
+      .params
+        ul
+          margin 0
+          padding 0 0 0 1em
+          list-style none
+          li
+            display block
+            margin-top 1.5em
+            &:first-child
+              margin-top 0.5em
+            
+        .name, .type, .default
+          display inline-block
+          margin-right 2em
+        .name
+          font-family $font-code
+          font-weight bold
+        .type
+          font-family $font-code
+          font-size 80%
+        .default
+          font-style italic
+          color #999
+          font-size 80%
+          &:before
+            content 'Default: '
+            font-style italic
+            color #999
+        .desc
+          display block
+
+      .return
+        margin-top 2em
+        .type
+          margin 0 1em 0
+
+

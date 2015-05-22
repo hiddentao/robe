@@ -93,19 +93,22 @@ function buildApi() {
       parentName = null;
     }
 
-    var $ul = $('<ul class="params" />');
+    var $ul = $('<ul/>');
 
     for (var key in paramsObj) {
       var node = paramsObj[key],
         nodeName = (parentName ? parentName + '.' : '') + key;
 
       var $li = $('<li />');
-      if (node.required) {
+      if (!node.defaultValue) {
         $li.addClass('required');
       }
 
       $li.append('<span class="name">' + nodeName + '</span>');
       $li.append(__processTypes(node.type));
+      if (node.defaultValue) {
+        $li.append('<code class="default">' + __processTxt(node.defaultValue) + '</code>');
+      }
       $li.append('<span class="desc">' + __processTxt(node.desc) + '</span>');
 
       if (node.params) {
@@ -120,7 +123,7 @@ function buildApi() {
 
 
   var __processFunction = function($dl, parentNodeName, key, node) {
-    var $dt = $('<dt>' 
+    var $dt = $('<dt>.' 
       + key 
       + ' ' 
       + (node.gen ? '* ' : '')
@@ -130,6 +133,10 @@ function buildApi() {
     
     if (node.static) { 
       $dt.addClass('static');
+    }
+
+    if ('constructor' === key) { 
+      $dt.addClass('constructor');
     }
 
     $dt.attr('id', __slugify(parentNodeName + '.' + key));
@@ -142,11 +149,14 @@ function buildApi() {
     }
 
     if (node.params) {
-      $dd.append(__processParams(node.params));
+      $params = $('<div class="params" />');
+      $params.append('<label>Params:</label>');
+      $params.append(__processParams(node.params));
+      $dd.append($params);
     }
 
     if (node.ret) {
-      var $ret = $('<div class="return" />');
+      var $ret = $('<div class="return"><label>Returns:</label></div>');
       $ret.append(__processTypes(node.ret.type));
       $ret.append('<span class="desc">' + __processTxt(node.ret.desc) + '</span>');
     }
@@ -159,7 +169,7 @@ function buildApi() {
 
   var __processVar = function($dl, parentNodeName, key, node) {
     var $dt = $('<dt />');
-    $dt.append('<span class="name">' + key + "</span>");
+    $dt.append('<span class="name">.' + key + "</span>");
     $dt.append(__processTypes(node.type));
     $dt.attr('id', __slugify(parentNodeName + '.' + key));
     $dl.append($dt);
@@ -230,17 +240,18 @@ var apiDocs = {
       static: true,
       params: {
         url: {
-          required: true,
           type: ['String', 'Array'],
           desc: 'Either Db URL or array of replica set URLs.'
         },
         options: {
           type: ['Object'],
+          defaultValue: '{}',
           desc: 'Connection options.',
           params: {
             timeout: {
               type: ['Number'],
-              desc: 'Connection timeout. Default is [[Robe.DEFAULT_CONNECTION_OPTIONS.timeout]]',
+              defaultValue: '[[Robe.DEFAULT_CONNECTION_OPTIONS.timeout]]',
+              desc: 'Connection timeout.',
             },
           },
         },
@@ -275,7 +286,6 @@ var apiDocs = {
     constructor: {
       params: {
         db: {
-          required: true,
           type: ['Object'],
           desc: 'Mongoskin connection instance.'
         },
@@ -291,12 +301,12 @@ var apiDocs = {
     collection: {
       params: {
         name: {
-          required: true,
           type: ['String'],
           desc: 'Collection name.'
         },
         options: {
           type: ['Object'],
+          defaultValue: '{}',
           desc: 'Additional options, see [[Robe.Collection.constructor]].',
         },
       },
@@ -319,37 +329,41 @@ var apiDocs = {
     constructor: {
       params: {
         db: {
-          required: true,
           type: ['[[Robe.Database]]'],
           desc: 'Database connection.'
         },
         collection: {
-          required: true,
           type: ['Object'],
           desc: 'Underlying Mongoskin collection instance.'
         },
         options: {
           type: ['Object'],
+          defaultValue: '{}',
           desc: 'Additional options',
           params: {
             schema: {
               type: ['Object'],
+              defaultValue: '{}',
               desc: 'Database schema',
             },
             indexes: {
               type: ['Array'],
+              defaultValue: '[]',
               desc: 'Database index definitions, see [MongoDB docs](http://docs.mongodb.org/manual/reference/method/db.collection.createIndex/#db.collection.createIndex).',
             },
             rawMode: {
               type: ['Boolean'],
+              defaultValue: 'false',
               desc: 'Return raw query results instead of [[Robe.Document]] instances.'
             },
             methods: {
               type: ['Object'],
+              defaultValue: '{}',
               desc: 'Prototype methods to add to this collection instance.',
             },
             docMethods: {
               type: ['Object'],
+              defaultValue: '{}',
               desc: 'Prototype methods to add to any [[Robe.Document]] instances returned.',
             }
           }
@@ -364,12 +378,10 @@ var apiDocs = {
       desc: 'Execute given handler before given event occurs.',
       params: {
         eventName: {
-          required: true,
           type: ['String'],
           desc: 'Event name, one of `insert`, `remove` or `update`',
         },
         genFn: {
-          required: true,
           type: ['GeneratorFunction'],
           desc: 'The handler. Must take a callback as a parameter.',
         },
@@ -379,31 +391,31 @@ var apiDocs = {
       desc: 'Execute given handler after given event occurs.',
       params: {
         eventName: {
-          required: true,
           type: ['String'],
           desc: 'Event name, one of `insert`, `remove` or `update`',
         },
         genFn: {
-          required: true,
           type: ['GeneratorFunction'],
           desc: 'The handler. Must take a callback as a parameter.',
         },
       }
     },
     'insert': {
+      gen: true,
       desc: 'Insert a document.',
       params: {
         attrs: {
-          required: true,
           type: ['Object'],
           desc: 'Document content.',
         },
         options: {
           type: ['Object'],
+          defaultValue: '{}',
           desc: 'Additional options',
           params: {
             rawMode: {
               type: ['Boolean'],
+              defaultValue: 'false',
               desc: 'Return raw inserted document rather than a [[Robe.Document]] instance.'
             }
           }
@@ -415,14 +427,15 @@ var apiDocs = {
       },
     },
     'update': {
+      gen: true,
       desc: 'Update documents.',
       params: {
         search: {
           type: ['Object'],
-          desc: 'Search critera.',
+          defaultValue: '{}',
+          desc: 'Filtering query.',
         },
         update: {
-          required: true,
           type: ['Object'],
           desc: 'What to update.',
         },
@@ -433,11 +446,12 @@ var apiDocs = {
       }
     },
     'remove': {
+      gen: true,
       desc: 'Remove documents.',
       params: {
         search: {
           type: ['Object'],
-          desc: 'Search critera.',
+          desc: 'Filtering query.',
         },
       },
       ret: {
@@ -445,5 +459,348 @@ var apiDocs = {
         desc: 'Removal result object',
       }
     },
-  }
+    'find': {
+      gen: true,
+      desc: 'Find documents.',
+      params: {
+        selector: {
+          type: ['Object'],
+          desc: 'Filtering query.',
+        },
+        options: {
+          type: ['Object'],
+          defaultValue: '{}',
+          desc: 'Additional options.',
+          params: {
+            sort: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Sort filter (Mongo syntax)',
+            },
+            skip: {
+              type: ['Number'],
+              defaultValue: '0',
+              desc: 'No. of documents to skip when fetching.'
+            },
+            limit: {
+              type: ['Number'],
+              defaultValue: '0',
+              desc: 'Max. no. of documents to return.'
+            },
+            fields: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Fields to return or exclude (Mongo syntax).'
+            },
+            rawMode: {
+              type: ['Boolean'],
+              defaultValue: 'false',
+              desc: 'Return raw documents rather than [[Robe.Document]] instances.'
+            }
+          }
+        }
+      },
+      ret: {
+        type: ['Array'],
+        desc: 'The documents.',
+      }
+    },
+    'findOne': {
+      gen: true,
+      desc: 'Find a single document.',
+      params: {
+        selector: {
+          type: ['Object'],
+          desc: 'Filtering query.',
+        },
+        options: {
+          type: ['Object'],
+          defaultValue: '{}',
+          desc: 'Additional options.',
+          params: {
+            sort: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Sort filter (Mongo syntax)',
+            },
+            skip: {
+              type: ['Number'],
+              defaultValue: '0',
+              desc: 'No. of documents to skip when fetching.'
+            },
+            fields: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Fields to return or exclude (Mongo syntax).'
+            },
+            rawMode: {
+              type: ['Boolean'],
+              defaultValue: 'false',
+              desc: 'Return raw document rather than a [[Robe.Document]] instance.'
+            }
+          }
+        }
+      },
+      ret: {
+        type: ['Object', '[[Robe.Document]]'],
+        desc: 'The document if found; otherwise `null`',
+      }
+    },
+    'findStream': {
+      gen: true,
+      desc: 'Stream documents.',
+      params: {
+        selector: {
+          type: ['Object'],
+          desc: 'Filtering query.',
+        },
+        options: {
+          type: ['Object'],
+          defaultValue: '{}',
+          desc: 'Additional options.',
+          params: {
+            sort: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Sort filter (Mongo syntax)',
+            },
+            skip: {
+              type: ['Number'],
+              defaultValue: '0',
+              desc: 'No. of documents to skip when fetching.'
+            },
+            limit: {
+              type: ['Number'],
+              defaultValue: '0',
+              desc: 'Max. no. of documents to return.'
+            },
+            fields: {
+              type: ['Object'],
+              defaultValue: '{}',
+              desc: 'Fields to return or exclude (Mongo syntax).'
+            },
+            rawMode: {
+              type: ['Boolean'],
+              defaultValue: 'false',
+              desc: 'Return raw documents rather than [[Robe.Document]] instances.'
+            }
+          }
+        }
+      },
+      ret: {
+        type: ['[[Robe.Cursor]]'],
+        desc: 'A streaming cursor.',
+      }
+    }, 
+    'count': {
+      gen: true,
+      desc: 'Count no. of documents.',
+      params: {
+        selector: {
+          type: ['Object'],
+          desc: 'Filtering query.',
+        },
+      },
+      ret: {
+        type: ['Number'],
+        desc: 'No. of documents.',
+      }      
+    },
+    'addWatcher': {
+      gen: true,
+      desc: 'Add an oplog watcher for this collection. See [[Robe.Oplog]].',
+      params: {
+        callback: {
+          type: ['GeneratorFunction'],
+          desc: 'Callback that will be notified of updates.',
+        },
+      },
+    },
+    'removeWatcher': {
+      gen: true,
+      desc: 'Remove given oplog watcher for this collection.',
+      params: {
+        callback: {
+          type: ['GeneratorFunction'],
+          desc: 'Callback to remove from watcher list.',
+        },
+      },
+    },    
+  },
+  'Robe.Document': {
+    constructor: {
+      desc: 'Construct a document.',
+      params: {
+        collection: {
+          type: ['[[Robe.Collection]]'],
+          desc: 'The underlying collection',
+        },
+        doc: {
+          type: ['Object'],
+          desc: 'The raw Mongo document.',
+          defaultValue: '{}'
+        }
+      }
+    },
+    'markChanged': {
+      desc: 'Mark one or more properties as having changed. This affects what properties get updated in the db when [[Robe.Document.save]] is called.',
+      params: {
+        '...keys': {
+          type: ['Array'],
+          desc: 'Names or properties to mark as having changed.'
+        }
+      }
+    },
+    'toJSON': {
+      desc: 'Get JSON version of this document.',
+      ret: {
+        type: ['Object'],
+        desc: 'JSON object.'
+      },
+    },
+    'changes': {
+      desc: 'Get changed properties.',
+      ret: {
+        type: ['Object'],
+        desc: 'Changed properties and their new values.'
+      },
+    },
+    'reset': {
+      desc: 'Reset changed properties to original values.',
+    },    
+    'save': {
+      gen: true,
+      desc: 'Persist changes made to this document.',
+    },    
+    'remove': {
+      gen: true,
+      desc: 'Remove this document from the db.',
+    },    
+    'reload': {
+      gen: true,
+      desc: 'Reload this document from the db.',
+    },    
+  },
+  'Robe.Cursor': {
+    constructor: {
+      desc: 'Construct a streaming cursor.  A `result` event will be emitted for each result, an `error` event will be emitted for any errors, and a `success` event will be emitted once cursor completes.',
+      params: {
+        collection: {
+          type: ['[[Robe.Collection]]'],
+          desc: 'The underlying collection',
+        },
+        promise: {
+          type: ['Promise'],
+          desc: 'A `Promise` returned from a `monk` `find()` call.'
+        },
+        options: {
+          type: ['Object'],
+          defaultValue: '{}',
+          desc: 'Additional options',
+          params: {
+            rawMode: {
+              type: ['Boolean'],
+              defaultValue: 'false',
+              desc: 'Return raw documents rather than [[Robe.Document]] instances.'
+            }
+          }
+        },
+      }
+    },
+    'close': {
+      gen: true,
+      desc: 'Close this cursor.',
+    },    
+  },
+  'Robe.Oplog': {
+    constructor: {
+      desc: 'Construct a Mongo oplog watcher. Extends `EventEmitter2`.',
+      params: {
+        db: {
+          type: ['[[Robe.Database]]'],
+          desc: 'The underlying database',
+        },
+      }
+    },
+    'start': {
+      desc: 'Start the watcher.',
+      ret: {
+        type: ['Promise'],
+        desc: 'Resolves once oplog watcher started.'
+      },
+    },    
+    'stop': {
+      desc: 'Stop the watcher.',
+      ret: {
+        type: ['Promise'],
+        desc: 'Resolves once oplog watcher destroyed.'
+      },
+    },    
+    'pause': {
+      desc: 'Pause the watcher.',
+    },    
+    'resume': {
+      desc: 'Resume the watcher.',
+    },    
+  },
+  'Robe.Utils': {
+    toObjectID: {
+      desc: 'Convert given string into Mongo `ObjectId`.',
+      params: {
+        str: {
+          type: ['[[String]]'],
+          desc: 'The id string',
+        },
+      },
+      ret: {
+        type: ['Mongoskin.ObjectID'],
+        desc: 'The `ObjectID` representation.'
+      }
+    },
+    isObjectID: {
+      desc: 'Get whether given string represents a valid Mongo `ObjectID`.',
+      params: {
+        str: {
+          type: ['[[String]]'],
+          desc: 'The id string',
+        },
+      },
+      ret: {
+        type: ['Boolean'],
+        desc: '`true` if so, `false` otherwise.'
+      }
+    },
+    bindGen: {
+      desc: 'Bind generator function to given context.',
+      params: {
+        genFn: {
+          type: ['GeneratorFunction'],
+          desc: 'The function',
+        },
+        ctx: {
+          type: ['Object'],
+          desc: 'The `this` context.',
+        },
+      },
+      ret: {
+        type: ['GeneratorFunction'],
+        desc: 'Bound function.'
+      }
+    },
+    isGen: {
+      desc: 'Get if given function is a generator function.',
+      params: {
+        fn: {
+          type: ['Function'],
+          desc: 'The function',
+        },
+      },
+      ret: {
+        type: ['Boolean'],
+        desc: '`true` if so, `false` otherwise.'
+      }
+    },
+  },
 };
+
+

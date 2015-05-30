@@ -79,6 +79,10 @@ class Manager {
   }
 }
 
+/**
+ * Default connection options.
+ * @type {Object}
+ */
 Manager.DEFAULT_CONNECTION_OPTIONS = {
   timeout: 3000
 };

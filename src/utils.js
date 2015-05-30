@@ -1,8 +1,13 @@
 "use strict";
 
+/**
+ * @fileOverview 
+ *
+ * This contains various utility methods used by the rest of Robe.
+ */
+
 var _ = require('lodash'),
   mongoskin = require('mongoskin');
-
 
 var Document = require('./document');
 

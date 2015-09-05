@@ -200,6 +200,7 @@ class Oplog extends EventEmitter2 {
               awaitdata: true,
               oplogReplay: true,
               numberOfRetries: -1,
+              timeout: false,
             });
 
             var stream = self.cursor.stream();

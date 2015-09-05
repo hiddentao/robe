@@ -266,7 +266,8 @@ class Collection {
    */
   * findStream (selector = {}, options = {}) {
     _.extend(options, {
-      stream: true
+      stream: true,
+      timeout: false,
     });
 
     return new Cursor(

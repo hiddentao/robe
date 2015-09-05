@@ -324,8 +324,8 @@ var Collection = (function () {
         var selector = arguments[0] === undefined ? {} : arguments[0];
         var options = arguments[1] === undefined ? {} : arguments[1];
         _.extend(options, {
-          stream: true
-        });
+          stream: true,
+          timeout: false });
 
         return new Cursor(this, this.collection.find(selector, options), options);
       },

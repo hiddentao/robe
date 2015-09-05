@@ -227,7 +227,8 @@ var Oplog = (function (EventEmitter2) {
               tailable: true,
               awaitdata: true,
               oplogReplay: true,
-              numberOfRetries: -1 });
+              numberOfRetries: -1,
+              timeout: false });
 
             var stream = self.cursor.stream();
 

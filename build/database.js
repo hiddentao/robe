@@ -41,7 +41,6 @@ var Database = (function () {
       value: function* oplog() {
         if (!this._oplog) {
           this._oplog = new Oplog(this);
-          yield this._oplog.start();
         }
 
         return this._oplog;

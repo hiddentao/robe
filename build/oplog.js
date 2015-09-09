@@ -35,6 +35,7 @@ var Oplog = (function (EventEmitter2) {
       delimiter: ":"
     });
 
+    this.robeDb = robeDb;
     this.paused = false;
     this.active = false;
     this.watchers = [];
@@ -43,22 +44,6 @@ var Oplog = (function (EventEmitter2) {
     ["_onData", "_onError", "_onEnded"].forEach(function (m) {
       self[m] = _.bind(self[m], self);
     });
-
-    // find out master server
-    var serverConfig = robeDb.db.driver._native.serverConfig;
-
-    var masterServer = _.find(serverConfig.servers || [], function (s) {
-      return _.deepGet(s, "isMasterDoc.ismaster");
-    });
-
-    if (!masterServer) {
-      throw new Error("No MASTER server found for oplog");
-    }
-
-    this.databaseName = masterServer.db.databaseName;
-    this.hostPort = masterServer.host + ":" + masterServer.port;
-
-    debug("db: " + this.hostPort + "/" + this.databaseName);
   }
 
   _inherits(Oplog, EventEmitter2);
@@ -111,7 +96,33 @@ var Oplog = (function (EventEmitter2) {
       writable: true,
       configurable: true
     },
+    _resolveServerDb: {
+      value: function _resolveServerDb() {
+        if (self.hostPort && self.databaseName) {
+          return;
+        }
+
+        // find out master server
+        var serverConfig = self.robeDb.db.driver._native.serverConfig;
+
+        var masterServer = _.find(serverConfig.servers || [], function (s) {
+          return _.deepGet(s, "isMasterDoc.ismaster");
+        });
+
+        if (!masterServer) {
+          throw new Error("No MASTER server found for oplog");
+        }
+
+        self.databaseName = masterServer.db.databaseName;
+        self.hostPort = masterServer.host + ":" + masterServer.port;
+
+        debug("Resolved db: " + self.hostPort + "/" + self.databaseName);
+      },
+      writable: true,
+      configurable: true
+    },
     _connectToServer: {
+
 
 
       /**
@@ -125,6 +136,8 @@ var Oplog = (function (EventEmitter2) {
           if (self.db) {
             return;
           } else {
+            self._resolveServerDb();
+
             debug("Connect to db " + self.hostPort);
 
             self.db = mongo.db("mongodb://" + self.hostPort + "/local", {

@@ -25,6 +25,7 @@ class Oplog extends EventEmitter2 {
       delimiter: ':'
     });
 
+    this.robeDb = robeDb;
     this.paused = false;
     this.active = false;
     this.watchers = [];
@@ -33,22 +34,6 @@ class Oplog extends EventEmitter2 {
     ['_onData', '_onError', '_onEnded'].forEach(function(m) {
       self[m] = _.bind(self[m], self);
     })
-
-    // find out master server
-    var serverConfig = robeDb.db.driver._native.serverConfig;
-
-    var masterServer = _.find(serverConfig.servers || [], function(s) {
-      return _.deepGet(s, 'isMasterDoc.ismaster');
-    });
-
-    if (!masterServer) {
-      throw new Error('No MASTER server found for oplog');
-    }
-
-    this.databaseName = masterServer.db.databaseName;
-    this.hostPort = masterServer.host + ':' + masterServer.port;
-
-    debug('db: ' + this.hostPort + '/' + this.databaseName);
   }
 
 
@@ -96,6 +81,30 @@ class Oplog extends EventEmitter2 {
   }
 
 
+  _resolveServerDb() {
+    if (self.hostPort && self.databaseName) {
+      return;
+    }
+
+    // find out master server
+    var serverConfig = self.robeDb.db.driver._native.serverConfig;
+
+    var masterServer = _.find(serverConfig.servers || [], function(s) {
+      return _.deepGet(s, 'isMasterDoc.ismaster');
+    });
+
+    if (!masterServer) {
+      throw new Error('No MASTER server found for oplog');
+    }
+
+    self.databaseName = masterServer.db.databaseName;
+    self.hostPort = masterServer.host + ':' + masterServer.port;
+
+    debug('Resolved db: ' + self.hostPort + '/' + self.databaseName);
+  }
+
+
+
   /**
    * Connect to master server.
    * @return {Promise}
@@ -107,6 +116,8 @@ class Oplog extends EventEmitter2 {
       if (self.db) {
         return;
       } else {
+        self._resolveServerDb();
+
         debug('Connect to db ' + self.hostPort);
 
         self.db = mongo.db("mongodb://"  + self.hostPort + "/local", {

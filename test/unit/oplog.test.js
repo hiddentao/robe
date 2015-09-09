@@ -62,6 +62,8 @@ test.before = function*() {
   this.db = yield Robe.connect(hosts);
 
   this.oplog = yield this.db.oplog();
+
+  yield this.oplog.start();
 };
 
 test.after = function*() {

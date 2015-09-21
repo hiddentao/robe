@@ -265,6 +265,9 @@ yield collection.addWatcher(function(collectionName, operationType, data) {
 // get the oplog
 var oplog = yield db.oplog();
 
+// start it
+yield oplog.start();
+
 // listen for any operation on any collection
 oplog.onAny(function(collectionName, operationType, data) {
   // ...

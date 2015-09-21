@@ -82,12 +82,10 @@ class Oplog extends EventEmitter2 {
 
 
   _resolveServerDb() {
-    if (self.hostPort && self.databaseName) {
-      return;
-    }
+    var self = this;
 
     // find out master server
-    var serverConfig = self.robeDb.db.driver._native.serverConfig;
+    var serverConfig = _.get(self.robeDb.db, 'driver._native.serverConfig', {});
 
     var masterServer = _.find(serverConfig.servers || [], function(s) {
       return _.deepGet(s, 'isMasterDoc.ismaster');

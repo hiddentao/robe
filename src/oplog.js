@@ -236,8 +236,6 @@ class Oplog extends EventEmitter2 {
 
   /** 
    * Handle oplog stream ended.
-   *
-   * (We don't expect this to be called).
    */
   _onEnded () {
     var self = this;
@@ -252,7 +250,7 @@ class Oplog extends EventEmitter2 {
         .then(function() {
           debug('Restarting cursor');
 
-          self.start();
+          self.start().catch(console.error);
         });
     }
   }

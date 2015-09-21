@@ -893,7 +893,6 @@ test['indexes'] = {
       yield collection.ensureIndexes();
 
       // check by calling through to lower layer
-
       var indexes = yield collection.collection.indexes();
 
       indexes['name_-1'].should.eql( [['name', -1]] );

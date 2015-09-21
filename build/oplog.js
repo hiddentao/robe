@@ -273,8 +273,6 @@ var Oplog = (function (EventEmitter2) {
 
       /** 
        * Handle oplog stream ended.
-       *
-       * (We don't expect this to be called).
        */
       value: function _onEnded() {
         var self = this;
@@ -288,7 +286,7 @@ var Oplog = (function (EventEmitter2) {
           Q.delay(1000).then(function () {
             debug("Restarting cursor");
 
-            self.start();
+            self.start()["catch"](console.error);
           });
         }
       },

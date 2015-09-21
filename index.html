@@ -601,6 +601,9 @@ object:</p>
 <pre><code class="language-javascript">// get the oplog
 var oplog = yield db.oplog();
 
+// start it
+yield oplog.start();
+
 // listen for any operation on any collection
 oplog.onAny(function(collectionName, operationType, data) {
   // ...

@@ -213,6 +213,8 @@ try {
 Robe supports the full [Mongo index spec](http://docs.mongodb.org/manual/reference/method/db.collection.ensureIndex/) and 
 can ensure that indexes you define are present within a collection:
 
+**NOTE: In MongoDB 3+ this call will not do anything yet, due to #11**
+
 ```js
 // get a collection
 var collection = db.collection('test', {

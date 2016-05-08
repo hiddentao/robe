@@ -295,7 +295,7 @@ class Oplog extends EventEmitter2 {
         return;
     }
 
-    this.emit([colName, opType], colName, opType, data.o);
+    this.emit([colName, opType], colName, opType, data.o, data.o2);
   }
 }
 

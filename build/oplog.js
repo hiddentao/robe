@@ -335,7 +335,7 @@ var Oplog = (function (EventEmitter2) {
             return;
         }
 
-        this.emit([colName, opType], colName, opType, data.o);
+        this.emit([colName, opType], colName, opType, data.o, data.o2);
       },
       writable: true,
       configurable: true

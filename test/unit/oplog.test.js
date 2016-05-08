@@ -66,6 +66,8 @@ test.before = function*() {
 };
 
 test.after = function*() {
+  this.timeout(10000);
+
   yield Robe.closeAll();
 };
 
@@ -100,6 +102,8 @@ test['oplog'] = {
     },
 
     after: function*() {
+      this.timeout(10000);
+      
       yield this.rs.stop();
     },
 

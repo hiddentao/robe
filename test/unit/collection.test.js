@@ -40,6 +40,8 @@ test.beforeEach = function(done) {
 };
 
 test.afterEach = function*() {
+  this.timeout(10000);
+  
   yield this.db.close();
 };
 

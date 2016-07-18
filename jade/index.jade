@@ -799,10 +799,11 @@ html
           var collection = db.collection("students");
 
           // watch for any changes to the collection
-          yield collection.addWatcher(function(collectionName, operationType, data) {
+          yield collection.addWatcher(function(collectionName, operationType, data, metaData) {
             // collectionName = collection which got updated ("student" in this case)
             // operationType = one of: "insert", "update", "delete"
             // data = the data which got inserted or updated (an object)
+            // metaData = e.g. the "_id" of the inserted document
           });
 
         :markdown
@@ -832,17 +833,17 @@ html
           yield oplog.start();
 
           // listen for any operation on any collection
-          oplog.onAny(function(collectionName, operationType, data) {
+          oplog.onAny(function(collectionName, operationType, data, metaData) {
             // ...
           });
 
           // listen for any operation on the "student" collection
-          oplog.on('student:*', function(collectionName, operationType, data) {
+          oplog.on('student:*', function(collectionName, operationType, data, metaData) {
             // ...
           });
 
           // listen for "insert" operations on the "student" collection
-          oplog.on('student:insert', function(collectionName, operationType, data) {
+          oplog.on('student:insert', function(collectionName, operationType, data, metaData) {
             // ...
           });
 

@@ -21,21 +21,18 @@ var test = utils.createTest(module);
 
 
 test.beforeEach = function(done) {
-  var self = this;
-
-  this._db = monk('127.0.0.1/robe-test');
-  this.db = new Database(this._db);
-
-  this._db.once('open', function(err) {
+  this._db = monk('127.0.0.1/robe-test', (err) => {
     if (err) return done(err);
 
+    this.db = new Database(this._db);
+
     // drop test data
-    Q.join(self._db.get('test').remove())
-      .then(function() {
+    Q.join(this._db.get('test').remove())
+      .then(() => {
         // get collection
-        self.collection = self.db.collection('test');
+        this.collection = this.db.collection('test');
       })
-      .done(done);
+      .done(done);    
   });
 };
 
@@ -53,11 +50,7 @@ test['constructor'] = {
 
     this.collection.options.rawMode.should.be.false;
 
-    _.deepGet(this.collection, 'collection.name').should.eql('test');
-
-    _.deepGet(this.collection, 'collection.manager.driver').should.eql(
-      _.deepGet(this._db, 'driver')
-    );
+    _.deepGet(this.collection, 'collection.name', '').should.eql('test');
   },
 
   'turn on RAW mode': function*() {
@@ -326,7 +319,7 @@ test['update'] = {
       name: 'Phil'
     });
 
-    res.should.eql(1);
+    res.should.eql({ ok: 1, nModified: 1, n: 1 });
 
     var doc = yield this.collection.findOne({
       name: 'Phil'

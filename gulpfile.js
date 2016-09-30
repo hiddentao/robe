@@ -1,10 +1,14 @@
 var gulp = require('gulp'),
   path = require('path');
 
+var args = require('yargs').argv;
 
 var mocha = require('gulp-mocha');
 var to5 = require('gulp-6to5');
 var runSequence = require('run-sequence');
+
+
+var onlyTest = args.onlyTest || args.limitTest;
 
 
 
@@ -18,9 +22,12 @@ gulp.task('to5', function() {
 
 
 
-gulp.task('tests', ['to5'], function () {
-  return gulp.src('./test/**/*.test.js', { read: false })
+gulp.task('test', ['to5'], function () {
+  return gulp.src([
+    onlyTest || './test/**/*.test.js'  
+  ], { read: false })
       .pipe(mocha({
+        timeout: 20000,
         ui: 'exports',
         reporter: 'spec'
       }))
@@ -29,7 +36,7 @@ gulp.task('tests', ['to5'], function () {
 
 
 gulp.task('default', function(cb) {
-  runSequence('tests', cb);
+  runSequence('test', cb);
 });
 
 

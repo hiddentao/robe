@@ -7,7 +7,6 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 var _ = require("lodash"),
     debug = require("debug")("robe-db"),
-    Class = require("class-extend"),
     Q = require("bluebird");
 
 var Collection = require("./collection"),
@@ -66,7 +65,7 @@ var Database = (function () {
             return self._oplog.stop();
           }
         }).then(function closeDb() {
-          if (2 === _.deepGet(self.db, "driver._state")) {
+          if ("open" === _.deepGet(self.db, "_state")) {
             return Q.promisify(self.db.close, self.db)();
           }
         });
@@ -97,7 +96,7 @@ var Database = (function () {
   return Database;
 })();
 
-Database.extend = Class.extend;
+
 
 
 

@@ -32,11 +32,11 @@ test['constructor'] = function*() {
 
 
 test['close'] = function*() {
-  expect( _.deepGet(this.db.db, 'driver._state') ).to.eql(2);
+  expect( _.deepGet(this.db.db, '_state', '') ).to.eql('open');
 
   yield this.db.close();
 
-  expect( _.deepGet(this.db.db, 'driver._state') ).to.not.eql(2);
+  expect( _.deepGet(this.db.db, '_state', '') ).to.eql('closed');
 };
 
 

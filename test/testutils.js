@@ -26,9 +26,6 @@ exports.createTest = function(_module) {
   test[path.basename(_module.filename)] = {
     beforeEach: function*() {
       this.mocker = sinon.sandbox.create();
-
-      // for bluebird promises to work without delay
-      this.mocker.stub(process, 'nextTick').yields();
     },
     afterEach: function*() {
       this.mocker.restore();

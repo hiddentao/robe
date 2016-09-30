@@ -7,9 +7,8 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 var _ = require("lodash"),
     compose = require("generator-compose"),
-    Class = require("class-extend"),
     Q = require("bluebird"),
-    schemaBuilder = require("simple-mongo-schema");
+    schemaBuilder = require("simple-nosql-schema");
 
 
 var Cursor = require("./cursor"),
@@ -430,6 +429,5 @@ var Collection = (function () {
 
 
 
-Collection.extend = Class.extend;
 
 module.exports = Collection;

@@ -2,8 +2,7 @@
 
 
 var _ = require('lodash'),
-  Class = require('class-extend'),
-  EventEmitter = require('events').EventEmitter,
+  EventEmitter = require('eventemitter3').EventEmitter,
   Q = require('bluebird')
 
 
@@ -28,6 +27,8 @@ class Cursor extends EventEmitter {
    * @param  {Boolean} [options.rawMode] Whether to enable raw query mode by default. Default is false.
    */
   constructor (collection, promise, options = {}) {
+    super();
+    
     this.collection = collection;
     this.promise = promise;
     this.options = _.defaults(options, {
@@ -45,18 +46,20 @@ class Cursor extends EventEmitter {
   _init () {
     var self = this;
 
-    self.promise.on('each', function(doc) {
-      doc = self.collection._createDocumentFromQueryResult(doc, self.options);
-
-      self.emit('result', doc);
+    self.promise.then(() => {
+      self.emit('end');
     });
-
-    self.promise.on('error', function(err) {
+    
+    self.promise.catch((err) => {
       self.emit('error', err);
     });
 
-    self.promise.on('success', function() {
-      self.emit('success');
+    self.promise.each((doc, cursor) => {
+      self.cursor = cursor;
+      
+      doc = self.collection._createDocumentFromQueryResult(doc, self.options);
+
+      self.emit('result', doc);      
     });
   }
 
@@ -65,18 +68,13 @@ class Cursor extends EventEmitter {
    * Close this cursor without waiting for it to finish.
    */
   * close () {
-    var self = this;
-
-    yield new Q(function(resolve, reject) {
-      self.once('success', resolve);
-
-      self.promise.destroy();
-    });
+    if (this.cursor && this.cursor.close) {
+      this.cursor.close();        
+    }
   }
 }
 
 
-Cursor.extend = Class.extend;
 
 module.exports = Cursor;
 

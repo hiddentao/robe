@@ -3,13 +3,14 @@
 
 var _prototypeProperties = function (child, staticProps, instanceProps) { if (staticProps) Object.defineProperties(child, staticProps); if (instanceProps) Object.defineProperties(child.prototype, instanceProps); };
 
+var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
 
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var _ = require("lodash"),
-    Class = require("class-extend"),
-    EventEmitter = require("events").EventEmitter,
+    EventEmitter = require("eventemitter3").EventEmitter,
     Q = require("bluebird");
 
 
@@ -37,6 +38,8 @@ var Cursor = (function (EventEmitter) {
     var options = arguments[2] === undefined ? {} : arguments[2];
     _classCallCheck(this, Cursor);
 
+    _get(Object.getPrototypeOf(Cursor.prototype), "constructor", this).call(this);
+
     this.collection = collection;
     this.promise = promise;
     this.options = _.defaults(options, {
@@ -59,18 +62,20 @@ var Cursor = (function (EventEmitter) {
       value: function _init() {
         var self = this;
 
-        self.promise.on("each", function (doc) {
-          doc = self.collection._createDocumentFromQueryResult(doc, self.options);
-
-          self.emit("result", doc);
+        self.promise.then(function () {
+          self.emit("end");
         });
 
-        self.promise.on("error", function (err) {
+        self.promise["catch"](function (err) {
           self.emit("error", err);
         });
 
-        self.promise.on("success", function () {
-          self.emit("success");
+        self.promise.each(function (doc, cursor) {
+          self.cursor = cursor;
+
+          doc = self.collection._createDocumentFromQueryResult(doc, self.options);
+
+          self.emit("result", doc);
         });
       },
       writable: true,
@@ -83,13 +88,9 @@ var Cursor = (function (EventEmitter) {
        * Close this cursor without waiting for it to finish.
        */
       value: function* close() {
-        var self = this;
-
-        yield new Q(function (resolve, reject) {
-          self.once("success", resolve);
-
-          self.promise.destroy();
-        });
+        if (this.cursor && this.cursor.close) {
+          this.cursor.close();
+        }
       },
       writable: true,
       configurable: true
@@ -102,6 +103,5 @@ var Cursor = (function (EventEmitter) {
 
 
 
-Cursor.extend = Class.extend;
 
 module.exports = Cursor;

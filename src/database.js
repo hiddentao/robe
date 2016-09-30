@@ -3,7 +3,6 @@
 
 var _ = require('lodash'),
   debug = require('debug')('robe-db'),
-  Class = require('class-extend'),
   Q = require('bluebird');
 
 var Collection = require('./collection'),
@@ -54,7 +53,7 @@ class Database {
       }
     })
       .then(function closeDb() {
-        if (2 === _.deepGet(self.db, 'driver._state')) {
+        if ('open' === _.deepGet(self.db, '_state')) {
           return Q.promisify(self.db.close, self.db)();
         }
       });
@@ -74,8 +73,6 @@ class Database {
   }
 
 }
-
-Database.extend = Class.extend;
 
 
 

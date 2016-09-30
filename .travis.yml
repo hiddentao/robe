@@ -8,13 +8,14 @@ env:
   NO_REPLICA_SETS=true
 
 node_js:
-  - "0.12"
-  - "0.11"
+  - "4"
+  - "6"
 
 services:
   - mongodb
 
 before_script:
+  - "sleep 5"
   - "npm install -g gulp"
   - "npm install"
 

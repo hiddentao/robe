@@ -12,8 +12,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 var _ = require("lodash"),
     mongo = require("mongoskin"),
     debug = require("debug")("robe-oplog"),
-    EventEmitter2 = require("eventemitter2").EventEmitter2,
-    Class = require("class-extend"),
+    EventEmitter = require("eventemitter3").EventEmitter,
     Q = require("bluebird");
 
 
@@ -21,7 +20,7 @@ var _ = require("lodash"),
 /**
  * Represents the oplog.
  */
-var Oplog = (function (EventEmitter2) {
+var Oplog = (function (EventEmitter) {
   /**
    * Constructor.
    *
@@ -46,7 +45,7 @@ var Oplog = (function (EventEmitter2) {
     });
   }
 
-  _inherits(Oplog, EventEmitter2);
+  _inherits(Oplog, EventEmitter);
 
   _prototypeProperties(Oplog, null, {
     stop: {
@@ -343,11 +342,10 @@ var Oplog = (function (EventEmitter2) {
   });
 
   return Oplog;
-})(EventEmitter2);
+})(EventEmitter);
 
 
 
 
-Oplog.extend = Class.extend;
 
 module.exports = Oplog;

@@ -6,7 +6,6 @@ var _prototypeProperties = function (child, staticProps, instanceProps) { if (st
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var _ = require("lodash"),
-    Class = require("class-extend"),
     Q = require("bluebird");
 
 
@@ -258,6 +257,5 @@ var Document = (function () {
 
 
 
-Document.extend = Class.extend;
 
 module.exports = Document;

@@ -4,8 +4,7 @@
 var _ = require('lodash'),
   mongo = require('mongoskin'),
   debug = require('debug')('robe-oplog'),
-  EventEmitter2 = require('eventemitter2').EventEmitter2,
-  Class = require('class-extend'),
+  EventEmitter = require('eventemitter3').EventEmitter,
   Q = require('bluebird');
 
 
@@ -13,7 +12,7 @@ var _ = require('lodash'),
 /**
  * Represents the oplog.
  */
-class Oplog extends EventEmitter2 {
+class Oplog extends EventEmitter {
   /**
    * Constructor.
    *
@@ -300,7 +299,6 @@ class Oplog extends EventEmitter2 {
 }
 
 
-Oplog.extend = Class.extend;
 
 module.exports = Oplog;
 

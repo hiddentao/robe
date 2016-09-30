@@ -3,9 +3,8 @@
 
 var _ = require('lodash'),
   compose = require('generator-compose'),
-  Class = require('class-extend'),
   Q = require('bluebird'),
-  schemaBuilder = require('simple-mongo-schema');
+  schemaBuilder = require('simple-nosql-schema');
 
 
 var Cursor = require('./cursor'),
@@ -353,7 +352,6 @@ class Collection {
 }
 
 
-Collection.extend = Class.extend;
 
 module.exports = Collection;
 

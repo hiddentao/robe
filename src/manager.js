@@ -3,7 +3,6 @@
 
 var _ = require('lodash'),
   debug = require('debug')('robe'),
-  Class = require('class-extend'),
   Q = require('bluebird'),
   monk = require('monk'),
   Database = require('./database');
@@ -24,38 +23,22 @@ class Manager {
   /**
    * Connect to given database.
    * @param {String|Array} url Either db URL or array of replica set URLs.
-   * @param {Object} options Connection options.
-   * @param {Number} options.timeout Connection timeout in milliseconds. Default is 3000.
    * @return {Promise} which resolves to a database connection if successful.
    */
-  static connect (url, options = {}) {
-    if (!Array.isArray(url)) {
-      url = [url];
-    }
+  static connect (url) {
+    debug('connect to ' + url);
 
-    _.defaults(options, Manager.DEFAULT_CONNECTION_OPTIONS);
-
-    debug('connect to ' + url.join(', '));
-
-    let db = monk.apply(null, url);
-
-    return new Q(function checkConnection(resolve, reject) {
-      var connectionTimeout = setTimeout(function() {
-        reject(new Error('Timed out connecting to db'));
-      }, options.timeout);
-
-      db.once('open', function() {
-        clearTimeout(connectionTimeout);
-
-        // until https://github.com/Automattic/monk/issues/24 is resolve we 
-        // manually check, see http://stackoverflow.com/questions/27547979/db-connection-error-handling-with-monk 
-        if (2 !== _.deepGet(db, 'driver._state')) {
-          reject(new Error('Failed to connect to db'));
+    return new Q((resolve, reject) => {
+      let db;
+      
+      db = monk(url, function(err) {
+        if (err) {
+          reject(new Error(`Failed to connect to db: ${err.message}`));
         } else {
-          var instance = new Database(db);
-
+          let instance = new Database(db);
+          
           dbConnections.push(instance);
-
+          
           resolve(instance);
         }
       });
@@ -79,15 +62,7 @@ class Manager {
   }
 }
 
-/**
- * Default connection options.
- * @type {Object}
- */
-Manager.DEFAULT_CONNECTION_OPTIONS = {
-  timeout: 3000
-};
 
-Manager.extend = Class.extend;
 
 
 

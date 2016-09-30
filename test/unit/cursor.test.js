@@ -27,6 +27,18 @@ test.beforeEach = function*() {
   this.collection = this.db.collection('test');
 
   yield this.collection.remove();
+  
+  var e = this.e = {
+    each: (fn) => {
+      e._each = fn;
+    },
+    then: (fn) => {
+      e._then = fn;
+    },
+    catch: (fn) => {
+      e._catch = fn;
+    },
+  };  
 };
 
 
@@ -37,17 +49,14 @@ test.afterEach = function*() {
 
 
 test['constructor'] = function*() {
-  var e = new EventEmitter();
-
-  var c = new Cursor(this.collection, e);
+  var c = new Cursor(this.collection, this.e);
 };
 
 
 
 test['results'] = {
-  beforeEach: function*() {
-    var e = this.e = new EventEmitter();
-    var c = this.c = new Cursor(this.collection, e);
+  beforeEach: function*() {    
+    var c = this.c = new Cursor(this.collection, this.e);
   },
   'default': function*() {
     var e = this.e,
@@ -59,8 +68,8 @@ test['results'] = {
       acc.push(r);
     });
 
-    e.emit('each', { name: 'john' });
-    e.emit('each', { name: 'tim' });
+    e._each({ name: 'john' });
+    e._each({ name: 'tim' });
 
     acc.length.should.eql(2);
 
@@ -80,7 +89,7 @@ test['results'] = {
       acc.push(r);
     });
 
-    e.emit('each', { name: 'john' });
+    e._each({ name: 'john' });
 
     acc.length.should.eql(1);
 
@@ -99,7 +108,7 @@ test['results'] = {
       acc.push(r);
     });
 
-    e.emit('each', { name: 'john' });
+    e._each({ name: 'john' });
 
     acc.length.should.eql(1);
 
@@ -110,36 +119,32 @@ test['results'] = {
 
 
 
-test['error'] = function*() {
-  var e = new EventEmitter();
-  var c = new Cursor(this.collection, e);
+test['error'] = function(done) {
+  var c = new Cursor(this.collection, this.e);
 
   var error = null;
 
-  c.on('error', function(err) {
-    error = err;
+  c.on('error', function(error) {
+    try {
+      _.deepGet(error, 'message', '').should.eql('test');
+      
+      done();
+    } catch (err) {
+      done(err);
+    }
   });
 
-  e.emit('error', new Error('test'));
-
-  _.deepGet(error, 'message').should.eql('test');
+  this.e._catch(new Error('test')); 
 };
 
 
 
-test['success'] = function*() {
-  var e = new EventEmitter();
-  var c = new Cursor(this.collection, e);
+test['end'] = function(done) {
+  var c = new Cursor(this.collection, this.e);
 
-  var done = null;
+  c.on('end', done);
 
-  c.on('success', function() {
-    done = true;
-  });
-
-  e.emit('success');
-
-  done.should.be.true;
+  this.e._then();
 };
 
 
@@ -184,7 +189,7 @@ test['real data'] = {
 
       cursor.on('error', reject);
 
-      cursor.on('success', function() {
+      cursor.on('end', function() {
         try {
           _.pluck(acc, 'name').should.eql(['Jimmy', 'Mark', 'Tom', 'Doug', 'Amanda']);
 

@@ -2,7 +2,6 @@
 
 
 var _ = require('lodash'),
-  Class = require('class-extend'),
   Q = require('bluebird')
 
 
@@ -213,7 +212,6 @@ class Document {
 }
 
 
-Document.extend = Class.extend;
 
 module.exports = Document;
 

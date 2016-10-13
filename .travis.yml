@@ -15,9 +15,8 @@ services:
   - mongodb
 
 before_script:
-  - "sleep 5"
   - "npm install -g gulp"
-  - "npm install"
+  - "sleep 5"
 
 script:
   - "npm test"

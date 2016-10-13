@@ -27,11 +27,9 @@ if (process.env.NO_REPLICA_SETS) {
 
 
 test.before = function*() {
-  this.timeout(6000);
-
   this.rs = new ReplicaSet({
     numInstances: 2,
-    startPort: 37117,
+    startPort: 37137,
     // verbose: true,
     // useColors: true,
   });
@@ -40,7 +38,7 @@ test.before = function*() {
   yield Q.delay(2000);
 
   var hosts = this.rs.getHosts().map(function(h) {
-    return h + '/robe-test';
+    return h + ':37137/robe-test';
   });
 
   this.mongoShellExec = function(dbName, query) {

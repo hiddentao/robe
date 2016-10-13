@@ -21,7 +21,7 @@ var test = utils.createTest(module);
 
 
 test.beforeEach = function(done) {
-  this._db = monk('127.0.0.1/robe-test', (err) => {
+  this._db = monk('127.0.0.1:37127/robe-test', (err) => {
     if (err) return done(err);
 
     this.db = new Database(this._db);

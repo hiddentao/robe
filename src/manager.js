@@ -23,15 +23,39 @@ class Manager {
   /**
    * Connect to given database.
    * @param {String|Array} url Either db URL or array of replica set URLs.
+   * @param {Object} [options]
+   * @param {Number} [options.timeout] Connection timeout in milliseconds. Default is no timeout.
    * @return {Promise} which resolves to a database connection if successful.
    */
-  static connect (url) {
+  static connect (url, options) {
     debug('connect to ' + url);
+
+    options = _.extend({
+      timeout: null
+    }, options);
 
     return new Q((resolve, reject) => {
       let db;
+
+      let timedOut = false;
       
-      db = monk(url, function(err) {
+      if (options.timeout) {
+        this._connTimeout = setTimeout(() => {
+          timedOut = true;
+          
+          reject(new Error('Timed out connecting to db'));
+        }, options.timeout);
+      }
+      
+      db = monk(url, (err) => {
+        // clear timeout event
+        clearTimeout(this._connTimeout);
+        
+        // if already timed out then do nothing
+        if (timedOut) {
+          return;
+        }
+        
         if (err) {
           reject(new Error(`Failed to connect to db: ${err.message}`));
         } else {

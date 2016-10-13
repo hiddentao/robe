@@ -27,7 +27,7 @@ test.afterEach = function*() {
 
 test['ObjectID utils'] = {
   beforeEach: function*() {
-    this.db = yield Robe.connect('127.0.0.1/robe-test');
+    this.db = yield Robe.connect('127.0.0.1:37127/robe-test');
     this.collection = this.db.collection('test');
     
     this.doc = yield this.collection.insert({
@@ -38,20 +38,17 @@ test['ObjectID utils'] = {
     yield this.collection.remove();
   },  
   'isObjectID': function*() {    
-    RobeUtils.isObjectID( this.doc._id ).should.be.false;
-    RobeUtils.isObjectID( new mongodb.ObjectID() ).should.be.true;
+    RobeUtils.isObjectID( this.doc._id ).should.be.true;
   },
   'isObjectIDStr': function*() {    
     RobeUtils.isObjectIDStr( 'abc' ).should.be.false;
 
     expect(typeof this.doc._id).to.eql('object');
-    RobeUtils.isObjectIDStr( this.doc._id ).should.be.false;
+    RobeUtils.isObjectIDStr( this.doc._id ).should.be.true;
     
-    var str = this.doc._id.toString();
-    RobeUtils.isObjectIDStr( str ).should.be.true;
+    RobeUtils.isObjectIDStr( this.doc._id.toString() ).should.be.true;
   },
   'toObjectId': function*() {
-    this.doc._id.should.not.be.instanceOf(mongodb.ObjectID);
     RobeUtils.toObjectID( this.doc._id.toString() ).should.be.instanceOf(mongodb.ObjectID);
   },
 };

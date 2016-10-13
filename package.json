@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "^1.10.0",
     "co-mocha": "^1.1.0",
+    "cross-spawn": "^4.0.2",
     "gulp": "~3.8.1",
     "gulp-6to5": "^3.0.0",
     "gulp-mocha": "~0.4.1",

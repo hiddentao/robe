@@ -1,5 +1,11 @@
 # Robe
 
+[![Build Status](https://secure.travis-ci.org/hiddentao/robe.png?branch=master)](http://travis-ci.org/hiddentao/robe)
+[![NPM module](https://badge.fury.io/js/robe.png)](https://badge.fury.io/js/robe)
+[![NPM downloads](https://img.shields.io/npm/dm/robe.svg?maxAge=2592000)](https://www.npmjs.com/package/robe)
+[![Follow on Twitter](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/hiddentao)
+
+
 [![Build Status](https://travis-ci.org/hiddentao/robe.svg?branch=master)](http://travis-ci.org/hiddentao/robe) [![NPM module](https://badge.fury.io/js/robe.png)](https://badge.fury.io/js/robe)
 
 **Robe** wraps around [monk](https://github.com/Automattic/monk) to provide a 

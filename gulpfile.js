@@ -3,7 +3,7 @@ var gulp = require('gulp'),
 
 var args = require('yargs').argv;
 
-var mocha = require('gulp-mocha');
+var mocha = require('gulp-spawn-mocha');
 var to5 = require('gulp-6to5');
 var runSequence = require('run-sequence');
 

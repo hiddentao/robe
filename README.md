@@ -253,6 +253,13 @@ allowing you to be notified when collections within your database get updated
 (even by other processes).
 
 ```js
+// connect to replica set
+// (note that replicaSet parameter MUST be set to actual replica set name)
+var db = yield Robe.connect([
+  '127.0.0.1/dbname?replicaSet=example',
+  '127.0.0.2/dbname?replicaSet=example',
+]);
+
 var collection = db.collection('test');
 
 // watch for any changes to the collection

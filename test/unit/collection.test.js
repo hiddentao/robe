@@ -319,7 +319,7 @@ test['update'] = {
       name: 'Phil'
     });
 
-    res.should.eql({ ok: 1, nModified: 1, n: 1 });
+    _.get(res, 'ok').should.eql(1);
 
     var doc = yield this.collection.findOne({
       name: 'Phil'
@@ -852,9 +852,6 @@ test['indexes'] = {
   },
 
   'ensureIndexes()': {
-    /*
-    TODO: DISABLED UNTIL SUPPORT FOR createIndex() is available in Monk, see http://docs.mongodb.org/master/reference/method/db.collection.ensureIndex/
-
     'sets up indexes': function*() {
       var collection = this.db.collection('test', {
         schema: {
@@ -895,38 +892,6 @@ test['indexes'] = {
 
       indexes['name_-1'].should.eql( [['name', -1]] );
       indexes.index2.should.eql( [['name', 1], ['age', 1]] );
-    },
-    */
-
-    'set up indexes - error': function*() {
-      var collection = this.db.collection('test', {
-        schema: {
-          name: {
-            type: String,
-            required: true
-          },
-          age: {
-            type: Number,
-            required: true,
-          },
-        },
-        indexes: [
-          {
-            fields: {
-              name: 'blah'
-            }          
-          }
-        ]
-      });
-
-      try {
-        yield collection.ensureIndexes();
-
-        throw new Error('should not be here');
-      }
-      catch (err) {
-        err.toString().should.contain('MongoError');
-      }
     },
   }
 };

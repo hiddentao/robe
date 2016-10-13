@@ -14,7 +14,7 @@ Features:
 * Work with ODM-style documents or raw Mongo data - the choice is yours
 * Add before and after hooks for inserts, updates and removals
 * Cursor mode (for streaming results)
-* Schema validation ([simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema)).
+* Schema validation ([simple-nosql-schema](https://github.com/hiddentao/simple-nosql-schema)).
 * Indexes and replica sets supported
 * Mongo oplog tailing (like in Meteor)
 * [and more...](https://hiddentao.github.io/robe)

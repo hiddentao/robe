@@ -17,7 +17,7 @@ var test = utils.createTest(module);
 
 
 test.beforeEach = function*() {
-  this.db = yield Robe.connect('127.0.0.1:37127/robe-test');
+  this.db = yield Robe.connect(`${this.hostPort}/robe-test`);
 };
 
 test.afterEach = function*() {

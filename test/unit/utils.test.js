@@ -27,7 +27,7 @@ test.afterEach = function*() {
 
 test['ObjectID utils'] = {
   beforeEach: function*() {
-    this.db = yield Robe.connect('127.0.0.1:37127/robe-test');
+    this.db = yield Robe.connect(`${this.hostPort}/robe-test`);
     this.collection = this.db.collection('test');
     
     this.doc = yield this.collection.insert({

@@ -23,9 +23,9 @@ test.afterEach = function*() {
 
 
 
-test['connect'] = {
+test['basic'] = {
   'valid': function*() {
-    var db = yield Robe.connect('127.0.0.1:37127/robe-test');
+    var db = yield Robe.connect(`${this.hostPort}/robe-test`);
   
     db.should.be.instanceOf(Robe.Database);
   },
@@ -40,7 +40,10 @@ test['connect'] = {
       err.message.should.contain('Failed to connect to db');
     }
   },
-  'replica set': {
+};
+
+if (!process.env.CONTINUOUS_INTEGRATION) {
+  test.replica = {
     before: function*() {
       this.rs = new ReplicaSet({
         numInstances: 2,
@@ -62,9 +65,7 @@ test['connect'] = {
   
       db.should.be.instanceOf(Robe.Database);          
     },
-  },
-};
-
-
+  };
+}
 
 

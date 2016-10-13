@@ -18,8 +18,7 @@ var Robe = utils.Robe,
 
 var test = utils.createTest(module);
 
-// if running in an environment which doesn't allow us to setup a replica set then quit
-if (process.env.NO_REPLICA_SETS) {
+if (process.env.CONTINUOUS_INTEGRATION) {
   test['skip due to inability to setup replica sets'] = true;
 
   return;

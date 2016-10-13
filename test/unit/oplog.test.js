@@ -62,7 +62,13 @@ test.before = function*() {
 };
 
 test.after = function*() {
+  if (this.oplog) {
+    yield this.oplog.stop();
+  }
+  
   yield Robe.closeAll();
+  
+  yield this.rs.stop();
 };
 
 
@@ -143,14 +149,14 @@ test['oplog'] = {
         yield Q.delay(100);
 
         this.callback.callCount.should.eql(4);
-        expect( _.deepGet(this.callback.getCall(0), 'args.0') ).to.eql('oplogtest');
-        expect( _.deepGet(this.callback.getCall(0), 'args.1') ).to.eql('insert');
-        expect( _.deepGet(this.callback.getCall(1), 'args.0') ).to.eql('oplogtest');
-        expect( _.deepGet(this.callback.getCall(1), 'args.1') ).to.eql('update');
-        expect( _.deepGet(this.callback.getCall(2), 'args.0') ).to.eql('oplogtest2');
-        expect( _.deepGet(this.callback.getCall(2), 'args.1') ).to.eql('insert');
-        expect( _.deepGet(this.callback.getCall(3), 'args.0') ).to.eql('oplogtest2');
-        expect( _.deepGet(this.callback.getCall(3), 'args.1') ).to.eql('delete');
+        expect( _.deepGet(this.callback.getCall(0), 'args.0.0') ).to.eql('oplogtest');
+        expect( _.deepGet(this.callback.getCall(0), 'args.0.1') ).to.eql('insert');
+        expect( _.deepGet(this.callback.getCall(1), 'args.0.0') ).to.eql('oplogtest');
+        expect( _.deepGet(this.callback.getCall(1), 'args.0.1') ).to.eql('update');
+        expect( _.deepGet(this.callback.getCall(2), 'args.0.0') ).to.eql('oplogtest2');
+        expect( _.deepGet(this.callback.getCall(2), 'args.0.1') ).to.eql('insert');
+        expect( _.deepGet(this.callback.getCall(3), 'args.0.0') ).to.eql('oplogtest2');
+        expect( _.deepGet(this.callback.getCall(3), 'args.0.1') ).to.eql('delete');
       },
 
     },

@@ -10,7 +10,7 @@ var _inherits = function (subClass, superClass) { if (typeof superClass !== "fun
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
 
 var _ = require("lodash"),
-    EventEmitter = require("eventemitter3").EventEmitter,
+    EventEmitter = require("eventemitter2").EventEmitter2,
     Q = require("bluebird");
 
 

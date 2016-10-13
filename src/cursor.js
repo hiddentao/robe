@@ -2,7 +2,7 @@
 
 
 var _ = require('lodash'),
-  EventEmitter = require('eventemitter3').EventEmitter,
+  EventEmitter = require('eventemitter2').EventEmitter2,
   Q = require('bluebird')
 
 

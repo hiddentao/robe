@@ -12,7 +12,7 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 var _ = require("lodash"),
     mongo = require("mongoskin"),
     debug = require("debug")("robe-oplog"),
-    EventEmitter = require("eventemitter3").EventEmitter,
+    EventEmitter = require("eventemitter2").EventEmitter2,
     Q = require("bluebird");
 
 
@@ -43,8 +43,6 @@ var Oplog = (function (EventEmitter) {
     ["_onData", "_onError", "_onEnded"].forEach(function (m) {
       self[m] = _.bind(self[m], self);
     });
-
-    this._onAnyCallbacks = [];
   }
 
   _inherits(Oplog, EventEmitter);
@@ -260,7 +258,7 @@ var Oplog = (function (EventEmitter) {
       value: function _onError(err) {
         debug("Cursor error: " + err.message);
 
-        this._emit("error", err);
+        this.emit("error", err);
       },
       writable: true,
       configurable: true
@@ -332,36 +330,7 @@ var Oplog = (function (EventEmitter) {
             return;
         }
 
-        this._emit([colName, opType], colName, opType, data.o, data.o2);
-      },
-      writable: true,
-      configurable: true
-    },
-    onAny: {
-
-
-      /**
-       * Handle any event.
-       */
-      value: function onAny(cb) {
-        this._onAnyCallbacks.push(cb);
-      },
-      writable: true,
-      configurable: true
-    },
-    _emit: {
-
-      /**
-       * Emit event.
-       */
-      value: function _emit() {
-        var args = Array.prototype.slice.call(arguments);
-
-        this.emit.apply(this, args);
-
-        this._onAnyCallbacks.forEach(function (cb) {
-          cb.apply(args);
-        });
+        this.emit([colName, opType], colName, opType, data.o, data.o2);
       },
       writable: true,
       configurable: true

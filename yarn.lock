@@ -394,13 +394,13 @@ esutils@1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-1.1.6.tgz#c01ccaa9ae4b897c6d0c3e210ae52f3c7a844375"
 
+eventemitter2:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-2.1.3.tgz#bd7201f85c59548380e1e43b3f6a7286d4da7349"
+
 eventemitter2@^0.4.14:
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-0.4.14.tgz#8f61b75cde012b2e9eb284d4545583b5643b61ab"
-
-eventemitter3@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-2.0.2.tgz#20ce4891909ce9f35b088c94fab40e2c96f473ac"
 
 expand-brackets@^0.1.4:
   version "0.1.5"

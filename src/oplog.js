@@ -4,7 +4,7 @@
 var _ = require('lodash'),
   mongo = require('mongoskin'),
   debug = require('debug')('robe-oplog'),
-  EventEmitter = require('eventemitter3').EventEmitter,
+  EventEmitter = require('eventemitter2').EventEmitter2,
   Q = require('bluebird');
 
 
@@ -33,8 +33,6 @@ class Oplog extends EventEmitter {
     ['_onData', '_onError', '_onEnded'].forEach(function(m) {
       self[m] = _.bind(self[m], self);
     });
-    
-    this._onAnyCallbacks = [];
   }
 
 
@@ -227,7 +225,7 @@ class Oplog extends EventEmitter {
   _onError (err) {
     debug('Cursor error: ' + err.message);
 
-    this._emit('error', err);
+    this.emit('error', err);
   }
 
 
@@ -292,28 +290,7 @@ class Oplog extends EventEmitter {
         return;
     }
 
-    this._emit([colName, opType], colName, opType, data.o, data.o2);
-  }
-
-
-  /**
-   * Handle any event.
-   */
-  onAny (cb) {
-    this._onAnyCallbacks.push(cb);
-  }
-  
-  /**
-   * Emit event.
-   */
-  _emit () {
-    const args = Array.prototype.slice.call(arguments);
-    
-    this.emit.apply(this, args);
-    
-    this._onAnyCallbacks.forEach((cb) => {
-      cb.apply(args);
-    });
+    this.emit([colName, opType], colName, opType, data.o, data.o2);
   }
 }
 

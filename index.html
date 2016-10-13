@@ -23,7 +23,10 @@ var Robe = require('robe');
   db2 = yield Robe.connect('127.2.1.1');
 </code></pre><p>The returned object is an instance of <code>Robe.Database</code>.</p>
 <p>Replica sets are also supported:</p>
-<pre><code class="language-javascript">var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
+<pre><code class="language-javascript">var db = yield Robe.connect([
+  '127.0.0.1/db-name?replicaSet=test12', 
+  '127.2.3.23/db-name?replicaSet=test12'
+]);
 </code></pre></section><section id="querying"><h2 id="querying">Querying</h2>
 <p>Imagine we have a sample collection - <strong>students</strong> - with the 
 following data:</p>

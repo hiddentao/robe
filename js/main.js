@@ -273,8 +273,8 @@ var apiDocs = {
           params: {
             timeout: {
               type: ['Number'],
-              defaultValue: '[[Robe.DEFAULT_CONNECTION_OPTIONS.timeout]]',
-              desc: 'Connection timeout.',
+              defaultValue: 'No timeout',
+              desc: 'Connection timeout (milliseconds).',
             },
           },
         },

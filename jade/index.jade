@@ -79,7 +79,10 @@ html
             Replica sets are also supported:
 
         +code('javascript').
-          var db = yield Robe.connect(['127.0.0.1/db-name', '127.2.3.23']);
+          var db = yield Robe.connect([
+            '127.0.0.1/db-name?replicaSet=test12', 
+            '127.2.3.23/db-name?replicaSet=test12'
+          ]);
 
       section#querying
         :markdown

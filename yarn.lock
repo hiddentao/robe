@@ -376,13 +376,13 @@ esutils@1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-1.1.6.tgz#c01ccaa9ae4b897c6d0c3e210ae52f3c7a844375"
 
-eventemitter2:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-2.1.3.tgz#bd7201f85c59548380e1e43b3f6a7286d4da7349"
-
 eventemitter2@^0.4.14:
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-0.4.14.tgz#8f61b75cde012b2e9eb284d4545583b5643b61ab"
+
+eventemitter2@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-2.1.3.tgz#bd7201f85c59548380e1e43b3f6a7286d4da7349"
 
 expand-brackets@^0.1.4:
   version "0.1.5"
@@ -663,7 +663,7 @@ gulp-6to5@^3.0.0:
     through2 "^0.6.1"
     vinyl-sourcemaps-apply "^0.1.1"
 
-gulp-spawn-mocha:
+gulp-spawn-mocha@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/gulp-spawn-mocha/-/gulp-spawn-mocha-3.1.0.tgz#b11e3b8e3b3d3ed1c88de5624de42a9e780c27c3"
   dependencies:
@@ -1202,7 +1202,7 @@ mkdirp@^0.5.0, mkdirp@0.5.1:
   dependencies:
     minimist "0.0.8"
 
-mocha@3.x.x:
+mocha@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.1.2.tgz#51f93b432bf7e1b175ffc22883ccd0be32dba6b5"
   dependencies:

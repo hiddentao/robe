@@ -38,7 +38,6 @@ var Manager = (function () {
        * @return {Promise} which resolves to a database connection if successful.
        */
       value: function connect(url, options) {
-        var _this = this;
         debug("connect to " + url);
 
         options = _.extend({
@@ -48,25 +47,16 @@ var Manager = (function () {
         return new Q(function (resolve, reject) {
           var db = undefined;
 
-          var timedOut = false;
+          var timeoutMs = parseInt(options.timeout);
 
-          if (options.timeout) {
-            _this._connTimeout = setTimeout(function () {
-              timedOut = true;
-
-              reject(new Error("Timed out connecting to db"));
-            }, options.timeout);
-          }
-
-          db = monk(url, function (err) {
-            // clear timeout event
-            clearTimeout(_this._connTimeout);
-
-            // if already timed out then do nothing
-            if (timedOut) {
-              return;
+          var opts = !timeoutMs ? undefined : {
+            server: {
+              socketOptions: {
+                connectTimeoutMS: timeoutMs }
             }
+          };
 
+          db = monk(url, opts, function (err) {
             if (err) {
               reject(new Error("Failed to connect to db: " + err.message));
             } else {

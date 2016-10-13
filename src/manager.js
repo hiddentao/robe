@@ -37,32 +37,24 @@ class Manager {
     return new Q((resolve, reject) => {
       let db;
 
-      let timedOut = false;
+      const timeoutMs = parseInt(options.timeout);
       
-      if (options.timeout) {
-        this._connTimeout = setTimeout(() => {
-          timedOut = true;
-          
-          reject(new Error('Timed out connecting to db'));
-        }, options.timeout);
-      }
-      
-      db = monk(url, (err) => {
-        // clear timeout event
-        clearTimeout(this._connTimeout);
-        
-        // if already timed out then do nothing
-        if (timedOut) {
-          return;
+      const opts = (!timeoutMs) ? undefined : {
+        server: {
+          socketOptions: {
+            connectTimeoutMS: timeoutMs,
+          }
         }
-        
+      };
+
+      db = monk(url, opts, (err) => {
         if (err) {
           reject(new Error(`Failed to connect to db: ${err.message}`));
         } else {
           let instance = new Database(db);
           
           dbConnections.push(instance);
-          
+
           resolve(instance);
         }
       });

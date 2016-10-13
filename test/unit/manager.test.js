@@ -26,18 +26,18 @@ test.afterEach = function*() {
 test['connect'] = {
   'valid': function*() {
     var db = yield Robe.connect('127.0.0.1:37127/robe-test');
-
+  
     db.should.be.instanceOf(Robe.Database);
   },
   'bad': function*() {
     try {
-      yield Robe.connect('127.123.121.233:37127', {
-        timeout: 100
+      yield Robe.connect('127.0.0.3:37127', {
+        timeout: 1
       });
-
+  
       throw new Error('Should not be here');
     } catch (err) {
-      err.message.should.eql('Timed out connecting to db');
+      err.message.should.contain('Failed to connect to db');
     }
   },
   'replica set': {
@@ -48,10 +48,10 @@ test['connect'] = {
         // verbose: true,
         // useColors: true,
       });
-
+  
       yield this.rs.start();
       yield Q.delay(2000);
-
+  
       this.hosts = this.rs.getHosts().map((h) => `${h}/robe-test?replicaSet=${this.rs.name}`);
     },
     after: function*() {
@@ -59,7 +59,7 @@ test['connect'] = {
     },
     success: function*() {
       var db = yield Robe.connect(this.hosts);
-
+  
       db.should.be.instanceOf(Robe.Database);          
     },
   },

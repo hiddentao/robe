@@ -18,7 +18,7 @@ Features:
 
 ## Installation
 
-**This package requires ES6 support, i.e. Node 0.11.2+**
+**This package requires Node 4+**
 
 ```bash
 $ npm install robe

@@ -30,7 +30,7 @@
     "gulp": "~3.8.1",
     "gulp-6to5": "^3.0.0",
     "gulp-spawn-mocha": "^3.1.0",
-    "mocha": "^2.1.0",
+    "mocha": "^3.1.2",
     "mongo-replica-set": "^0.2.2",
     "run-sequence": "~0.3.6",
     "shelljs": "^0.4.0",

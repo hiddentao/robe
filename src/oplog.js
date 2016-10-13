@@ -32,7 +32,9 @@ class Oplog extends EventEmitter {
     var self = this;
     ['_onData', '_onError', '_onEnded'].forEach(function(m) {
       self[m] = _.bind(self[m], self);
-    })
+    });
+    
+    this._onAnyCallbacks = [];
   }
 
 
@@ -84,18 +86,14 @@ class Oplog extends EventEmitter {
     var self = this;
 
     // find out master server
-    var serverConfig = _.get(self.robeDb.db, 'driver._native.serverConfig', {});
+    const masterDoc = self.robeDb.db._db.topology.isMasterDoc;
 
-    var masterServer = _.find(serverConfig.servers || [], function(s) {
-      return _.deepGet(s, 'isMasterDoc.ismaster');
-    });
-
-    if (!masterServer) {
+    if (!masterDoc.ismaster) {
       throw new Error('No MASTER server found for oplog');
     }
 
-    self.databaseName = masterServer.db.databaseName;
-    self.hostPort = masterServer.host + ':' + masterServer.port;
+    self.databaseName = self.robeDb.db._db.s.databaseName;
+    self.hostPort = masterDoc.primary;
 
     debug('Resolved db: ' + self.hostPort + '/' + self.databaseName);
   }
@@ -229,7 +227,7 @@ class Oplog extends EventEmitter {
   _onError (err) {
     debug('Cursor error: ' + err.message);
 
-    this.emit('error', err);
+    this._emit('error', err);
   }
 
 
@@ -294,7 +292,28 @@ class Oplog extends EventEmitter {
         return;
     }
 
-    this.emit([colName, opType], colName, opType, data.o, data.o2);
+    this._emit([colName, opType], colName, opType, data.o, data.o2);
+  }
+
+
+  /**
+   * Handle any event.
+   */
+  onAny (cb) {
+    this._onAnyCallbacks.push(cb);
+  }
+  
+  /**
+   * Emit event.
+   */
+  _emit () {
+    const args = Array.prototype.slice.call(arguments);
+    
+    this.emit.apply(this, args);
+    
+    this._onAnyCallbacks.forEach((cb) => {
+      cb.apply(args);
+    });
   }
 }
 

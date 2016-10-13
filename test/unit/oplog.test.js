@@ -37,9 +37,7 @@ test.before = function*() {
   yield this.rs.start();
   yield Q.delay(2000);
 
-  var hosts = this.rs.getHosts().map(function(h) {
-    return h + ':37137/robe-test';
-  });
+  var hosts = this.rs.getHosts().map((h) => `${h}/robe-test?replicaSet=${this.rs.name}`);
 
   this.mongoShellExec = function(dbName, query) {
     if (1 === arguments.length) {
@@ -48,7 +46,7 @@ test.before = function*() {
     }
 
     return new Q(function(resolve, reject) {
-      shell.exec('mongo --port 37117 --eval "' + query + '" ' + dbName, function(code, output) {
+      shell.exec('mongo --port 37137 --eval "' + query + '" ' + dbName, function(code, output) {
         if (0 !== code) {
           reject(new Error('Exit: ' + code, output));
         } 
@@ -64,8 +62,6 @@ test.before = function*() {
 };
 
 test.after = function*() {
-  this.timeout(10000);
-
   yield Robe.closeAll();
 };
 

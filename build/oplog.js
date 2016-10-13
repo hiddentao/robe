@@ -43,6 +43,8 @@ var Oplog = (function (EventEmitter) {
     ["_onData", "_onError", "_onEnded"].forEach(function (m) {
       self[m] = _.bind(self[m], self);
     });
+
+    this._onAnyCallbacks = [];
   }
 
   _inherits(Oplog, EventEmitter);
@@ -100,18 +102,14 @@ var Oplog = (function (EventEmitter) {
         var self = this;
 
         // find out master server
-        var serverConfig = _.get(self.robeDb.db, "driver._native.serverConfig", {});
+        var masterDoc = self.robeDb.db._db.topology.isMasterDoc;
 
-        var masterServer = _.find(serverConfig.servers || [], function (s) {
-          return _.deepGet(s, "isMasterDoc.ismaster");
-        });
-
-        if (!masterServer) {
+        if (!masterDoc.ismaster) {
           throw new Error("No MASTER server found for oplog");
         }
 
-        self.databaseName = masterServer.db.databaseName;
-        self.hostPort = masterServer.host + ":" + masterServer.port;
+        self.databaseName = self.robeDb.db._db.s.databaseName;
+        self.hostPort = masterDoc.primary;
 
         debug("Resolved db: " + self.hostPort + "/" + self.databaseName);
       },
@@ -262,7 +260,7 @@ var Oplog = (function (EventEmitter) {
       value: function _onError(err) {
         debug("Cursor error: " + err.message);
 
-        this.emit("error", err);
+        this._emit("error", err);
       },
       writable: true,
       configurable: true
@@ -334,7 +332,36 @@ var Oplog = (function (EventEmitter) {
             return;
         }
 
-        this.emit([colName, opType], colName, opType, data.o, data.o2);
+        this._emit([colName, opType], colName, opType, data.o, data.o2);
+      },
+      writable: true,
+      configurable: true
+    },
+    onAny: {
+
+
+      /**
+       * Handle any event.
+       */
+      value: function onAny(cb) {
+        this._onAnyCallbacks.push(cb);
+      },
+      writable: true,
+      configurable: true
+    },
+    _emit: {
+
+      /**
+       * Emit event.
+       */
+      value: function _emit() {
+        var args = Array.prototype.slice.call(arguments);
+
+        this.emit.apply(this, args);
+
+        this._onAnyCallbacks.forEach(function (cb) {
+          cb.apply(args);
+        });
       },
       writable: true,
       configurable: true

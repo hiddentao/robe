@@ -163,7 +163,7 @@ Ouptut:
 
 **Schema validation**
 
-Schema definitions are as supported by [simple-mongo-schema](https://github.com/hiddentao/simple-mongo-schema). 
+Schema definitions are as supported by [simple-nosql-schema](https://github.com/hiddentao/simple-nosql-schema). 
 Inserts and updates trigger schema validation checks. Any keys not specified in the schema 
 get ignored during validation, i.e. a schema can be a partial definition of a document.
 

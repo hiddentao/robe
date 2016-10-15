@@ -27,6 +27,18 @@ var Robe = require('robe');
   '127.0.0.1/db-name?replicaSet=test12', 
   '127.2.3.23/db-name?replicaSet=test12'
 ]);
+</code></pre><p>If there is a connection error then the <code>Error</code> object thrown will 
+contain a reference to the error returned by the monk connection handler:</p>
+<pre><code class="language-javascript">try {
+  yield Robe.connect([
+    '127.0.0.1/db-name?replicaSet=test12', 
+    '127.2.3.23/db-name?replicaSet=test12'
+  ]);          
+} catch (err) {
+  console.log(err.message); /* Failed to connect to db */
+  // do something with the error object returned by the native driver.
+  console.log(err.root); 
+}
 </code></pre></section><section id="querying"><h2 id="querying">Querying</h2>
 <p>Imagine we have a sample collection - <strong>students</strong> - with the 
 following data:</p>

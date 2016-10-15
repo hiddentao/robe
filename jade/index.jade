@@ -84,6 +84,22 @@ html
             '127.2.3.23/db-name?replicaSet=test12'
           ]);
 
+        :markdown
+          If there is a connection error then the `Error` object thrown will 
+          contain a reference to the error returned by the monk connection handler:
+          
+        +code('javascript').
+          try {
+            yield Robe.connect([
+              '127.0.0.1/db-name?replicaSet=test12', 
+              '127.2.3.23/db-name?replicaSet=test12'
+            ]);          
+          } catch (err) {
+            console.log(err.message); /* Failed to connect to db */
+            // do something with the error object returned by the native driver.
+            console.log(err.root); 
+          }
+          
       section#querying
         :markdown
           ## Querying

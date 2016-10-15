@@ -38,6 +38,7 @@ test['basic'] = {
       throw new Error('Should not be here');
     } catch (err) {
       err.message.should.contain('Failed to connect to db');
+      err.root.should.be.defined;
     }
   },
 };

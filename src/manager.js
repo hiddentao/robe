@@ -49,7 +49,11 @@ class Manager {
 
       db = monk(url, opts, (err) => {
         if (err) {
-          reject(new Error(`Failed to connect to db: ${err.message}`));
+          const newErr = new Error(`Failed to connect to db`);
+          
+          newErr.root = err;
+          
+          reject(newErr);
         } else {
           let instance = new Database(db);
           

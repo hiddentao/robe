@@ -58,7 +58,11 @@ var Manager = (function () {
 
           db = monk(url, opts, function (err) {
             if (err) {
-              reject(new Error("Failed to connect to db: " + err.message));
+              var newErr = new Error("Failed to connect to db");
+
+              newErr.root = err;
+
+              reject(newErr);
             } else {
               var instance = new Database(db);
 

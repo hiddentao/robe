@@ -181,7 +181,7 @@ yield collection.update({_id: result._id}, {
   rawMode: true 
 });
 
-console.log( result instancoof Robe.Document ); // false
+console.log( result instanceof Robe.Document ); // false
 
 console.log( result );
 
@@ -200,7 +200,7 @@ you don&#39;t have to keep specifying it for every query:</p>
 
 var results = yield collection.findOne({  _id: 1 });
 
-console.log( result instancoof Robe.Document ); // false
+console.log( result instanceof Robe.Document ); // false
 </code></pre></section><section id="cursors"><h3 id="cursors-streaming-">Cursors (streaming)</h3>
 <p>Sometimes it&#39;s useful to be able to stream data from the database 
 one document at a time, especially if we expect the result set to 
